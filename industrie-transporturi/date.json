@@ -1,0 +1,1182 @@
+{
+  "meta": {
+    "titlu": "Industrializarea României interbelice — set de date verificat față de sursele accesibile",
+    "versiune": "0.4 (13 octombrie 2026)",
+    "an_start": 1920,
+    "an_sfarsit": 1938,
+    "avertisment": "„Verificat” înseamnă că valoarea a fost regăsită într-o sursă din bibliografie (cu tabelul sau articolul notat), NU că a fost confruntată cu Anuarul Statistic al României 1939/40 sau cu Axenciuc: acestea nu au putut fi consultate. Unele serii (oțel, drumuri, marea industrie 1936–1937) conțin puncte interpolate liniar, marcate „estimat”, doar ca să lege punctele reale; ele nu sunt date istorice. Seriile pentru care nu există puncte (cale ferată, chimie) au rămas goale, cu explicația în notă. Cifrele din sursele secundare trebuie confirmate în sursele primare înainte de predare.",
+    "legenda_incredere": {
+      "verificat": "Cifra a fost regăsită într-o sursă secundară sau o monografie accesată direct în proiect (Calcan, Zaman și Georgescu, Historia, Infofinanciar, Agerpres, AGIR, Wikipedia etc.), nu în Anuarele statistice primare, care nu au fost consultate. Se confirmă ulterior în Anuarul Statistic al României 1939/40 sau în Axenciuc.",
+      "derivat": "Calculată de noi dintr-o altă cifră a sursei (de exemplu barili → tone sau o pondere procentuală).",
+      "estimat": "Valoare nesigură: limită inferioară dată de sursă („peste X”), cifră cu an sau context neclar, ori valoare interpolată liniar între două puncte istorice (nu este o cifră de arhivă). Apare ca punct gol în grafic."
+    },
+    "conversii": { "barili_per_tona_titei": 7.3, "nota": "Valoare orientativă; depinde de densitatea țițeiului." },
+    "acoperire_serii": {
+      "petrol_extractie": "completă 1920–1938: Calcan (2005), tabelul 1",
+      "export_produse_petroliere": "1929–1936: Zaman și Georgescu (2018), citând Calcan și Axenciuc",
+      "otel_productie": "3 puncte din surse (1924, 1935, 1938) + 12 puncte interpolate „estimat” (1925–1934, 1936–1937)",
+      "udr_otel_productie": "3 puncte (1924, 1928, 1935) — doar Reșița, nu toată țara",
+      "intreprinderi_industriale": "5 puncte din surse (1932–1935, 1938) + 2 interpolate „estimat” (1936–1937); 1920–1931 lipsesc",
+      "muncitori_marea_industrie": "5 puncte din surse (1932–1935, 1938) + 2 interpolate „estimat” (1936–1937); 1920–1931 lipsesc",
+      "valoare_productie_marea_industrie": "2 puncte (1933, 1938)",
+      "putere_motoare_marea_industrie": "4 puncte (1930, 1933–1935)",
+      "textile_productie": "1 punct (1934), limită inferioară",
+      "chimie_productie": "goală: singura cifră găsită nu are an",
+      "cale_ferata_km": "goală: nicio serie anuală regăsită într-o sursă accesibilă",
+      "drumuri_km": "2 puncte din surse (1922, 1936) + 13 interpolate „estimat” (1923–1935); fără extrapolare 1937–1938",
+      "port_constanta_trafic": "1 punct (1938)",
+      "port_constanta_export": "4 puncte (1926, 1929, 1931, 1938)"
+    }
+  },
+  "editorial": {
+    "titlu_ziar": "CURIERUL INDUSTRIAL ROMÂN",
+    "subtitlu": "Ediție Specială",
+    "linie": ["București, Octombrie 1938", "Industria și Transporturile", "Prețul: 5 Lei"],
+    "nota_pastisa": "Publicație imaginară, creată de elevi în stilul presei interbelice. Cifrele din articole sunt cele din secțiunea „Surse și date”.",
+    "articole": [
+      {
+        "titlu": "Aurul negru",
+        "text": "Extracția de țiței a României a crescut de la 1,03 milioane de tone în 1920 la maximul interbelic de 8,78 milioane în 1936, apoi a coborât la 6,61 milioane în 1938. În 1939, cu 6,24 milioane de tone, țara rămânea al doilea producător european după Uniunea Sovietică, iar aproape două treimi din producție mergeau la export.",
+        "surse": ["calcan2005", "evz2025"]
+      },
+      {
+        "titlu": "Pe șine",
+        "text": "La 21 septembrie 1920, rețeaua din Transilvania și Banat a trecut oficial sub administrația C.F.R., iar rețeaua feroviară a devenit unitară. Între războaie s-a dublat linia Constanța–Cernavodă (1931) și Adjud–Tecuci (1933). La electrificare sursele se contrazic: Turnock (2004) vorbește doar de studii și de un proiect de electrificare amânat în 1936–1938, în timp ce raportul FES (2021) numără 58 km electrificați în 1938.",
+        "surse": ["berinde2013", "historia_cf", "turnock2004", "fes2021"]
+      },
+      {
+        "titlu": "La Marea Neagră",
+        "text": "În 1938, portul Constanța a operat 4,14 milioane de tone de mărfuri, din care 3,95 milioane erau destinate exportului. Tot în 1938 au sosit la Constanța cele două motonave de pasageri ale Serviciului Maritim Român, „Transilvania” și „Basarabia”, construite la Copenhaga.",
+        "surse": ["agerpres2019a", "adevarul_smr"]
+      },
+      {
+        "titlu": "Bilanțul marii industrii",
+        "text": "Marea industrie prelucrătoare număra 3.487 de unități în 1933 și 3.767 în 1938, iar numărul muncitorilor a crescut de la 184.777 la 289.117. Valoarea producției a urcat de la 34,9 la 69,2 miliarde de lei (cifre în lei curenți, fără ajustare la inflație).",
+        "surse": ["historia_1934", "historia_marea_ind"]
+      }
+    ]
+  },
+  "serii": {
+    "petrol_extractie": {
+      "titlu": "Extracția de țiței",
+      "unitate": "milioane tone",
+      "domeniu": "industrie",
+      "sectiuni": ["A", "B"],
+      "surse": ["calcan2005", "capital2022", "gardescu1933", "aime1930"],
+      "nota": "Serie completă 1920–1938 din tabelul 1 al studiului lui Gh. Calcan (2005), în tone, aici convertite în milioane de tone. Maximul interbelic: 8.784.000 t în 1936. De confirmat în Anuarul Statistic.",
+      "date": [
+        { "an": 1920, "valoare": 1.034, "incredere": "verificat", "nota": "În PDF-ul sursei rândurile 1919–1921 sunt decalate între coloane; reverificați valoarea pe pagina tabelului 1." },
+        { "an": 1921, "valoare": 1.163, "incredere": "verificat", "nota": "În PDF-ul sursei rândurile 1919–1921 sunt decalate între coloane; reverificați valoarea pe pagina tabelului 1." },
+        { "an": 1922, "valoare": 1.366, "incredere": "verificat" },
+        { "an": 1923, "valoare": 1.516, "incredere": "verificat" },
+        { "an": 1924, "valoare": 1.851, "incredere": "verificat", "nota": "Încă sub nivelul din 1913 (1.885.619 t); îl depășește clar în 1925." },
+        { "an": 1925, "valoare": 2.317, "incredere": "verificat", "nota": "Prima depășire clară a nivelului antebelic din 1913 (1.885.619 t)." },
+        { "an": 1926, "valoare": 3.241, "incredere": "verificat" },
+        { "an": 1927, "valoare": 3.661, "incredere": "verificat" },
+        { "an": 1928, "valoare": 4.269, "incredere": "verificat", "nota": "Capital.ro dă „peste 4,28 milioane tone” (diferență sub 0,3%)." },
+        { "an": 1929, "valoare": 4.827, "incredere": "verificat", "nota": "Estimarea AIME din 1930 (35.556.000 barili ≈ 4,87 Mt) este apropiată de valoarea din tabel." },
+        { "an": 1930, "valoare": 5.744, "incredere": "verificat" },
+        { "an": 1931, "valoare": 6.657, "incredere": "verificat" },
+        { "an": 1932, "valoare": 7.35, "incredere": "verificat", "nota": "Gardescu (1933): 52.560.000 barili ≈ 7,2 Mt la 7,3 barili/tonă — diferență de circa 2% din cauza conversiei." },
+        { "an": 1933, "valoare": 7.387, "incredere": "verificat", "nota": "Capital.ro dă „peste 7,37 milioane tone”. Stabilizare în plină criză economică." },
+        { "an": 1934, "valoare": 8.473, "incredere": "verificat" },
+        { "an": 1935, "valoare": 8.394, "incredere": "verificat" },
+        { "an": 1936, "valoare": 8.784, "incredere": "verificat", "nota": "8.784.000 t — maximul interbelic." },
+        { "an": 1937, "valoare": 7.15, "incredere": "verificat", "nota": "Scădere față de 1936 (−18,6%)." },
+        { "an": 1938, "valoare": 6.61, "incredere": "verificat", "nota": "6.610.000 t (alte surse rotunjesc la 6,6 Mt)." }
+      ]
+    },
+    "otel_productie": {
+      "titlu": "Producția de oțel",
+      "unitate": "mii tone",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["infofinanciar_udr", "historia_metal_criza", "scanteia1975"],
+      "de_completat": true,
+      "nota": "Doar 3 puncte provin din surse: 1924 (87 mii t, Reșița = 100% din țară), 1935 (213,086 mii t) și 1938 (284 mii t, singura sursă fiind presa din 1975, deci „estimat”). Anii dintre ele sunt interpolați liniar și marcați „estimat” (cerc gol în grafic), doar ca linia să fie continuă: nu sunt cifre de arhivă. Interpolarea nu poate arăta criza din 1929–1933 și, în 1928, rămâne sub producția Reșiței singure (144 mii t). Seria națională anuală trebuie completată din Anuarul Statistic al României 1939/40 sau din Axenciuc, pe care echipa nu le-a putut consulta.",
+      "date": [
+        { "an": 1924, "valoare": 87, "incredere": "verificat", "nota": "UDR a produs 87.000 t, adică 100% din oțelul țării (Infofinanciar, 2023)." },
+        { "an": 1925, "valoare": 98.5, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        {
+          "an": 1926,
+          "valoare": 109.9,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935). Control: UDR a produs 100.000 t, adică 91% din țară, deci circa 110 mii t la nivel național."
+        },
+        { "an": 1927, "valoare": 121.4, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        {
+          "an": 1928,
+          "valoare": 132.8,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935). Atenție: UDR singură a produs 144.000 t în 1928 (Infofinanciar), deci valoarea națională reală era cel puțin 144 mii t; interpolarea o subestimează."
+        },
+        { "an": 1929, "valoare": 144.3, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1930, "valoare": 155.8, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1931, "valoare": 167.2, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1932, "valoare": 178.7, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1933, "valoare": 190.2, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1934, "valoare": 201.6, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1935, "valoare": 213.086, "incredere": "verificat", "nota": "Livrări de oțel după anuarul din 1936, citat de Historia. Concordă cu UDR: 157.000 t = 76% din producție ⇒ circa 207.000 t." },
+        {
+          "an": 1936,
+          "valoare": 236.7,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1935 → 1938). Punctul din 1938 provine dintr-o sursă de propagandă din 1975."
+        },
+        {
+          "an": 1937,
+          "valoare": 260.4,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1935 → 1938). Punctul din 1938 provine dintr-o sursă de propagandă din 1975."
+        },
+        {
+          "an": 1938,
+          "valoare": 284,
+          "incredere": "estimat",
+          "nota": "Singura sursă este presa comunistă din 1975 (propagandistică), de aceea punctul e „estimat”: confirmați-l în Anuarul Statistic. UDR depășea singură 200.000 t."
+        }
+      ]
+    },
+    "udr_otel_productie": {
+      "titlu": "Oțel produs de UDR Reșița",
+      "unitate": "mii tone",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["infofinanciar_udr"],
+      "nota": "Doar producția uzinelor de la Reșița, nu a întregii țări. În 1926 UDR a depășit 100.000 t (91% din țară), iar în 1938 a depășit 200.000 t. Cifrele vin dintr-un articol de presă care citează enciclopediaromaniei.ro.",
+      "date": [
+        { "an": 1924, "valoare": 87, "incredere": "verificat", "nota": "100% din producția țării." },
+        { "an": 1928, "valoare": 144, "incredere": "verificat" },
+        { "an": 1935, "valoare": 157, "incredere": "verificat", "nota": "76% din producția țării." }
+      ]
+    },
+    "intreprinderi_industriale": {
+      "titlu": "Marea industrie prelucrătoare (unități)",
+      "unitate": "număr unități",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1935", "historia_1934", "historia_marea_ind"],
+      "nota": "Cifre pentru marea industrie prelucrătoare au fost găsite doar pentru 1932–1935 și 1938 (articole Historia care citează anuarele din 1934 și 1936 și „o statistică a timpului”). Pentru 1920–1931 nu am găsit cifre, deci anii respectivi nu sunt incluși în serie (nu am completat cu valori fictive). 1936 și 1937 sunt interpolate liniar între 1935 și 1938 și marcate „estimat”. Punctul din 1935 (3.613) este și el „estimat”: formularea din sursă este ambiguă.",
+      "date": [
+        { "an": 1932, "valoare": 3557, "incredere": "verificat", "nota": "Sursa spune „3.557 de capacități de producție”." },
+        { "an": 1933, "valoare": 3487, "incredere": "verificat" },
+        { "an": 1934, "valoare": 3510, "incredere": "verificat" },
+        { "an": 1935, "valoare": 3613, "incredere": "estimat", "nota": "Formularea din sursă este ambiguă („centre industriale”): poate fi numărul total de unități." },
+        { "an": 1936, "valoare": 3664, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1937, "valoare": 3716, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1938, "valoare": 3767, "incredere": "verificat", "nota": "3.767 de „uzine mari din industria transformatoare”." }
+      ]
+    },
+    "muncitori_marea_industrie": {
+      "titlu": "Muncitori în marea industrie",
+      "unitate": "muncitori",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1935", "historia_1934", "historia_marea_ind"],
+      "nota": "Cifre pentru marea industrie prelucrătoare au fost găsite doar pentru 1932–1935 și 1938 (articole Historia care citează anuarele din 1934 și 1936 și „o statistică a timpului”). Pentru 1920–1931 nu am găsit cifre, deci anii respectivi nu sunt incluși în serie (nu am completat cu valori fictive). 1936 și 1937 sunt interpolate liniar între 1935 și 1938 și marcate „estimat”. Pentru 1934, două articole Historia dau 208.240 și 208.340; am păstrat 208.240 (apare de două ori). Cifra din 1935 este „estimat”: sursa nu o leagă explicit de acest an.",
+      "date": [
+        { "an": 1932, "valoare": 152198, "incredere": "verificat" },
+        { "an": 1933, "valoare": 184777, "incredere": "verificat" },
+        { "an": 1934, "valoare": 208240, "incredere": "verificat" },
+        { "an": 1935, "valoare": 230797, "incredere": "estimat", "nota": "Sursa dă cifra în paragraful despre 1935, dar nu leagă explicit anul de ea." },
+        { "an": 1936, "valoare": 250237, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1937, "valoare": 269677, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1938, "valoare": 289117, "incredere": "verificat" }
+      ]
+    },
+    "valoare_productie_marea_industrie": {
+      "titlu": "Valoarea producției marii industrii",
+      "unitate": "miliarde lei (lei curenți)",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_marea_ind"],
+      "nota": "Lei curenți, fără ajustare la inflație. Alte articole dau 35 miliarde pentru 1934 și 65 miliarde pentru 1938 (Infofinanciar): cifrele din surse secundare diferă, deci se confirmă în anuar.",
+      "date": [
+        { "an": 1933, "valoare": 34.941, "incredere": "verificat", "nota": "34.940.747.000 lei." },
+        { "an": 1938, "valoare": 69.207, "incredere": "verificat", "nota": "69.206.738.000 lei." }
+      ]
+    },
+    "putere_motoare_marea_industrie": {
+      "titlu": "Puterea motoarelor din marea industrie",
+      "unitate": "mii CP",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1935", "historia_1934"],
+      "nota": "Puterea totală a motoarelor din fabricile mari, în mii de cai-putere (CP): un indicator al înzestrării tehnice. Cifrele vin din articolele Historia despre 1934 și 1935.",
+      "date": [
+        { "an": 1930, "valoare": 492.715, "incredere": "verificat" },
+        { "an": 1933, "valoare": 529.868, "incredere": "verificat" },
+        { "an": 1934, "valoare": 558.468, "incredere": "verificat" },
+        { "an": 1935, "valoare": 582.846, "incredere": "verificat" }
+      ]
+    },
+    "textile_productie": {
+      "titlu": "Muncitori în industria textilă",
+      "unitate": "muncitori",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1934"],
+      "de_completat": true,
+      "nota": "Avem un singur punct, ca limită inferioară: articolul Historia despre 1934 spune că textilele erau ramura cu cei mai mulți muncitori din marea industrie, „peste 50.000 de posturi”, fără să dea anul explicit. Seria se completează din Anuarul Statistic / Axenciuc.",
+      "date": [
+        { "an": 1934, "valoare": 50000, "incredere": "estimat", "nota": "Limită inferioară: sursa spune „peste 50.000”; ramura cu cei mai mulți muncitori, urmată de metalurgie (37.796)." }
+      ]
+    },
+    "chimie_productie": {
+      "titlu": "Fabrici chimice active",
+      "unitate": "unități",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_ind_interbelica"],
+      "de_completat": true,
+      "nota": "Seria rămâne goală: documentaristul echipei nu a putut accesa o serie completă (Anuarul Statistic nu a fost consultat). Singura cifră găsită, „254 de întreprinderi cu 20.282 de angajați” într-un articol Historia, nu are an precis (articolul adaugă că „în anul următor” angajații erau 22.282), deci nu poate intra într-un grafic. De completat din Anuarul Statistic al României 1935–1936 sau 1939/40.",
+      "date": []
+    },
+    "cale_ferata_km": {
+      "titlu": "Rețeaua de căi ferate în exploatare",
+      "unitate": "km",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["berinde2013", "turnock2004", "historia_cf", "fes2021"],
+      "de_completat": true,
+      "nota": "Seria rămâne goală: documentaristul echipei nu a putut accesa o serie completă (Anuarul Statistic al României 1939/40 și Axenciuc nu au fost consultate), iar nicio sursă accesibilă nu dă lungimea totală a rețelei pentru ani interbelici. Nu am introdus cifre orientative fără sursă. Repere sigure: rețeaua devine unitară la 21 septembrie 1920; linie dublă Constanța–Cernavodă din 1931 și Adjud–Tecuci din 1933; 360 km de linie dublă în 1938 (FES, 2021). Despre electrificare sursele se contrazic: 58 km în 1938 după FES (2021), doar proiecte amânate în 1936–1938 după Turnock (2004). De completat din capitolul de transporturi al Anuarului.",
+      "date": []
+    },
+    "drumuri_km": {
+      "titlu": "Rețeaua de drumuri",
+      "unitate": "km",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["cotidianul"],
+      "nota": "Doar două puncte provin din sursă: 1922 (102.777 km) și 1936 (108.291 km). Anii dintre ele sunt interpolați liniar și marcați „estimat” (cerc gol); nu sunt date de arhivă. Pentru 1937–1938 nu avem nicio cifră și nu extrapolăm.",
+      "date": [
+        { "an": 1922, "valoare": 102777, "incredere": "verificat" },
+        { "an": 1923, "valoare": 103171, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1924, "valoare": 103565, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1925, "valoare": 103959, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1926, "valoare": 104352, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1927, "valoare": 104746, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1928, "valoare": 105140, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1929, "valoare": 105534, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1930, "valoare": 105928, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1931, "valoare": 106322, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1932, "valoare": 106716, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1933, "valoare": 107109, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1934, "valoare": 107503, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1935, "valoare": 107897, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1936, "valoare": 108291, "incredere": "verificat" }
+      ]
+    },
+    "port_constanta_trafic": {
+      "titlu": "Traficul portului Constanța",
+      "unitate": "mii tone",
+      "domeniu": "transport",
+      "sectiuni": ["A", "B"],
+      "surse": ["agerpres2019a"],
+      "nota": "Trafic total de mărfuri. În 1938, 3.946,357 mii t (95%) erau mărfuri de export, în principal țiței, material lemnos și produse agricole. Pentru alți ani avem doar exporturile (seria următoare).",
+      "date": [
+        { "an": 1938, "valoare": 4138.677, "incredere": "verificat" }
+      ]
+    },
+    "port_constanta_export": {
+      "titlu": "Exporturile prin portul Constanța",
+      "unitate": "mii tone",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["radioconstanta2026", "ziuaconstanta2018", "agerpres2019a"],
+      "nota": "În 1939 exporturile au fost de 3.252,228 mii t (în afara intervalului graficului). Importurile din 1926: 234,128 mii t.",
+      "date": [
+        { "an": 1926, "valoare": 1631.485, "incredere": "verificat" },
+        { "an": 1929, "valoare": 2606.298, "incredere": "verificat" },
+        { "an": 1931, "valoare": 4500, "incredere": "estimat", "nota": "Sursa spune „aproximativ 4,5 milioane de tone”." },
+        { "an": 1938, "valoare": 3946.357, "incredere": "verificat", "nota": "Din traficul total de 4.138,677 mii t (Agerpres, 2019)." }
+      ]
+    },
+    "export_produse_petroliere": {
+      "titlu": "Exportul de petrol și produse petroliere",
+      "unitate": "milioane tone",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["zaman2018"],
+      "nota": "Cantitatea exportată, după Zaman și Georgescu (2018), tabelul 5 (calcule pe baza lui Calcan 1997, Georgescu-Roegen 1979 și Axenciuc 2000). Prețul de export a scăzut (indice 100 în 1929 → 40,4 în 1931), dar cantitatea a crescut. Agerpres (2019) dă 5.492.646 t pentru 1935, o cifră diferită, rămasă neclarificată.",
+      "date": [
+        { "an": 1929, "valoare": 2.85, "incredere": "verificat" },
+        { "an": 1930, "valoare": 3.87, "incredere": "verificat" },
+        { "an": 1931, "valoare": 4.67, "incredere": "verificat" },
+        { "an": 1932, "valoare": 5.17, "incredere": "verificat" },
+        { "an": 1933, "valoare": 5.88, "incredere": "verificat" },
+        { "an": 1934, "valoare": 6.55, "incredere": "verificat" },
+        { "an": 1935, "valoare": 6.61, "incredere": "verificat" },
+        { "an": 1936, "valoare": 6.88, "incredere": "verificat" }
+      ]
+    }
+  },
+  "repere": [
+    {
+      "an": 1920,
+      "text": "La 21 septembrie 1920, rețeaua feroviară din Transilvania și Banat trece oficial sub administrația C.F.R.: rețeaua feroviară a României devine unitară.",
+      "sursa": "berinde2013"
+    },
+    {
+      "an": 1920,
+      "text": "Decretul regal nr. 2455 din 8 iunie 1920 reorganizează bunurile din România ale societății StEG ca societate anonimă „Uzinele de Fier și Domeniile Reșița” (capital: 125 de milioane de lei).",
+      "sursa": "infofinanciar_udr"
+    },
+    { "an": 1921, "text": "Fabricile Weitzer și MARTA din Arad, rămase în România după Trianon, fuzionează în societatea Astra (automobile și vagoane).", "sursa": "wiki_astra" },
+    { "an": 1921, "text": "Nicolae Malaxa deschide la București un atelier de reparat locomotive și vagoane; între 1923 și 1927 construiește o uzină lângă Halta Titan.", "sursa": "agir_malaxa" },
+    {
+      "an": 1924,
+      "text": "Legea minelor (Monitorul Oficial din 4 iulie 1924), adoptată de guvernul liberal Brătianu, condiționează concesiunile de societăți anonime românești cu cel puțin 60% capital românesc; a fost modificată prin decretul-lege nr. 971 din 1929.",
+      "sursa": "cotidianul_minelor"
+    },
+    { "an": 1925, "text": "Extracția de țiței (2,32 Mt) depășește clar nivelul din 1913 (1,89 Mt); în 1924 era încă sub el (1,85 Mt).", "sursa": "calcan2005" },
+    { "an": 1925, "text": "Se înființează la Brașov Industria Aeronautică Română (IAR), cu sprijinul statului.", "sursa": "wiki_iar" },
+    {
+      "an": 1927,
+      "text": "Pe baza legii din Monitorul Oficial nr. 57 din 13 martie 1927, care încuraja industria națională, Malaxa încheie cu CFR un contract pentru locomotive de concepție românească.",
+      "sursa": "agir_malaxa"
+    },
+    {
+      "an": 1929,
+      "text": "Marea criză economică: prețul de export al țițeiului scade (indice 100 în 1929 → 40,4 în 1931), dar cantitatea exportată crește de la 2,85 la 4,67 milioane de tone.",
+      "sursa": "zaman2018"
+    },
+    { "an": 1933, "text": "În plină criză, marea industrie are 3.487 de unități și 184.777 de muncitori; în 1938 va avea 3.767 de unități și 289.117 muncitori.", "sursa": "historia_1934" },
+    { "an": 1933, "text": "Uzina Malaxa livrează locomotiva cu numărul 100 (în 1935 atinge maximul: 93 de locomotive într-un an).", "sursa": "agir_malaxa" },
+    { "an": 1935, "text": "Rafinăriile prelucrează maximul interbelic de țiței: 8,13 milioane de tone, aproape 97% din extracție.", "sursa": "calcan2005" },
+    { "an": 1936, "text": "Maximul interbelic al extracției de țiței (8,78 Mt); România este al patrulea producător mondial.", "sursa": "alba24_2026" },
+    { "an": 1937, "text": "La uzina Malaxa intră în funcțiune o linie de fabricare a munițiilor (1937–1938).", "sursa": "romania_insider" },
+    { "an": 1937, "text": "Wikipedia indică 1937 drept an al primului zbor pentru bombardierul ușor IAR 37, construit la Brașov în 50 de exemplare.", "sursa": "wiki_iar" },
+    { "an": 1938, "text": "Portul Constanța operează 4,14 milioane tone de mărfuri, aproape toate pentru export (3,95 Mt).", "sursa": "agerpres2019a" },
+    {
+      "an": 1938,
+      "text": "Motonavele de pasageri „Transilvania” (26 iunie) și „Basarabia” (26 septembrie), construite la Copenhaga, sosesc la Constanța pentru Serviciul Maritim Român.",
+      "sursa": "adevarul_smr"
+    },
+    {
+      "an": 1938,
+      "text": "Doar 58 km de cale ferată sunt electrificați și 360 km au linie dublă (sursa: raportul FES, 2021; Turnock, 2004, vorbește doar de proiecte de electrificare).",
+      "sursa": "fes2021"
+    }
+  ],
+  "flux": {
+    "avertisment": "Schemă orientativă: traseele și proporțiile nu reproduc exact conductele și liniile ferate din epocă.",
+    "cadru": { "lonMin": 25.3, "lonMax": 29.2, "latMin": 43.7, "latMax": 45.3 },
+    "litoral_lon": 28.68,
+    "dunarea": [[25.3, 43.7], [25.97, 43.88], [26.64, 44.05], [27.33, 44.2], [28.03, 44.33], [27.94, 44.69], [27.97, 45.27]],
+    "noduri": [
+      { "id": "moreni", "nume": "Moreni", "tip": "camp", "lon": 25.65, "lat": 44.99, "eticheta": "st" },
+      { "id": "campina", "nume": "Câmpina", "tip": "camp", "lon": 25.74, "lat": 45.13, "eticheta": "sus" },
+      { "id": "ploiesti", "nume": "Ploiești", "tip": "rafinarie", "lon": 26.03, "lat": 44.94, "eticheta": "dr" },
+      { "id": "bucuresti", "nume": "București", "tip": "oras", "lon": 26.1, "lat": 44.43, "eticheta": "dr" },
+      { "id": "giurgiu", "nume": "Giurgiu", "tip": "port", "lon": 25.97, "lat": 43.9, "eticheta": "dr" },
+      { "id": "cernavoda", "nume": "Cernavodă", "tip": "nod", "lon": 28.03, "lat": 44.33, "eticheta": "sus" },
+      { "id": "constanta", "nume": "Constanța", "tip": "port", "lon": 28.65, "lat": 44.18, "eticheta": "jos" }
+    ],
+    "rute": [
+      {
+        "id": "moreni_ploiesti",
+        "nume": "Conductă Moreni → Ploiești",
+        "mod": "conducta",
+        "traseu": ["moreni", "ploiesti"],
+        "pondere": 0.5
+      },
+      {
+        "id": "campina_ploiesti",
+        "nume": "Conductă Câmpina → Ploiești",
+        "mod": "conducta",
+        "traseu": ["campina", "ploiesti"],
+        "pondere": 0.5
+      },
+      {
+        "id": "ploiesti_giurgiu",
+        "nume": "Conductă Ploiești → Giurgiu",
+        "mod": "conducta",
+        "traseu": ["ploiesti", "giurgiu"],
+        "pondere": 0.35
+      },
+      {
+        "id": "ploiesti_constanta",
+        "nume": "Conductă Ploiești → Constanța",
+        "mod": "conducta",
+        "traseu": ["ploiesti", "constanta"],
+        "pondere": 0.6
+      },
+      {
+        "id": "ploiesti_bucuresti",
+        "nume": "Tren cisterne Ploiești → București",
+        "mod": "tren",
+        "traseu": ["ploiesti", "bucuresti"],
+        "pondere": 0.5
+      },
+      {
+        "id": "bucuresti_constanta",
+        "nume": "Tren cisterne București → Constanța",
+        "mod": "tren",
+        "traseu": ["bucuresti", "cernavoda", "constanta"],
+        "pondere": 0.6
+      }
+    ]
+  },
+  "harta": {
+    "avertisment": "Contur schematic al României Întregite (granițele din jurul anului 1930): include Basarabia, Bucovina de Nord și Cadrilaterul (Dobrogea de Sud). De înlocuit cu un GeoJSON real.",
+    "contur_1930": [
+      [22.4, 47.9], [23.05, 48.05], [23.9, 48.0], [24.6, 47.95], [25.15, 48.3],
+      [25.8, 48.6], [26.5, 48.45], [27.8, 48.4], [28.3, 48.15], [28.95, 47.75],
+      [29.15, 47.25], [29.55, 46.8], [29.95, 46.55], [30.3, 46.25], [30.45, 46.05],
+      [30.1, 45.75], [29.7, 45.35], [29.75, 45.15], [29.65, 44.8], [28.95, 44.55],
+      [28.68, 44.2], [28.6, 43.8], [28.17, 43.4], [28.05, 43.33], [27.2, 43.7],
+      [26.4, 43.95], [25.97, 43.88], [24.9, 43.72], [24.0, 43.7], [23.1, 43.85],
+      [22.9, 44.0], [22.55, 44.45], [22.4, 44.7], [21.6, 44.8], [21.4, 44.85],
+      [21.2, 45.15], [20.8, 45.4], [20.55, 45.8], [20.26, 46.12], [20.75, 46.25],
+      [21.1, 46.3], [21.45, 46.35], [21.55, 46.7], [21.8, 46.95], [22.05, 47.2],
+      [22.1, 47.5]
+    ],
+    "regiuni": [
+      { "nume": "Transilvania", "lon": 24.0, "lat": 46.5 },
+      { "nume": "Crișana", "lon": 22.3, "lat": 46.8 },
+      { "nume": "Banat", "lon": 21.5, "lat": 45.6 },
+      { "nume": "Oltenia", "lon": 23.6, "lat": 44.65 },
+      { "nume": "Muntenia", "lon": 26.75, "lat": 44.65 },
+      { "nume": "Moldova", "lon": 27.1, "lat": 46.9 },
+      { "nume": "Basarabia", "lon": 28.55, "lat": 46.65 },
+      { "nume": "Bucovina", "lon": 25.9, "lat": 47.95 },
+      { "nume": "Dobrogea", "lon": 28.35, "lat": 44.85 }
+    ],
+    "ramuri": [
+      { "id": "petrol", "nume": "Petrol (extracție și rafinare)" },
+      { "id": "siderurgie", "nume": "Siderurgie și metalurgie" },
+      { "id": "constructii_masini", "nume": "Construcții de mașini" },
+      { "id": "material_rulant", "nume": "Locomotive și vagoane" },
+      { "id": "aeronautica", "nume": "Industria aeronautică" },
+      { "id": "port", "nume": "Port și export" }
+    ],
+    "centre": [
+      {
+        "id": "bucuresti",
+        "nume": "București",
+        "firma": "Uzinele Malaxa",
+        "regiune": "Muntenia",
+        "rol": "Metalurgie și construcții de mașini",
+        "ramuri": ["siderurgie", "constructii_masini", "material_rulant"],
+        "lon": 26.1,
+        "lat": 44.43,
+        "eticheta": "dr",
+        "fapte": [
+          {
+            "text": "Nicolae Malaxa (1884–1965) a deschis în 1921 un atelier de reparat locomotive și vagoane; între 1923 și 1927 a construit o uzină lângă Halta Titan.",
+            "incredere": "verificat",
+            "sursa": "agir_malaxa"
+          },
+          {
+            "text": "Legea din Monitorul Oficial nr. 57 din 13 martie 1927, care încuraja dezvoltarea industriei naționale, i-a adus un contract cu CFR pentru locomotive de concepție românească. Uzina a fost utilată cu 82 de mașini-unelte cumpărate din Germania și a angajat 180 de muncitori germani calificați.",
+            "incredere": "verificat",
+            "sursa": "agir_malaxa"
+          },
+          {
+            "text": "În 1933, în plină criză economică, uzina a livrat locomotiva cu numărul 100; în 1935 a atins maximul de 93 de locomotive într-un an. Prima locomotivă diesel de concepție românească a fost proiectată în 1936, iar în 1938 CFR a primit un lot de 28 de astfel de locomotive.",
+            "incredere": "verificat",
+            "sursa": "agir_malaxa"
+          },
+          { "text": "În 1937–1938 a intrat în funcțiune în uzină o linie de fabricare a munițiilor.", "incredere": "verificat", "sursa": "romania_insider" },
+          { "text": "Potrivit mai multor istorici, Malaxa a deținut acțiuni și la societatea Astra Arad (mărimea participației nu este dată).", "incredere": "verificat", "sursa": "infofinanciar_perle" },
+          {
+            "text": "Keith Hitchins estimează că Bucureștiul producea circa 17% din veniturile industriale ale țării, sau 22% dacă se adaugă întreprinderile aflate pe o rază de 30 km.",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_perle"
+          }
+        ],
+        "statistici": [
+          { "eticheta": "Fabrici cu peste 500 de muncitori în București", "valoare": 38, "unitate": "fabrici", "an": "1938", "incredere": "verificat", "sursa": "historia_dezv_ind" },
+          { "eticheta": "Muncitori în aceste fabrici", "valoare_text": "circa 77.000", "an": "1938", "incredere": "verificat", "sursa": "historia_dezv_ind" },
+          { "eticheta": "Locomotive livrate de Malaxa (maximul)", "valoare": 93, "unitate": "locomotive", "an": "1935", "incredere": "verificat", "sursa": "agir_malaxa" },
+          { "eticheta": "Locomotive diesel livrate CFR într-un singur lot", "valoare": 28, "unitate": "locomotive", "an": "1938", "incredere": "verificat", "sursa": "agir_malaxa" },
+          {
+            "eticheta": "Ponderea Capitalei în veniturile industriale (după Hitchins)",
+            "valoare_text": "17% (22% cu împrejurimile)",
+            "an": "interbelic",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_perle"
+          }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "resita",
+        "nume": "Reșița",
+        "firma": "Uzinele de Fier și Domeniile Reșița (UDR)",
+        "regiune": "Banat",
+        "rol": "Siderurgie și construcții de locomotive",
+        "ramuri": ["siderurgie", "constructii_masini", "material_rulant"],
+        "lon": 21.89,
+        "lat": 45.3,
+        "eticheta": "dr",
+        "fapte": [
+          { "text": "Din 1855, uzinele din Reșița au făcut parte din consorțiul internațional StEG.", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          {
+            "text": "Decretul regal nr. 2455 din 8 iunie 1920 a transformat bunurile StEG din România în societatea anonimă „Uzinele de Fier și Domeniile Reșița”, cu capital de 125 de milioane de lei. Din prima emisiune de 150.000 de acțiuni a câte 500 de lei, 148.000 au rămas la StEG.",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_udr"
+          },
+          {
+            "text": "Cele 148.000 de acțiuni din 150.000 rămase la StEG arată că 1920 a fost o transformare a societății, nu o trecere în proprietatea statului; naționalizarea a venit abia în 1948.",
+            "incredere": "derivat",
+            "surse": ["infofinanciar_udr", "wiki_resita"]
+          },
+          {
+            "text": "În 1939, UDR asigura 100% din producția internă de furnale înalte, 80% din oțelul țării și 50% din locomotivele cumpărate de CFR; avea participații la peste 20 de societăți din România, iar Max Auschnitt a fost numit administrator al uzinelor.",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_udr"
+          },
+          { "text": "Din anii 1920, uzinele aveau o fabrică de locomotive cu capacitate de 100 de unități pe an.", "incredere": "verificat", "sursa": "wiki_resita" }
+        ],
+        "statistici": [
+          { "eticheta": "Oțel produs de UDR (100% din țară)", "valoare": 87000, "unitate": "tone", "an": "1924", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR (91% din țară)", "valoare": 100000, "unitate": "tone", "an": "1926", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR", "valoare": 144000, "unitate": "tone", "an": "1928", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR (76% din țară)", "valoare": 157000, "unitate": "tone", "an": "1935", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR", "valoare_text": "peste 200.000 t", "an": "1938", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Angajați UDR", "valoare": 7000, "unitate": "angajați", "an": "1925", "incredere": "verificat", "sursa": "infofinanciar_udr" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "brasov",
+        "nume": "Brașov",
+        "firma": "IAR – Industria Aeronautică Română",
+        "regiune": "Transilvania",
+        "rol": "Industria aeronautică",
+        "ramuri": ["aeronautica", "constructii_masini"],
+        "lon": 25.6,
+        "lat": 45.65,
+        "eticheta": "dr",
+        "fapte": [
+          { "text": "IAR a fost înființată în 1925 la Brașov, cu sprijinul statului.", "incredere": "verificat", "sursa": "wiki_iar" },
+          {
+            "text": "Primele avioane au fost construite sub licență: Potez 25 (217 exemplare), Morane-Saulnier MS.35 (30), Fleet 10G (95) și, din 1936, vânătorul IAR P.11F (95).",
+            "incredere": "verificat",
+            "sursa": "wiki_iar"
+          },
+          {
+            "text": "Uzina a construit și modele proiectate în țară, între care cele ale lui Elie Carafoli de la începutul anilor ’30: IAR 14 (21 de exemplare, 1933), IAR 27 (peste 200), bombardierele ușoare IAR 37 (50), IAR 38 (75) și IAR 39 (95) și IAR 79 (72). Vânătorul IAR 80 a zburat în 1939 (250 de exemplare).",
+            "incredere": "verificat",
+            "sursa": "wiki_iar"
+          },
+          {
+            "text": "La recensământul din 1930, cele trei fabrici de avioane ale țării aveau 989 de angajați, iar cea mai mare, de la Brașov, 895 de muncitori și personal de conducere.",
+            "incredere": "verificat",
+            "sursa": "historia_metal1930"
+          }
+        ],
+        "statistici": [
+          { "eticheta": "Angajați la fabrica de avioane de la Brașov", "valoare": 895, "unitate": "angajați", "an": "1930", "incredere": "verificat", "sursa": "historia_metal1930" },
+          { "eticheta": "Angajați în cele 3 fabrici de avioane din țară", "valoare": 989, "unitate": "angajați", "an": "1930", "incredere": "verificat", "sursa": "historia_metal1930" },
+          { "eticheta": "Potez 25 construite sub licență", "valoare": 217, "unitate": "avioane", "an": "interbelic", "incredere": "verificat", "sursa": "wiki_iar" },
+          { "eticheta": "IAR 39 construite", "valoare": 95, "unitate": "avioane", "an": "interbelic", "incredere": "verificat", "sursa": "wiki_iar" },
+          { "eticheta": "IAR 27 construite", "valoare_text": "peste 200", "an": "interbelic", "incredere": "estimat", "sursa": "wiki_iar" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "arad",
+        "nume": "Arad",
+        "firma": "Astra Arad",
+        "regiune": "Crișana",
+        "rol": "Vagoane de cale ferată",
+        "ramuri": ["material_rulant", "constructii_masini"],
+        "lon": 21.31,
+        "lat": 46.18,
+        "eticheta": "dr",
+        "fapte": [
+          { "text": "Johann Weitzer și-a deschis propriul atelier în 1854, iar în 1891 a înființat la Arad o filială a firmei austriece.", "incredere": "verificat", "sursa": "wiki_astra" },
+          {
+            "text": "Între 1909 și 1912 uzina a construit 150 de automobile sub licență Westinghouse; din 1912, după preluarea de către Austro-Daimler, s-a numit MARTA, iar producția civilă s-a oprit în 1914, după circa 500 de automobile.",
+            "incredere": "verificat",
+            "sursa": "wiki_astra"
+          },
+          {
+            "text": "În 1921, după destrămarea Austro-Ungariei și Tratatul de la Trianon, cele două firme rămase în România, Weitzer și MARTA, au fuzionat în Fabrica de automobile și vagoane Astra.",
+            "incredere": "verificat",
+            "sursa": "wiki_astra"
+          },
+          { "text": "În 1922–1926 Astra a produs și automobile și camioane, dar produsul principal au fost vehiculele de cale ferată (material rulant).", "incredere": "verificat", "sursa": "wiki_astra" },
+          { "text": "Potrivit mai multor istorici, Nicolae Malaxa a deținut acțiuni la Astra.", "incredere": "verificat", "sursa": "infofinanciar_perle" }
+        ],
+        "statistici": [
+          { "eticheta": "Automobile construite sub licență Westinghouse", "valoare": 150, "unitate": "automobile", "an": "1909–1912", "incredere": "verificat", "sursa": "wiki_astra" },
+          { "eticheta": "Automobile MARTA până la oprirea producției civile", "valoare_text": "circa 500", "an": "1912–1914", "incredere": "verificat", "sursa": "wiki_astra" },
+          { "eticheta": "Fuziunea în societatea Astra", "valoare_text": "Weitzer + MARTA", "an": "1921", "incredere": "verificat", "sursa": "wiki_astra" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "ploiesti",
+        "nume": "Ploiești",
+        "firma": "Zona petrolieră Prahova–Dâmbovița",
+        "regiune": "Muntenia",
+        "rol": "Extracție și rafinare de petrol",
+        "ramuri": ["petrol"],
+        "lon": 26.03,
+        "lat": 44.94,
+        "eticheta": "dr",
+        "fapte": [
+          {
+            "text": "La sfârșitul perioadei interbelice (sursa nu dă anul), România avea peste 40 de rafinării, conducte spre Giurgiu și Constanța și peste 10.000 de vagoane-cisternă.",
+            "incredere": "estimat",
+            "sursa": "evz2025"
+          },
+          {
+            "text": "Steaua Română a construit la Câmpina, în 1897, o rafinărie cu capacitatea de 1.200 de tone pe zi; presa o numește „cea mai mare și mai modernă rafinărie europeană a vremii” (afirmație fără sursă).",
+            "incredere": "verificat",
+            "sursa": "playtech2025"
+          },
+          { "text": "Compania „Concordia” a introdus în 1926 instalația de cracare „Dubbs”.", "incredere": "verificat", "sursa": "calcan2005" },
+          { "text": "Costul forajului a scăzut de la 17.800 de lei pe metru în 1926 la 2.300 de lei în 1936; în 1937 s-au forat 394.500 de metri.", "incredere": "verificat", "sursa": "calcan2005" },
+          { "text": "Rafinăriile au prelucrat în 1935 maximul interbelic de țiței: 8,13 milioane de tone, circa 97% din extracția anului.", "incredere": "verificat", "sursa": "calcan2005" }
+        ],
+        "statistici": [
+          { "eticheta": "Extracția de țiței a României", "valoare": 8.784, "unitate": "milioane tone", "an": "1936", "incredere": "verificat", "sursa": "calcan2005" },
+          { "eticheta": "Țiței prelucrat în rafinării (maximul)", "valoare": 8.134, "unitate": "milioane tone", "an": "1935", "incredere": "verificat", "sursa": "calcan2005" },
+          { "eticheta": "Export de petrol și produse petroliere", "valoare": 6.88, "unitate": "milioane tone", "an": "1936", "incredere": "verificat", "sursa": "zaman2018" },
+          { "eticheta": "Rafinării în România (limită inferioară)", "valoare_text": "peste 40", "an": "interbelic", "incredere": "estimat", "sursa": "evz2025" },
+          { "eticheta": "Capacitatea rafinăriei din Câmpina", "valoare": 1200, "unitate": "tone / zi", "an": "1897", "incredere": "verificat", "sursa": "playtech2025" },
+          { "eticheta": "Costul forajului (lei pe metru liniar)", "valoare_text": "17.800 → 2.300", "an": "1926 → 1936", "incredere": "verificat", "sursa": "calcan2005" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "constanta",
+        "nume": "Constanța",
+        "firma": "Portul Constanța",
+        "regiune": "Dobrogea",
+        "rol": "Port maritim și export",
+        "ramuri": ["port", "petrol"],
+        "lon": 28.65,
+        "lat": 44.18,
+        "eticheta": "st",
+        "fapte": [
+          {
+            "text": "În 1938, portul a operat 4.138.677 de tone de mărfuri, din care 3.946.357 de tone erau pentru export, în principal țiței, material lemnos și produse agricole.",
+            "incredere": "verificat",
+            "sursa": "agerpres2019a"
+          },
+          { "text": "În 1928, portul avea trei diguri însumând 2.944 m, cheuri de 4.622 m și șase bazine, ultimul fiind cel pentru petrol.", "incredere": "verificat", "sursa": "radioconstanta2026" },
+          {
+            "text": "Serviciul Maritim Român (SMR), înființat în 1895, a legat Constanța de Istanbul (1895), Pireu (1897) și Alexandria (1899), apoi de Haifa (1924) și de Beirut (1933).",
+            "incredere": "verificat",
+            "sursa": "egypt_smr"
+          },
+          {
+            "text": "În 1938 au sosit la Constanța motonavele de pasageri „Transilvania” (26 iunie) și „Basarabia” (26 septembrie), comandate la șantierul Burmeister & Wain din Copenhaga: 6.672 de tone brute, 22,5 noduri, 80 de locuri la clasa I, 100 la clasa a II-a și 216 la clasa a III-a, plus 800 de tone de marfă. Făceau curse regulate Constanța–Alexandria–Haifa–Beirut–Pireu–Istanbul.",
+            "incredere": "verificat",
+            "sursa": "adevarul_smr"
+          },
+          {
+            "text": "Flota comercială maritimă însuma 26 de nave cu o capacitate totală de transport de 58.204 de tone. Sursa (o monografie din 1980, citată de Agerpres) nu repetă anul în această frază, iar numărul navelor SMR nu a putut fi aflat.",
+            "incredere": "estimat",
+            "sursa": "agerpres2019a"
+          }
+        ],
+        "statistici": [
+          { "eticheta": "Trafic total de mărfuri", "valoare": 4138677, "unitate": "tone", "an": "1938", "incredere": "verificat", "sursa": "agerpres2019a" },
+          { "eticheta": "Din care mărfuri de export", "valoare": 3946357, "unitate": "tone", "an": "1938", "incredere": "verificat", "sursa": "agerpres2019a" },
+          { "eticheta": "Export prin Constanța", "valoare": 2606298, "unitate": "tone", "an": "1929", "incredere": "verificat", "sursa": "radioconstanta2026" },
+          { "eticheta": "Export prin Constanța", "valoare": 3252228, "unitate": "tone", "an": "1939", "incredere": "verificat", "sursa": "radioconstanta2026" },
+          { "eticheta": "Flota comercială maritimă (26 de nave)", "valoare": 58204, "unitate": "tone capacitate", "an": "c. 1938", "incredere": "estimat", "sursa": "agerpres2019a" },
+          { "eticheta": "Motonava „Transilvania” (tonaj brut)", "valoare": 6672, "unitate": "tone brute", "an": "1938", "incredere": "verificat", "sursa": "adevarul_smr" }
+        ],
+        "imagine": null,
+        "audio": null
+      }
+    ]
+  },
+  "simulator": {
+    "titlu": "Fii Ministrul Industriei în 1936!",
+    "avertisment": "Joc didactic: coeficienții sunt aleși de noi ca să arate compromisurile economice, nu sunt date istorice. Singura cifră reală folosită este producția de țiței din anul de referință.",
+    "an_referinta": 1936,
+    "controale": [
+      {
+        "id": "investitii",
+        "eticheta": "Investiții în rafinării interne",
+        "unitate": "%",
+        "min": 0,
+        "max": 100,
+        "pas": 5,
+        "implicit": 50,
+        "descriere": "Mai multe rafinării înseamnă mai multă valoare adăugată în țară, dar costă bani publici."
+      },
+      {
+        "id": "taxa",
+        "eticheta": "Taxă pe exportul de țiței",
+        "unitate": "%",
+        "min": 0,
+        "max": 40,
+        "pas": 1,
+        "implicit": 10,
+        "descriere": "Aduce bani la buget, dar scumpește țițeiul românesc pe piețele externe."
+      },
+      {
+        "id": "cfr",
+        "eticheta": "Buget pentru extinderea CFR",
+        "unitate": "%",
+        "min": 0,
+        "max": 100,
+        "pas": 5,
+        "implicit": 50,
+        "descriere": "Mai multe linii și vagoane-cisternă duc mai repede țițeiul spre port."
+      }
+    ],
+    "parametri": {
+      "cota_export": 0.6,
+      "taxa_referinta": 10,
+      "investitii_referinta": 50,
+      "cfr_referinta": 50,
+      "sensibilitate_export": 0.025,
+      "sensibilitate_capacitate": 1.2,
+      "pondere_rafinare": 0.4,
+      "pondere_transport": 0.25,
+      "pondere_export": 0.35,
+      "castig_rafinare": 0.6,
+      "castig_transport": 0.5,
+      "buget_baza": 50,
+      "venit_taxa_per_punct": 2,
+      "pondere_fiscal": 0.3,
+      "penalizare_deficit": 0.6,
+      "pondere_mod_inv": 0.55
+    },
+    "praguri": { "export_prost": 0.6, "deficit_mare": 8, "gatuire": 0.2, "venit_bun": 102, "modernizare_buna": 60 },
+    "explicatii_model": "Venit național (indice, 100 = situația de referință) = 100 × (0,40 × rafinare + 0,25 × transport + 0,35 × export) + 0,3 × (venit din taxă − venit de referință) − 0,6 × deficit. Rafinarea crește cu investițiile; transportul cu bugetul CFR; exportul scade când taxa urcă (−2,5% pentru fiecare punct de taxă peste 10%) și e limitat dacă CFR nu poate duce țițeiul la port. Venitul din taxă = taxă × cota exportată × 2 și are un maxim la taxa de ~25% (curbă de tip Laffer).",
+    "realitate": [
+      { "text": "În 1936, România a extras 8,78 milioane de tone de țiței, maximul interbelic.", "sursa": "calcan2005" },
+      { "text": "În același an, țara era al patrulea producător mondial de țiței, după SUA, URSS și Venezuela.", "sursa": "alba24_2026" },
+      { "text": "În anii ’30, exporturile de produse petroliere au depășit frecvent jumătate din producție.", "sursa": "alba24_2026" },
+      { "text": "În 1939, România rămânea al doilea producător european de petrol, după Uniunea Sovietică.", "sursa": "evz2025" }
+    ]
+  },
+  "audio": {
+    "nota": "Pune fișierele în assets/audio/ și completează căile de mai jos. Folosiți doar înregistrări cu licență clară (domeniu public, Creative Commons sau create de voi) și treceți-le în bibliografie. Exemplu pentru un centru din harta.centre: \"audio\": { \"fisier\": \"assets/audio/malaxa.mp3\", \"transcriere\": \"textul rostit în ghid\" }.",
+    "fundal": { "fisier": null, "titlu": null, "credit": null, "volum": 0.1 },
+    "efecte": { "volum": 0.25 },
+    "ghid": { "filtru_radio": true, "volum": 0.9 }
+  },
+  "bibliografie": [
+    {
+      "id": "calcan2005",
+      "scurt": "Calcan 2005",
+      "autor": "Gheorghe Calcan",
+      "titlu": "Aspects of Romanian Petroleum Industry in the Inter-war Period",
+      "an": 2005,
+      "tip": "secundară academică",
+      "url": "https://mgu.bg/wp-content//uploads/2021/10/dkalkan.pdf",
+      "nota": "Tabelul 1 dă extracția anuală de țiței (tone) pentru 1857–1941; de aici provin toate valorile din seria „petrol_extractie”. Studiul nu indică sursa tabelului; trimite la Arhivele Naționale Prahova, Moniteur du Pétrole Roumain și Calcan (1977).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "capital2022",
+      "scurt": "Capital.ro 2022",
+      "autor": "Ionel-Claudiu Dumitrescu",
+      "titlu": "Marea Criză Economică și interpretările eronate asupra fenomenului istoric interbelic",
+      "an": 2022,
+      "tip": "presă (pe baza anuarelor interbelice)",
+      "url": "https://www.capital.ro/marea-criza-economica-si-interpretarile-eronate-asupra-fenomenului-istoric-interbelic.html",
+      "nota": "Cifrele 1928 și 1933 trebuie confirmate în Anuarul Statistic.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "gardescu1933",
+      "scurt": "Gardescu 1933",
+      "autor": "I. J. Gardescu",
+      "titlu": "Petroleum Development in Rumania in 1932",
+      "an": 1933,
+      "tip": "publicație de epocă (AIME)",
+      "url": "https://onemine.org/documents/production-foreign-petroleum-development-in-rumania-in-1932",
+      "nota": "Date în barili, convertite în tone în date.json.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "aime1930",
+      "scurt": "AIME 1930",
+      "autor": "AIME (corespondență specială)",
+      "titlu": "Petroleum Production in Rumania in 1929",
+      "an": 1930,
+      "tip": "publicație de epocă (AIME)",
+      "url": "https://onemine.org/documents/papers-foreign-production-petroleum-production-in-rumania-in-1929-special-correspondence-",
+      "nota": "Estimare în barili, convertită în tone.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "evz2025",
+      "scurt": "EVZ",
+      "autor": "Evenimentul Zilei",
+      "titlu": "România, puterea petrolieră a Europei. Istoria extracției de petrol între 1857 și 1939",
+      "an": "f.a.",
+      "tip": "presă",
+      "url": "https://evz.ro/romania-puterea-petrol-europa-istoria-extractiei.html",
+      "nota": "Sursă secundară; verificați cifrele în lucrări academice.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "alba24_2026",
+      "scurt": "Alba24 2026",
+      "autor": "Alba24 (pe baza materialului lui Radu Dudău, Energy Policy Group)",
+      "titlu": "Țara Românească domina lumea petrolului, acum 169 de ani",
+      "an": 2026,
+      "tip": "presă",
+      "url": "https://alba24.ro/tara-romaneasca-domina-lumea-petrolului-acum-169-de-ani-avea-prima-rafinarie-din-lume-si-era-prima-tara-producatoare-de-titei-1154348.html",
+      "nota": "Sursă secundară pentru locul patru mondial în 1936 și pentru ponderea exportului în anii ’30.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "playtech2025",
+      "scurt": "Playtech",
+      "autor": "Playtech",
+      "titlu": "România, pe prima pagină a istoriei aurului negru",
+      "an": 2025,
+      "tip": "presă",
+      "url": "https://playtech.ro/2025/romania-pe-prima-pagina-a-istoriei-aurului-negru-aici-s-a-construit-prima-sonda-petroliera-comerciala-din-lume/",
+      "nota": "Sursă secundară pentru rafinăria de la Câmpina și nivelul antebelic atins în 1924.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "agerpres2019a",
+      "scurt": "Agerpres 2019",
+      "autor": "Agerpres",
+      "titlu": "Documentar: 110 ani de la inaugurarea oficială a Portului Constanța",
+      "an": 2019,
+      "tip": "presă (citează „Județele patriei”)",
+      "url": "https://agerpres.ro/documentare/2019/09/27/documentar-110-ani-de-la-inaugurarea-oficiala-a-portului-constanta--375928",
+      "nota": "Date despre traficul din 1938.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "agerpres2019b",
+      "scurt": "Agerpres 2019 (reportaj)",
+      "autor": "Agerpres",
+      "titlu": "Reportaj: Portul Constanța se îndreaptă, la 110 ani de la inaugurare, spre al patrulea record anual european la tranzitul de cereale",
+      "an": 2019,
+      "tip": "presă",
+      "url": "https://agerpres.ro/economic-intern/2019/09/26/reportaj-portul-constanta-se-indreapta-la-110-ani-de-la-inaugurare-spre-al-patrulea-record-anual-european-la-tranzitul-de-cereale--375903",
+      "nota": "Cifra pentru exportul de produse petroliere din 1935 are nevoie de clarificare.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "cotidianul",
+      "scurt": "Cotidianul",
+      "autor": "Cotidianul",
+      "titlu": "Autostrada Londra–București–Istanbul",
+      "an": "f.a.",
+      "tip": "presă (citează I. Mihalache, Drumurile în România, în Enciclopedia României)",
+      "url": "https://www.cotidianul.ro/autostrada-londra-bucuresti-istanbul/",
+      "nota": "Lungimea rețelei de drumuri în 1922 și 1936.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "fes2021",
+      "scurt": "FES 2021",
+      "autor": "Cornel Ban, Sorin Gog",
+      "titlu": "PNRR și căile ferate: România feroviară văzută de Comisia Europeană",
+      "an": 2021,
+      "tip": "studiu (Friedrich-Ebert-Stiftung)",
+      "url": "https://www.agendaconstructiilor.ro/files/files/2021/studiu-fes-cai-ferate.pdf",
+      "nota": "Date despre electrificare și linie dublă în 1938.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "berinde2013",
+      "scurt": "Berinde 2013",
+      "autor": "Andrei Berinde",
+      "titlu": "Instalarea Administrației C.F.R. în Transilvania după Marea Unire 1918–1920",
+      "an": 2013,
+      "tip": "articol academic",
+      "url": "https://ceeol.com/search/article-detail?id=1050188",
+      "nota": "Unificarea rețelei feroviare, 21 septembrie 1920.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "scanteia1975",
+      "scurt": "Scânteia 1975",
+      "autor": "Scânteia",
+      "titlu": "Ediția din 10 decembrie 1975 (retrospectivă despre producția de oțel)",
+      "an": 1975,
+      "tip": "presă comunistă — folosiți critic",
+      "url": "https://bibliotecadeva.ro/periodice/scanteia/1975/12/scanteia_1975_12_10373.pdf",
+      "nota": "Sursă cu scop propagandistic: doar ca reper, de confirmat în Anuarul Statistic.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "anuar_insse",
+      "scurt": "Anuarul Statistic",
+      "autor": "Institutul Central de Statistică",
+      "titlu": "Anuarul Statistic al României (edițiile interbelice, în special 1939/40)",
+      "an": "1939",
+      "tip": "sursă primară — de consultat",
+      "url": "http://dspace.bcucluj.ro/handle/123456789/64160",
+      "nota": "Ediția 1939–1940 este digitizată de BCU Cluj (PDF de 39,7 MB). NU a putut fi consultată pentru acest set de date: cifrele din acest fișier provin din surse secundare. Prioritatea nr. 1 pentru Statistician: confirmarea seriilor în acest anuar.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "axenciuc",
+      "scurt": "Axenciuc",
+      "autor": "Victor Axenciuc",
+      "titlu": "Evoluția economică a României. Cercetări statistico-istorice 1859–1947",
+      "an": "1992–2000",
+      "tip": "sinteză academică — de consultat",
+      "url": null,
+      "nota": "Neconsultat pentru acest set de date. Serii industriale și de transport pentru întreaga perioadă; pp. 361, 608 și 705 sunt citate de Zaman și Georgescu (2018)."
+    },
+    {
+      "id": "cojoc",
+      "scurt": "Cojoc",
+      "autor": "Mariana Cojoc",
+      "titlu": "Constanța – port internațional. Comerțul exterior al României prin portul Constanța 1878–1939",
+      "an": "f.a.",
+      "tip": "sinteză academică — de consultat",
+      "url": null,
+      "nota": "Pentru exporturile de petrol prin Constanța."
+    },
+    {
+      "id": "ivanus2009",
+      "scurt": "Ivănuș 2009",
+      "autor": "Gheorghe Ivănuș și colab.",
+      "titlu": "The Petroleum and Gas Industry in Romania (cap. „The Maturity of an Industry, 1920–1939”)",
+      "an": 2009,
+      "tip": "sinteză academică — de consultat",
+      "url": null,
+      "nota": "Editura AGIR."
+    },
+    {
+      "id": "zaman2018",
+      "scurt": "Zaman și Georgescu 2018",
+      "autor": "Zaman, G.; Georgescu, G.",
+      "titlu": "A retrospective study on Romania’s external trade in the past 100 years (MPRA Paper nr. 89707)",
+      "an": 2018,
+      "tip": "studiu academic",
+      "url": "https://mpra.ub.uni-muenchen.de/id/eprint/89707",
+      "nota": "Tabelul 5: exporturile de petrol 1929–1936, după Calcan (1997), Georgescu-Roegen (1979) și Axenciuc (2000).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "infofinanciar_udr",
+      "scurt": "Infofinanciar 2023 (UDR)",
+      "autor": "Alexandru Turcu",
+      "titlu": "Începuturile industriei grele românești. Povestea Uzinelor și Domeniilor Reșița, cel mai mare grup din economia interbelică (Infofinanciar, 4 martie 2023)",
+      "an": 2023,
+      "tip": "presă economică",
+      "url": "https://www.infofinanciar.ro/inceputurile-industriei-grele-romanesti-povestea-uzinelor-si-domeniilor-resita-cel-mai-mare-grup-din-economia-interbelica",
+      "nota": "Decretul din 1920, capitalul, producția de oțel a UDR. Articolul numește „naționalizare” reorganizarea din 1920, dar cifrele din el arată că acțiunile au rămas la StEG: noi nu folosim termenul.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "infofinanciar_perle",
+      "scurt": "Infofinanciar 2022",
+      "autor": "Alexandru Turcu",
+      "titlu": "Povestea celor mai puternice companii din interbelic. Perlele industriei românești (Infofinanciar, 23 mai 2022)",
+      "an": 2022,
+      "tip": "presă economică",
+      "url": "https://www.infofinanciar.ro/povestea-celor-mai-puternice-companii-din-interbelic-perlele-industriei-romanesti",
+      "nota": "Malaxa, UDR, Astra; citează Keith Hitchins pentru ponderea Bucureștiului. Are formulări neriguroase (ex. „naționalizarea” StEG).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_marea_ind",
+      "scurt": "Historia (marea industrie)",
+      "titlu": "Marea industrie din România Mare (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/marea-industrie-din-romania-mare-2332176.html",
+      "nota": "1938: 3.767 de uzine mari, 289.117 angajați, producție de 69.206.738.000 lei; 1933: 34.940.747.000 lei. Citează „o statistică a timpului”; bibliografia include Anuarul statistic 1939 și 1940 și C. Verdeș (1940).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_1934",
+      "scurt": "Historia (1934)",
+      "titlu": "Transformarea României Mari din punct de vedere industrial, în anul 1934 (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/transformarea-romaniei-mari-din-punct-de-vedere-2520027.html",
+      "nota": "1933: 3.487 de unități și 184.777 de muncitori; 1934: 3.510 și 208.240; peste 50.000 de muncitori în textile; metalurgie: 351 de unități și 37.796 de muncitori. Citează anuarul statistic din 1934.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_1935",
+      "scurt": "Historia (1935)",
+      "autor": "Ionel-Claudiu Dumitrescu",
+      "titlu": "Dezvoltarea industrială a României Mari în anul 1935 (Historia.ro, 26 iunie 2026)",
+      "an": 2026,
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/dezvoltarea-industriala-a-romaniei-mari-in-anul-2539235.html",
+      "nota": "1932: 3.557 de capacități și 152.198 de angajați; 1935: 230.797 de muncitori. Formulările despre unități sunt ambigue.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_ind_interbelica",
+      "scurt": "Historia (industrializare)",
+      "titlu": "Industrializarea României interbelice (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/industrializarea-romaniei-interbelice-638776.html",
+      "nota": "1934: 254 de întreprinderi chimice cu 20.282 de angajați. Bibliografia include Anuarul statistic 1935–1936.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_dezv_ind",
+      "scurt": "Historia (București)",
+      "titlu": "Dezvoltarea industriei în România Mare (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/dezvoltarea-industriei-in-romania-mare-2305435.html",
+      "nota": "1938, București: 38 de fabrici cu peste 500 de muncitori fiecare, circa 77.000 de angajați în total.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_metal1930",
+      "scurt": "Historia (metalurgie 1930)",
+      "autor": "Ionel-Claudiu Dumitrescu",
+      "titlu": "Industria metalurgică din România Mare a anului 1930 (Historia.ro, 2 iulie 2024)",
+      "an": 2024,
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/industria-metalurgica-din-romania-mare-a-anului-2372647.html",
+      "nota": "Date din recensământul din 1930: fabrica de avioane de la Brașov avea 895 de angajați (989 în cele 3 fabrici de avioane din țară).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_metal_criza",
+      "scurt": "Historia (oțel)",
+      "titlu": "Uimitoarea transformare metalurgică a României Mari, în timpul Marii Crize Economice (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/uimitoarea-transformare-metalurgica-a-romaniei-2419494.html",
+      "nota": "Oțel 1935: 213.086 t livrate, după anuarul din 1936. Alte cifre din articol (1929, 1930) sunt incompatibile cu UDR și nu au fost folosite.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_cf",
+      "scurt": "Historia (CFR)",
+      "autor": "Tudor Sprînceană",
+      "titlu": "Căile Ferate Române în epoca modernă (Historia.ro, 7 aprilie 2023)",
+      "an": 2023,
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/caile-ferate-romane-in-epoca-moderna-2256732.html",
+      "nota": "Dublarea liniei Constanța–Cernavodă (1931) și Adjud–Tecuci (1933). Nu dă lungimea totală a rețelei.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "turnock2004",
+      "scurt": "Turnock 2004",
+      "autor": "David Turnock",
+      "titlu": "Railway Network Development in Inter-war Romania: Economic and Strategic Motives (Geographica Pannonica, nr. 8, pp. 16–24)",
+      "an": 2004,
+      "tip": "studiu academic",
+      "url": "https://scindeks-clanci.ceon.rs/data/pdf/0354-8724/2004/0354-87240408016T.pdf",
+      "nota": "Linii noi 1921–1940, linii duble și proiecte de electrificare; nu dă lungimea totală a rețelei. Anul 2004 este dedus din indexul Scindeks.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "radioconstanta2026",
+      "scurt": "Radio Constanța 2026",
+      "autor": "Doina Sirbu",
+      "titlu": "Calendar istoric MINAC: 24 februarie – Date statistice despre evoluția Portului Constanța în epoca interbelică (Radio România Constanța)",
+      "an": 2026,
+      "tip": "presă (preia date MINAC)",
+      "url": "https://www.radioconstanta.ro/2026/02/24/calendar-istoric-minac-24-februarie-date-statistice-despre-evolutia-portului-constanta-in-epoca-interbelica/",
+      "nota": "Export 1926, 1929, 1931, 1939; dotările portului în 1928. Sursa primară nu e precizată clar.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "ziuaconstanta2018",
+      "scurt": "Ziua de Constanța 2018",
+      "autor": "Cristian Cealera",
+      "titlu": "Scurtă istorie a Portului modern Constanța (IV): Import-export și perioada interbelică (Ziua de Constanța, 3 octombrie 2018)",
+      "an": 2018,
+      "tip": "presă locală",
+      "url": "https://www.ziuaconstanta.ro/stiri/invitati/scurta-istorie-a-portului-modern-constanta-iv-import-export-si-perioada-interbelica-672434.html",
+      "nota": "Aceleași cifre de export ca la Radio Constanța.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "adevarul_smr",
+      "scurt": "Adevărul (SMR)",
+      "titlu": "Basarabia și Transilvania, „lebedele Mării Negre” (Adevărul, ediția Constanța)",
+      "an": "f.a.",
+      "tip": "presă locală",
+      "url": "https://adevarul.ro/stiri-locale/constanta/basarabia-si-transilvania-lebedele-marii-negre-1557696.html",
+      "nota": "Motonavele SMR construite la Copenhaga: sosirea în 1938, caracteristici tehnice, cursele. Articolul susține că ar fi fost primele nave civile cu propulsie diesel din lume; noi nu preluăm această afirmație.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "egypt_smr",
+      "scurt": "Egypt Study Circle (SMR)",
+      "titlu": "Romanian Maritime Service (S.M.R.) — Egypt Study Circle",
+      "an": "2025",
+      "tip": "sursă filatelică (istoria liniilor)",
+      "url": "https://egyptstudycircle.org.uk/2025/Members/Postal%20History/Romanian%20Maritime/R_Mar_Srv.html",
+      "nota": "Înființarea SMR în 1895 și extinderea liniilor (Pireu 1897, Alexandria 1899, Haifa 1924, Beirut 1933). Nu dă dimensiunea flotei.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "wiki_astra",
+      "scurt": "Wikipedia (Astra)",
+      "titlu": "Astra Arad (Wikipedia, engleză)",
+      "an": "f.a.",
+      "tip": "enciclopedie online — de confirmat",
+      "url": "https://en.wikipedia.org/wiki/Astra_Arad",
+      "nota": "Weitzer 1854/1891, MARTA 1912, fuziunea din 1921, producția 1922–1926. Nu dă numărul de muncitori.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "wiki_iar",
+      "scurt": "Wikipedia (IAR)",
+      "titlu": "Industria Aeronautică Română (Wikipedia, engleză)",
+      "an": "f.a.",
+      "tip": "enciclopedie online — de confirmat",
+      "url": "https://en.wikipedia.org/wiki/Industria_Aeronautic%C4%83_Rom%C3%A2n%C4%83",
+      "nota": "Înființare 1925, modele și numărul de exemplare; citează Antoniu și Cicoș (2007) și Gudju și colab. (1974).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "wiki_resita",
+      "scurt": "Wikipedia (Reșița)",
+      "titlu": "Reșița Works (Wikipedia, engleză)",
+      "an": "f.a.",
+      "tip": "enciclopedie online — de confirmat",
+      "url": "https://en.wikipedia.org/wiki/Uzinele_Resita",
+      "nota": "Decretul din 1920 ca transformare (nu naționalizare); secția de locomotive de 100 de unități pe an.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "agir_malaxa",
+      "scurt": "AGIR (Malaxa)",
+      "titlu": "Ingineri mari personalități: Nicolae Malaxa 1884–1965 (AGIR, Univers Ingineresc nr. 16/2004)",
+      "an": 2004,
+      "tip": "revistă profesională",
+      "url": "https://www.agir.ro/univers-ingineresc/numar-16-2004/ingineri-mari-personalitati-nicolae-malaxa-1884---1965_826.html",
+      "nota": "Cronologia uzinei Malaxa 1921–1940 (legea din 1927, locomotiva nr. 100, maximul din 1935, producția din 1938).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "romania_insider",
+      "scurt": "Romania-Insider (Malaxa)",
+      "titlu": "Famous Romanians: Nicolae Malaxa, the tycoon who built the first Romanian locomotive and car (Romania-Insider)",
+      "an": "f.a.",
+      "tip": "presă în limba engleză",
+      "url": "https://romania-insider.com/famous-romanians-nicolae-malaxa-the-tycoon-who-built-the-first-romanian-locomotive-and-car",
+      "nota": "Fabrica de la Titan (1923–1927), linia de muniții din 1937–1938.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "cotidianul_minelor",
+      "scurt": "Cotidianul (Legea minelor)",
+      "titlu": "Centenar: Legea minelor din 4 iulie 1924 (I) (Cotidianul)",
+      "an": 2024,
+      "tip": "presă (cu citate din Gh. Buzatu)",
+      "url": "https://www.cotidianul.ro/centenar-legea-minelor-din-4-iulie-1924-i/",
+      "nota": "Data, guvernul, art. 32–33 (societăți anonime românești, minimum 60% capital românesc) și modificarea din 1929.",
+      "accesat": "2026-10-13"
+    }
+  ]
+}

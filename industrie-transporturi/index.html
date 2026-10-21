@@ -1,0 +1,3914 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f332f">
+  <title>Industrializarea României interbelice (1920–1938)</title>
+  <meta name="description" content="Infografic interactiv despre industria, petrolul și transporturile României Întregite, între 1920 și 1938.">
+
+  <!-- evită cererea automată /favicon.ico (care ar da 404 în consolă) -->
+  <link rel="icon" href="data:,">
+
+  <!-- Fonturile vin de la Google Fonts. Fără internet, pagina folosește Georgia și fonturile sistemului. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+/* ==========================================================================
+   Stilul paginii — Art Deco interbelic, cu aer modern (tema originală a proiectului)
+   --------------------------------------------------------------------------
+   Cuprins
+     1. Variabile (paleta, fonturile)       8. Harta SVG (regiuni, orașe, filtru)
+     2. Bază și textura de pergament        9. Tooltip plutitor (.tooltip-plutitor)
+     3. Hero și navigare                   10. Pop-up (dialog) și ghid audio
+     4. Secțiuni, titluri, panou dublu     11. Simulator „Fii Ministrul”
+     5. „Curierul Industrial” (ziarul)     12. Butonul de sunet, bibliografie, export
+     6. Controale și grafic Chart.js       13. Responsiv și mișcare redusă
+     7. Canvas (fluxul petrolului)         14. Tipărire (@media print)
+
+   ATENȚIE: app.js citește din :root variabilele --hartie, --hartie-2, --cerneala,
+   --rosu, --rosu-deschis, --alama, --petrol, --otel, --font-titlu și --font-text
+   (pentru Chart.js și Canvas). Dacă le redenumești aici, redenumește-le și în JavaScript (citesteCulori).
+   ========================================================================== */
+
+
+/* ---------- 1. VARIABILE ---------- */
+:root {
+  /* Paleta cerută */
+  --hartie: #f3ebd5;            /* fundal cald, de pergament */
+  --hartie-2: #faf4e2;          /* interiorul panourilor (mai deschis) */
+  --cerneala: #2b2825;          /* cărbune închis — în loc de negru pur */
+  --cerneala-soft: #5a544c;     /* text secundar */
+  --rosu: #842320;              /* roșu-burgund */
+  --rosu-deschis: rgba(132, 35, 32, 0.35);
+  --alama: #b08234;             /* alamă fină (decor, linii, puncte) */
+  --alama-text: #7a5a1c;        /* alamă mai închisă, pentru text mic (contrast bun) */
+  --otel: #354e63;              /* oțel feroviar */
+  --petrol: #1f332f;            /* verde-petrol închis (hero, subsol) */
+  --umbra-adanca: rgba(20, 14, 8, 0.45);
+
+  /* Tipografie */
+  --font-titlu: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-text: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --raza: 2px;                  /* colțuri aproape drepte = aer Art Deco */
+  --umbra: 0 10px 28px rgba(43, 40, 37, 0.10);
+}
+
+
+/* ---------- 2. BAZĂ ȘI TEXTURA DE PERGAMENT ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* „hidden” să câștige mereu în fața altor reguli display */
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--cerneala);
+  background-color: var(--hartie);
+  /* Granulația hârtiei: două grile minuscule de puncte (radial-gradient),
+     una maronie și una aurie, cu pasuri diferite (5px și 7px) ca să nu se vadă un tipar regulat. */
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(110, 80, 30, 0.10) 0.7px, transparent 1.2px),
+    radial-gradient(circle at 4px 5px, rgba(176, 130, 52, 0.10) 0.6px, transparent 1.1px);
+  background-size: 5px 5px, 7px 7px;
+}
+
+/* Patina: pete calde la colțuri, pe un strat fix, ca hârtia să nu fie plată.
+   Stratul e „pointer-events: none”, deci nu blochează click-urile. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 0% 0%, rgba(176, 130, 52, 0.20), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(132, 35, 32, 0.09), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(176, 130, 52, 0.08), transparent 70%);
+}
+
+.pagina { width: min(1100px, 100% - 2rem); margin-inline: auto; }
+
+.sari {
+  position: absolute; left: -999px; top: 0;
+  background: var(--hartie-2); padding: .5rem 1rem; z-index: 100;
+}
+.sari:focus { left: 0; }
+
+a { color: var(--rosu); }
+:focus-visible { outline: 3px solid var(--alama); outline-offset: 2px; }
+
+
+/* ---------- 3. HERO ȘI NAVIGARE ---------- */
+.hero {
+  position: relative;
+  color: var(--hartie);
+  padding: clamp(2.5rem, 7vw, 5rem) 0 2.5rem;
+  border-bottom: 6px double var(--alama);
+  background-color: var(--petrol);
+  /* Soare Art Deco: raze fine care pornesc din centrul de jos al antetului. */
+  background-image:
+    repeating-conic-gradient(from 0deg at 50% 125%, rgba(176, 130, 52, 0.13) 0 3deg, transparent 3deg 9deg),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25), transparent 60%);
+}
+.hero h1 {
+  font-family: var(--font-titlu);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.6rem);
+  line-height: 1.1;
+  margin: .4rem 0 1rem;
+}
+.hero .lead { max-width: 60ch; color: #e8dfc4; font-size: 1.15rem; margin: 0; }
+
+.kicker, .eticheta-sectiune {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--alama-text);
+}
+.hero .kicker { color: var(--alama); }
+
+.nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+.nav a {
+  color: var(--hartie); text-decoration: none; font-size: .95rem;
+  border: 1px solid rgba(176, 130, 52, .7);
+  padding: .4rem .9rem; border-radius: var(--raza);
+  transition: background .2s, color .2s;
+}
+.nav a:hover, .nav a:focus-visible { background: var(--alama); color: var(--petrol); border-color: var(--alama); }
+
+
+/* ---------- 4. SECȚIUNI, TITLURI, PANOU CU CHENAR DUBLU ---------- */
+section { padding: clamp(2rem, 6vw, 4rem) 0; }
+section + section { border-top: 1px solid rgba(43, 40, 37, .14); }
+
+h2 {
+  font-family: var(--font-titlu);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  margin: .2rem 0 .6rem;
+}
+/* Linie dublă din alamă sub titlurile de secțiune — mic accent Art Deco */
+section > h2::after {
+  content: "";
+  display: block;
+  width: 84px; height: 6px;
+  margin-top: .55rem;
+  border-top: 1px solid var(--alama);
+  border-bottom: 1px solid var(--alama);
+}
+.subtitlu { font-family: var(--font-titlu); font-size: 1.1rem; margin: 1.5rem 0 .5rem; }
+.intro { max-width: 70ch; margin: 0 0 1.5rem; }
+.nota { font-size: .9rem; color: var(--cerneala-soft); margin: .75rem 0 0; }
+
+/* .panou — CHENAR DUBLU (simetric):
+     1) border-ul gros, solid, la exterior;
+     2) outline-ul fin, din alamă, la 8px în interior;
+     3) linia punctată (::before), la 12px în interior, peste tot la fel. */
+.panou {
+  position: relative;
+  background-color: rgba(250, 244, 226, 0.92);
+  background-image: radial-gradient(circle at 1px 1px, rgba(110, 80, 30, 0.07) 0.7px, transparent 1.2px);
+  background-size: 6px 6px;
+  border: 3px solid var(--cerneala);
+  border-radius: var(--raza);
+  box-shadow: var(--umbra);
+  padding: clamp(1.4rem, 3.5vw, 2.1rem);
+  outline: 1px solid var(--alama);
+  outline-offset: -8px;
+}
+.panou::before {
+  content: "";
+  position: absolute;
+  inset: 12px;                 /* aceeași distanță pe toate laturile = simetrie */
+  border: 1px dotted var(--alama);
+  pointer-events: none;        /* nu blochează click-urile din panou */
+}
+/* Mici „colțuri” pătrate din alamă, ca pe afișele din anii ’30 */
+.panou::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  --c: var(--alama);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 7px 7px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 7px 7px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 7px 7px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 7px 7px no-repeat;
+}
+
+
+/* ---------- 5. „CURIERUL INDUSTRIAL ROMÂN” (ziarul interbelic) ---------- */
+.ziar { padding-bottom: clamp(1.5rem, 4vw, 3rem); }
+.ziar-foaie {
+  position: relative;
+  padding: clamp(1.1rem, 3vw, 2rem);
+  background-color: #f6eed7;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(90, 70, 30, 0.12) 0.7px, transparent 1.2px),
+    linear-gradient(180deg, rgba(176, 130, 52, 0.10), transparent 25%, transparent 75%, rgba(132, 35, 32, 0.07));
+  background-size: 4px 4px, auto;
+  border: 1px solid rgba(43, 40, 37, .5);
+  box-shadow: 0 12px 30px rgba(43, 40, 37, .18), inset 0 0 40px rgba(176, 130, 52, .18);
+}
+.ziar-antet { text-align: center; border-bottom: 3px double var(--cerneala); padding-bottom: .8rem; }
+.ziar-sus {
+  margin: 0 0 .2rem;
+  font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; font-weight: 700;
+  color: var(--cerneala-soft);
+}
+.ziar-titlu {
+  font-family: var(--font-titlu);
+  font-weight: 900;
+  font-size: clamp(1.7rem, 6.2vw, 3.8rem);
+  line-height: 1.05;
+  letter-spacing: .02em;
+  margin: 0;
+  text-transform: uppercase;
+}
+.ziar-subtitlu {
+  font-family: var(--font-titlu); font-style: italic; font-weight: 500;
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  color: var(--rosu);
+  margin: .2rem 0 0;
+}
+.ziar-linie {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: .3rem 1rem;
+  list-style: none; margin: .8rem 0 1.2rem; padding: .35rem 0;
+  border-top: 1px solid var(--cerneala); border-bottom: 1px solid var(--cerneala);
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700;
+}
+/* Coloanele ziarului: 4 pe ecrane late, 2 pe tablete, 1 pe telefon (vezi secțiunea 13) */
+.ziar-coloane {
+  column-count: 4;
+  column-gap: 1.6rem;
+  column-rule: 1px solid rgba(43, 40, 37, .45);
+}
+.ziar-articol { break-inside: avoid; margin: 0 0 1.1rem; }
+.ziar-articol h3 {
+  font-family: var(--font-titlu); font-weight: 700; text-transform: uppercase;
+  font-size: 1.05rem; line-height: 1.2; margin: 0 0 .35rem;
+  border-bottom: 1px solid var(--cerneala); padding-bottom: .2rem;
+}
+.ziar-articol p { margin: 0; font-size: .95rem; line-height: 1.5; text-align: justify; hyphens: auto; }
+/* Litera mare de la începutul fiecărui articol */
+.ziar-articol h3 + p::first-letter {
+  font-family: var(--font-titlu); font-weight: 900; color: var(--rosu);
+  float: left; font-size: 2.6rem; line-height: .85; padding: .12rem .3rem 0 0;
+}
+.ziar-surse { margin-top: .35rem; font-size: .72rem; letter-spacing: .04em; color: var(--cerneala-soft); }
+.ziar-surse a { color: var(--otel); }
+.ziar-nota { text-align: center; font-size: .8rem; font-style: italic; margin: .8rem 0 0; color: var(--cerneala-soft); }
+
+
+/* ---------- 6. CONTROALE ȘI GRAFIC CHART.JS ---------- */
+.controale { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem 1.5rem; margin-bottom: 1rem; }
+.controale label { display: flex; flex-direction: column; gap: .3rem; font-weight: 600; font-size: .9rem; }
+select, input[type="range"] { font: inherit; }
+select {
+  padding: .45rem .6rem; border: 1px solid var(--cerneala); border-radius: var(--raza);
+  background: var(--hartie-2); color: var(--cerneala); min-width: 15rem; max-width: 100%;
+}
+input[type="range"] { accent-color: var(--rosu); width: 260px; max-width: 100%; }
+.grup-butoane { display: flex; gap: .4rem; }
+
+.btn {
+  font: inherit; font-size: .95rem; cursor: pointer;
+  padding: .45rem 1rem; border-radius: var(--raza);
+  border: 1px solid var(--cerneala); background: transparent; color: var(--cerneala);
+  transition: background .2s, color .2s;
+}
+.btn:hover { background: rgba(43, 40, 37, .08); }
+.btn[aria-pressed="true"] { background: var(--cerneala); color: var(--hartie); }
+.btn-alama { background: var(--rosu); border-color: var(--rosu); color: var(--hartie-2); }
+.btn-alama:hover { background: #6a1b19; }
+
+.controale .comutator { flex-direction: row; align-items: center; gap: .45rem; padding-bottom: .55rem; }
+.comutator input { width: 1.05rem; height: 1.05rem; accent-color: var(--rosu); }
+
+.cadru-grafic { position: relative; height: clamp(260px, 48vw, 420px); }
+
+.kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; margin: 1rem 0 0; }
+.kpi > div { background: rgba(243, 235, 213, .75); padding: .6rem .9rem; border-left: 4px solid var(--alama); }
+.kpi dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cerneala-soft); }
+.kpi dd { margin: 0; font: 700 1.3rem var(--font-titlu); }
+
+.repere { margin: 0; padding-left: 1.2rem; }
+.repere li { margin-bottom: .4rem; }
+
+
+/* ---------- 7. CANVAS ---------- */
+.cadru-canvas { width: 100%; background: rgba(243, 235, 213, .8); border: 1px solid rgba(43, 40, 37, .35); }
+.cadru-canvas canvas { display: block; width: 100%; }
+.info-flux { margin: .75rem 0 0; font-size: 1rem; }
+
+.legenda { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; list-style: none; padding: 0; margin: .75rem 0 0; font-size: .9rem; }
+.pct { display: inline-block; width: .8rem; height: .8rem; margin-right: .35rem; vertical-align: -1px; }
+.pct-camp { background: var(--alama); border-radius: 50%; }
+.pct-rafinarie { background: var(--rosu); border-radius: 50%; }
+.pct-port { background: var(--otel); border-radius: 50%; }
+.pct-conducta { background: var(--petrol); height: .35rem; vertical-align: 2px; width: 1.2rem; }
+.pct-tren { background: var(--rosu); width: 1rem; height: .5rem; vertical-align: 1px; }
+
+
+/* ---------- 8. HARTA SVG ---------- */
+.harta-defilare { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.doar-mobil { display: none; }
+#hartaSvg { display: block; width: 100%; height: auto; max-width: 880px; margin-inline: auto; }
+.grila { fill: none; stroke: rgba(176, 130, 52, .28); stroke-width: .6; stroke-dasharray: 2 5; }
+.contur { fill: #ecdfbb; stroke: var(--cerneala); stroke-width: 2; stroke-linejoin: round; }
+
+/* Numele regiunilor istorice: estompate, până când trecem cu mouse-ul peste un centru */
+.regiune {
+  font-family: var(--font-titlu); font-size: 13px; letter-spacing: .18em;
+  fill: var(--otel); opacity: .38;
+  text-anchor: middle; text-transform: uppercase;
+  pointer-events: none;
+  transition: fill .25s ease, opacity .25s ease, letter-spacing .25s ease;
+}
+/* Regiunea „aprinsă” de hover pe un centru: roșu regal, opacitate plină */
+.regiune.regiune-activa {
+  fill: var(--rosu);
+  opacity: 1;
+  font-weight: 700;
+  letter-spacing: .26em;
+}
+
+/* Centrele industriale */
+.oras { cursor: pointer; transition: opacity .3s ease; }
+/* Zonă de atingere/hover mai mare decât punctul vizibil (transparentă, dar prinde mouse-ul și degetul) */
+.oras-zona { fill: transparent; }
+.oras-halo {
+  fill: rgba(132, 35, 32, .2);
+  transform-box: fill-box; transform-origin: center;   /* scalăm cercul pe loc, nu din colțul hărții */
+  transition: transform .2s ease, fill .2s ease;
+}
+.oras-punct { fill: var(--rosu); stroke: var(--hartie-2); stroke-width: 2; }
+.oras:hover .oras-halo, .oras:focus-visible .oras-halo { transform: scale(1.5); }
+.oras:focus { outline: none; }
+.oras:focus-visible .oras-halo { stroke: var(--cerneala); stroke-width: 2; }
+.oras text {
+  font: 600 14px var(--font-text); fill: var(--cerneala);
+  paint-order: stroke; stroke: var(--hartie-2); stroke-width: 3px;
+}
+
+/* FILTRU: orașele din afara ramurii alese devin aproape transparente,
+   iar cele din ramura aleasă sunt accentuate cu un halo auriu care pulsează. */
+.oras.atenuat { opacity: 0.15; }
+.oras.atenuat:hover, .oras.atenuat:focus-visible { opacity: .6; }   /* tot se pot inspecta, dacă vrei */
+.oras.accentuat .oras-halo { fill: rgba(176, 130, 52, .45); transform: scale(1.35); animation: puls-oras 1.8s ease-in-out infinite; }
+.oras.accentuat text { font-weight: 700; }
+@keyframes puls-oras {
+  0%, 100% { transform: scale(1.25); }
+  50% { transform: scale(1.7); }
+}
+
+.controale-harta { align-items: center; }
+.status-filtru { margin: 0; font-size: .92rem; color: var(--cerneala-soft); flex: 1 1 18rem; }
+.sfat-harta { font-size: .9rem; color: var(--cerneala-soft); margin: 0 0 .5rem; }
+
+
+/* ---------- 9. TOOLTIP PLUTITOR (.tooltip-plutitor) ----------
+   Un singur element, mutat de JS după cursor cu left/top (e.clientX / e.clientY).
+   Starea ascunsă = mic (scale .85) și transparent; .vizibil îl „umflă” lin la mărime normală. */
+.tooltip-plutitor {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 60;
+  max-width: 270px;
+  padding: .7rem .9rem .75rem;
+  color: #f1e8cf;
+  font-size: .9rem; line-height: 1.4;
+  background: linear-gradient(160deg, #2e2a26, #1a1715);       /* fundal întunecat */
+  border: 1px solid var(--alama);                                 /* margine subțire din alamă */
+  outline: 1px solid rgba(176, 130, 52, .5);                      /* a doua linie fină, ca la panouri */
+  outline-offset: -5px;
+  box-shadow:
+    0 18px 38px var(--umbra-adanca),                              /* umbre adânci, pentru contrast maxim */
+    0 4px 10px rgba(0, 0, 0, .5);
+  pointer-events: none;           /* tooltip-ul nu trebuie să „fure” mouse-ul de pe oraș */
+  opacity: 0;
+  transform: scale(.85);
+  transform-origin: top left;
+  transition: opacity .16s ease, transform .18s cubic-bezier(.2, .9, .3, 1.2);
+}
+.tooltip-plutitor.vizibil { opacity: 1; transform: scale(1); }
+.tooltip-plutitor .tt-regiune { display: block; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--alama); font-weight: 700; }
+.tooltip-plutitor .tt-nume { display: block; font-family: var(--font-titlu); font-size: 1.2rem; font-weight: 700; margin: .1rem 0 .35rem; color: #fff7e0; }
+.tooltip-plutitor .tt-rand { display: block; margin-top: .15rem; }
+.tooltip-plutitor .tt-rand b { color: var(--alama); font-weight: 600; }
+.tooltip-plutitor .tt-sfat { display: block; margin-top: .45rem; padding-top: .35rem; border-top: 1px dotted rgba(176, 130, 52, .6); font-size: .75rem; color: #c9bf9f; }
+
+
+/* ---------- 10. POP-UP (dialog) ȘI GHID AUDIO ---------- */
+dialog {
+  position: fixed;
+  width: min(580px, 92vw); max-height: 88vh; overflow: auto;
+  border: 3px solid var(--cerneala); border-radius: var(--raza); padding: 1.7rem;
+  background-color: var(--hartie-2);
+  background-image: radial-gradient(circle at 1px 1px, rgba(110, 80, 30, 0.08) 0.7px, transparent 1.2px);
+  background-size: 6px 6px;
+  color: var(--cerneala);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  outline: 1px solid var(--alama); outline-offset: -8px;
+}
+dialog::backdrop { background: rgba(20, 28, 26, .65); }
+dialog h3 { font-family: var(--font-titlu); font-size: 1.5rem; margin: .2rem 0 .8rem; }
+.inchide {
+  position: absolute; top: .5rem; right: .75rem;
+  font-size: 1.8rem; line-height: 1; background: none; border: none; cursor: pointer; color: var(--cerneala);
+}
+dialog ul { padding-left: 1.2rem; }
+dialog table { width: 100%; border-collapse: collapse; font-size: .95rem; margin-top: .5rem; }
+dialog th, dialog td { text-align: left; padding: .35rem .4rem; border-bottom: 1px solid rgba(43, 40, 37, .15); vertical-align: top; }
+dialog th { font-weight: 700; }
+.loc-imagine {
+  border: 2px dashed var(--alama); border-radius: var(--raza); padding: 1rem;
+  font-size: .9rem; color: var(--cerneala-soft); margin: .5rem 0 1rem;
+}
+dialog figure { margin: .5rem 0 1rem; }
+dialog img { max-width: 100%; height: auto; }
+dialog figcaption { font-size: .85rem; color: var(--cerneala-soft); }
+
+/* „Ascultă istoria” — buton cu aer de aparat de radio */
+.ghid-audio { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin: 1rem 0 .2rem; }
+.btn-audio {
+  background: var(--petrol); color: #f1e8cf; border-color: var(--alama);
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.btn-audio:hover { background: #2a4540; }
+.btn-audio[aria-pressed="true"] { background: var(--rosu); border-color: var(--rosu); }
+.ghid-nota { font-size: .8rem; color: var(--cerneala-soft); margin: 0; flex: 1 1 14rem; }
+
+
+/* ---------- 11. SIMULATOR „FII MINISTRUL INDUSTRIEI ÎN 1936!” ---------- */
+.sim { display: grid; gap: 1.6rem 2.2rem; grid-template-columns: 1fr; }
+.sim-comanda { margin-bottom: 1.1rem; }
+.sim-comanda label { display: block; font-weight: 700; margin-bottom: .1rem; }
+.sim-comanda .sim-valoare { float: right; font: 700 1.1rem var(--font-titlu); color: var(--rosu); }
+.sim-comanda input[type="range"] { width: 100%; }
+.sim-descriere { margin: .15rem 0 0; font-size: .85rem; color: var(--cerneala-soft); }
+
+.sim-rezultate { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); align-content: start; }
+.sim-card { background: rgba(243, 235, 213, .8); border-left: 4px solid var(--alama); padding: .55rem .8rem; }
+.sim-card .sim-eticheta { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cerneala-soft); }
+.sim-card .sim-numar { display: block; font: 700 1.55rem/1.15 var(--font-titlu); }
+.sim-card .sim-unitate { font: 400 .8rem var(--font-text); color: var(--cerneala-soft); }
+.sim-card .bara-sim { height: 6px; margin-top: .35rem; background: rgba(43, 40, 37, .15); }
+.sim-card .bara-sim i { display: block; height: 100%; background: var(--otel); transition: width .25s ease; }
+.sim-card.bun { border-left-color: #3f6b3a; }
+.sim-card.rau { border-left-color: var(--rosu); }
+.sim-card.rau .sim-numar { color: var(--rosu); }
+
+.sim-mesaj {
+  grid-column: 1 / -1;
+  margin: 0; padding: .85rem 1rem;
+  border: 1px solid var(--cerneala); border-left: 6px solid var(--alama);
+  background: rgba(251, 247, 236, .9); font-size: 1.02rem;
+}
+.sim-mesaj strong { font-family: var(--font-titlu); }
+.sim-realitate { grid-column: 1 / -1; font-size: .92rem; }
+.sim-realitate ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+.sim-actiuni { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+
+
+/* ---------- 12. BUTONUL DE SUNET, BIBLIOGRAFIE, EXPORT, SUBSOL ---------- */
+/* Butonul rotund din colțul de jos: același chenar din alamă pe verde-petrol ca restul paginii. */
+.sunet-plutitor {
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+  display: flex; align-items: center; gap: .6rem;
+  pointer-events: none;                       /* eticheta nu blochează click-urile din jur */
+  /* ascuns peste tot, în afară de secțiunea B (JavaScript pune clasa .vizibil cât timp harta cu trenuri e pe ecran) */
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  transition: opacity .3s ease, transform .3s ease, visibility 0s linear .3s;
+}
+.sunet-plutitor.vizibil { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.sunet-plutitor > * { pointer-events: auto; }
+.sunet-eticheta {
+  padding: .35rem .7rem;
+  background: linear-gradient(160deg, #2e2a26, #1a1715);
+  color: #f1e8cf; font-size: .8rem; line-height: 1.2; max-width: 15rem;
+  border: 1px solid var(--alama);
+  box-shadow: 0 8px 20px var(--umbra-adanca);
+}
+.sunet-btn {
+  position: relative;
+  width: 58px; height: 58px; padding: 0;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--alama);
+  background: var(--petrol);
+  color: var(--alama);
+  box-shadow: 0 8px 20px var(--umbra-adanca), inset 0 0 0 3px var(--petrol), inset 0 0 0 4px rgba(176, 130, 52, .6);
+  cursor: pointer;
+  transition: transform .2s ease, color .2s ease;
+}
+.sunet-btn:hover { transform: scale(1.07); color: #d9b25f; }
+.sunet-btn svg { width: 28px; height: 28px; }
+.sunet-btn[aria-pressed="true"] .taie { display: none; }
+.sunet-btn[aria-pressed="false"] .unde { display: none; }
+.sunet-btn[aria-pressed="false"] { color: #8a8472; }
+/* Inelul care pulsează cât timp se aude ceva (clasa .suna e pusă de JavaScript) */
+.sunet-btn::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%;
+  border: 2px solid var(--alama); opacity: 0; pointer-events: none;
+}
+.sunet-btn.suna::after { animation: inel-sunet .95s ease-out; }
+@keyframes inel-sunet {
+  from { opacity: .85; transform: scale(1); }
+  to   { opacity: 0;   transform: scale(1.55); }
+}
+
+.sursa-mica { margin-left: .35rem; font-size: .78rem; font-style: italic; color: var(--cerneala-soft); }
+dialog .sursa-mica { display: block; margin: 0; }
+.eticheta-pop {
+  margin: 0; text-transform: uppercase; letter-spacing: .16em;
+  font-size: .72rem; font-weight: 700; color: var(--alama-text);
+}
+
+/* Sursele indicatorului, sub grafic */
+.surse-linie { margin: .5rem 0 0; font-size: .85rem; color: var(--cerneala-soft); }
+.surse-linie a { color: var(--otel); }
+
+/* „Vezi datele ca tabel” */
+.tabel-date { margin: 1rem 0 0; }
+.tabel-date summary { cursor: pointer; font-weight: 600; font-size: .92rem; color: var(--rosu); }
+.tabel-date table { border-collapse: collapse; margin-top: .6rem; font-size: .92rem; min-width: 14rem; }
+.tabel-date th, .tabel-date td { text-align: left; padding: .25rem 1.2rem .25rem .1rem; border-bottom: 1px solid rgba(43, 40, 37, .15); }
+.tabel-date th { font-weight: 700; }
+
+.biblio { padding-left: 1.3rem; }
+.biblio li { margin-bottom: .6rem; scroll-margin-top: 1rem; }
+.biblio li:target { background: rgba(176, 130, 52, .2); }
+.tip-sursa { font-size: .8rem; color: var(--cerneala-soft); font-style: italic; }
+
+.export { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.2rem 0 0; }
+#notaExport { margin-top: .6rem; }
+
+.eroare {
+  background: #f6dcd8; border: 1px solid var(--rosu); color: #4f1816;
+  padding: .9rem 1.1rem; border-radius: var(--raza); margin: 1rem 0;
+}
+
+.subsol { background: var(--petrol); color: #e8dfc4; padding: 1.5rem 0; font-size: .9rem; border-top: 6px double var(--alama); }
+.subsol p { margin: 0; }
+
+/* Antetul care apare doar la tipărire */
+.antet-print, .doar-print { display: none; }
+
+
+/* ---------- 13. RESPONSIV ȘI MIȘCARE REDUSĂ ---------- */
+@media (min-width: 860px) {
+  .sim { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+}
+@media (max-width: 1000px) {
+  .ziar-coloane { column-count: 2; }
+}
+@media (max-width: 600px) {
+  .ziar-coloane { column-count: 1; column-rule: none; }
+  .ziar-articol p { text-align: left; }
+  .sunet-btn { width: 52px; height: 52px; }
+  .sunet-eticheta { display: none; }
+  select { min-width: 0; width: 100%; }
+}
+@media (max-width: 700px) {
+  /* Pe telefon harta rămâne suficient de mare ca să fie citibilă; se derulează lateral în interiorul panoului */
+  #hartaSvg { min-width: 620px; }
+  .doar-mobil { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+  .oras.accentuat .oras-halo,
+  .sunet-btn.suna::after { animation: none !important; }
+}
+
+
+/* ---------- 14. TIPĂRIRE / SALVARE CA PDF (@media print) ---------- */
+@media print {
+  @page { margin: 14mm; }
+
+  /* Hârtie albă, fără texturi: economisim cerneală */
+  body, body::before { background: #fff !important; }
+  body { color: #000; font-size: 11pt; }
+  body::before { display: none; }
+
+  /* Ascundem tot ce e interactiv sau decorativ */
+  .hero .nav, .sari, .controale, .grup-butoane, .sunet-plutitor, .tabel-date,
+  .tooltip-plutitor, dialog, .export, .btn, .sim-actiuni, .sfat-harta,
+  noscript { display: none !important; }
+
+  /* Antetul tipărit */
+  .antet-print { display: block; text-align: center; border-bottom: 2px solid #000; padding-bottom: 6pt; margin-bottom: 10pt; }
+  .antet-print h1 { font-family: var(--font-titlu); font-size: 18pt; margin: 0; }
+  .antet-print p { margin: 2pt 0 0; font-size: 9pt; }
+
+  .hero { background: none; color: #000; padding: 0 0 8pt; border-bottom: 1px solid #000; }
+  .hero h1 { font-size: 20pt; }
+  .hero .lead { color: #000; font-size: 10pt; }
+  .hero .kicker { color: #000; }
+
+  section { padding: 10pt 0; break-inside: auto; }
+  .panou, .ziar-foaie {
+    box-shadow: none; background: #fff; outline: none; border: 1px solid #000;
+    break-inside: avoid;
+  }
+  .panou::before, .panou::after { display: none; }
+  .ziar-coloane { column-count: 3; }
+
+  /* Graficele canvas se tipăresc ca imagine (JS pune imaginea înainte de tipărire) */
+  .cadru-grafic canvas, .cadru-canvas canvas { display: none !important; }
+  .doar-print { display: block; width: 100%; height: auto; }
+  .cadru-grafic { height: auto; }
+
+  .doar-mobil { display: none !important; }
+  .harta-defilare { overflow: visible; }
+  #hartaSvg { min-width: 0; }
+
+  /* Harta: toate orașele la opacitate plină, fără animații */
+  .oras.atenuat { opacity: 1; }
+  .oras.accentuat .oras-halo { animation: none; }
+
+  a { color: #000; text-decoration: none; }
+  .biblio a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
+  .subsol { background: none; color: #000; border-top: 1px solid #000; }
+}
+
+/* Sursele din simulator apar pe același rând cu textul */
+.sim-sursa-inline { display: inline; margin: 0; font-size: .8rem; color: var(--cerneala-soft); }
+.sim-sursa-inline a { color: var(--otel); }
+.btn-back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background-color: #ffffff; 
+  color: #222222;
+  text-decoration: none;
+  font-family: inherit; /* Preia fontul de ziar/retro al paginii tale */
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase; /* Se potrivește cu stilul „Sari la conținut” sau „Ediție Specială” */
+  letter-spacing: 0.5px;
+  border: 2px solid #222222; /* Stil de chenar curat, tipărit */
+  border-radius: 0px; /* Fără colțuri rotunjite, pentru a păstra aspectul retro de tipografie */
+  transition: all 0.2s ease-in-out;
+  z-index: 1000;
+}
+
+.btn-back .arrow {
+  font-size: 15px;
+  transition: transform 0.2s ease;
+}
+
+/* Efect de hover cu accent auriu, asortat cu „punctele aurii” și elementele din pagină */
+.btn-back:hover {
+  background-color: #222222;
+  color: #d4af37; /* Culoarea aurie din infograficul tău */
+  border-color: #222222;
+  box-shadow: 3px 3px 0px #d4af37; /* Umbră retro aurie */
+}
+
+.btn-back:hover .arrow {
+  transform: translateX(-3px); /* Mișcare discretă a săgeții */
+}
+
+/* Ajustare pentru ecrane de telefon */
+@media (max-width: 768px) {
+  .btn-back {
+    top: 12px;
+    left: 12px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+
+  </style>
+</head>
+
+<body>
+  <a href="../" class="btn-back">
+    <span class="arrow">←</span> Înapoi
+  </a>
+
+  <a class="sari" href="#continut">Sari la conținut</a>
+
+  <!-- Apare doar la tipărire / PDF (vezi @media print în stilul paginii) -->
+  <div class="antet-print" aria-hidden="true">
+    <h1>Industrializarea României interbelice (1920–1938)</h1>
+    <p>Proiect interdisciplinar Istorie × Informatică · Echipa 5 · Tipărit la <span id="dataPrint"></span></p>
+  </div>
+
+  <header class="hero">
+    <div class="pagina">
+      <p class="kicker">Echipa 5 · Istorie × Tehnologie · Clasa a X-a</p>
+      <h1>Industrializarea României interbelice</h1>
+      <p class="lead">Între 1920 și 1938, România Întregită își dezvoltă industria — în frunte cu petrolul, apoi metalurgia și transporturile. Explorează cifrele, fluxurile și marile centre industriale.</p>
+      <nav class="nav" aria-label="Secțiunile infograficului">
+        <a href="#ziar">Prima pagină</a>
+        <a href="#boom">A · Boom-ul industrial</a>
+        <a href="#petrol">B · Aurul negru</a>
+        <a href="#harta">C · Harta industriilor</a>
+        <a href="#simulator">D · Fii Ministrul</a>
+        <a href="#surse">Surse și date</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="continut">
+    <div class="pagina">
+      <noscript><p class="eroare">Infograficul are nevoie de JavaScript pentru a afișa graficele.</p></noscript>
+
+      <!-- ===================== „ZIARUL INTERBELIC” (textele vin din REPOZITOR_DATE → editorial) ===================== -->
+      <section id="ziar" class="ziar" aria-labelledby="ziarTitlu">
+        <div class="ziar-foaie">
+          <header class="ziar-antet">
+            <p class="ziar-sus">Anul XX · Organ de informare economică</p>
+            <h2 class="ziar-titlu" id="ziarTitlu">Curierul Industrial Român</h2>
+            <p class="ziar-subtitlu" id="ziarSubtitlu">Ediție Specială</p>
+          </header>
+          <ul class="ziar-linie" id="ziarLinie"></ul>
+          <div class="ziar-coloane" id="ziarColoane"></div>
+          <p class="ziar-nota" id="ziarNota"></p>
+        </div>
+      </section>
+
+      <!-- ===================== SECȚIUNEA A — Chart.js ===================== -->
+      <section id="boom" aria-labelledby="titlu-boom">
+        <p class="eticheta-sectiune">Secțiunea A</p>
+        <h2 id="titlu-boom">Boom-ul industrial</h2>
+        <p class="intro">Alege un indicator și mută cursorul pentru a vedea evoluția până într-un an anume.</p>
+
+        <div class="panou">
+          <div class="controale">
+            <label>Indicator
+              <select id="selIndicator"></select>
+            </label>
+            <label>Până în anul <output id="outAn" for="rngAn">1938</output>
+              <input type="range" id="rngAn" step="1">
+            </label>
+            <div class="grup-butoane" role="group" aria-label="Tipul graficului">
+              <button type="button" class="btn" data-tip="line" aria-pressed="true">Linie</button>
+              <button type="button" class="btn" data-tip="bar" aria-pressed="false">Coloane</button>
+            </div>
+          </div>
+
+          <div class="cadru-grafic">
+            <canvas id="graficBoom" role="img" aria-label="Grafic cu evoluția indicatorului ales"></canvas>
+            <img id="imgGraficPrint" class="doar-print" alt="Grafic cu evoluția indicatorului ales (versiune pentru tipărire)">
+          </div>
+          <p id="notaA" class="nota" aria-live="polite"></p>
+          <p id="surseA" class="surse-linie"></p>
+
+          <dl class="kpi">
+            <div><dt>An selectat</dt><dd id="kpiAn">—</dd></div>
+            <div><dt>Valoare</dt><dd id="kpiValoare">—</dd></div>
+          </dl>
+
+          <details class="tabel-date">
+            <summary>Vezi datele ca tabel</summary>
+            <table>
+              <thead><tr><th scope="col">An</th><th scope="col" id="tabelUnitate">Valoare</th></tr></thead>
+              <tbody id="tabelA"></tbody>
+            </table>
+          </details>
+
+          <h3 class="subtitlu">Context istoric până în anul selectat</h3>
+          <ul id="repereA" class="repere"></ul>
+        </div>
+      </section>
+
+      <!-- ===================== SECȚIUNEA B — Canvas ===================== -->
+      <section id="petrol" aria-labelledby="titlu-petrol">
+        <p class="eticheta-sectiune">Secțiunea B</p>
+        <h2 id="titlu-petrol">Aurul negru și transporturile</h2>
+        <p class="intro">Petrolul din zona Prahova–Dâmbovița ajungea la rafinăriile de la Ploiești, apoi pe conducte și cu trenurile cisternă spre Giurgiu, București și portul Constanța. Cu cât producția anului ales e mai mare, cu atât fluxul e mai intens. În anii ’30, peste jumătate din producție mergea la export.</p>
+
+        <div class="panou">
+          <div class="controale">
+            <label>Anul <output id="outAnFlux" for="rngAnFlux">1936</output>
+              <input type="range" id="rngAnFlux" step="1">
+            </label>
+            <button type="button" class="btn" id="btnJoaca" aria-pressed="false">▶ Redă anii</button>
+          </div>
+
+          <div class="cadru-canvas">
+            <canvas id="canvasFlux" role="img" aria-label="Simulare schematică a fluxului de petrol dinspre câmpurile Prahova–Dâmbovița spre rafinării, București și porturi"></canvas>
+            <img id="imgFluxPrint" class="doar-print" alt="Schema fluxului de petrol (versiune pentru tipărire)">
+          </div>
+          <p id="infoFlux" class="info-flux" aria-live="polite"></p>
+
+          <ul class="legenda">
+            <li><i class="pct pct-camp"></i>Câmp petrolier</li>
+            <li><i class="pct pct-rafinarie"></i>Rafinărie</li>
+            <li><i class="pct pct-port"></i>Port</li>
+            <li><i class="pct pct-conducta"></i>Conductă (puncte aurii)</li>
+            <li><i class="pct pct-tren"></i>Tren cisterne</li>
+          </ul>
+          <p class="nota">Traseele sunt desenate stilizat. Doar aici se aude un tren de marfă care rulează, cu puf-uri de locomotivă cu aburi, roți pe șine și un fluier din când în când. Sunetul pornește după primul click în pagină, se oprește când pleci din secțiune și poate fi oprit din butonul din colț. Este creat în browser, nu e o înregistrare de epocă.</p>
+        </div>
+      </section>
+
+      <!-- ===================== SECȚIUNEA C — SVG ===================== -->
+      <section id="harta" aria-labelledby="titlu-harta">
+        <p class="eticheta-sectiune">Secțiunea C</p>
+        <h2 id="titlu-harta">Harta marilor centre industriale</h2>
+        <p class="intro">Treci cu mouse-ul peste un oraș pentru o fișă rapidă și pentru a vedea regiunea istorică. Apasă pe oraș (sau navighează cu Tab și Enter) pentru detalii complete. Cu filtrul de mai jos poți urmări o singură ramură industrială.</p>
+
+        <div class="panou">
+          <div class="controale controale-harta">
+            <label for="filtruIndustrie">Ramura industrială
+              <select id="filtruIndustrie">
+                <option value="toate">Toate ramurile</option>
+              </select>
+            </label>
+            <p id="statusFiltru" class="status-filtru" role="status" aria-live="polite"></p>
+          </div>
+
+          <p class="nota doar-mobil">Pe telefon, glisează harta lateral ca să vezi toată țara.</p>
+          <div class="harta-defilare">
+            <svg id="hartaSvg" role="group" aria-label="Hartă schematică a României Întregite cu centrele industriale"></svg>
+          </div>
+          <p class="nota">Conturul este schematic și arată România Întregită din jurul anului 1930: include Basarabia, Bucovina de Nord și Cadrilaterul (Dobrogea de Sud), nu granițele de azi.</p>
+        </div>
+      </section>
+
+      <!-- ===================== SECȚIUNEA D — Simulator (controalele vin din REPOZITOR_DATE → simulator) ===================== -->
+      <section id="simulator" aria-labelledby="titlu-sim">
+        <p class="eticheta-sectiune">Secțiunea D · Joc didactic</p>
+        <h2 id="titlu-sim">Fii Ministrul Industriei în 1936!</h2>
+        <p class="intro" id="simAvertisment"></p>
+
+        <div class="panou">
+          <div class="sim">
+            <div id="simControale"></div>
+            <div class="sim-rezultate" id="simRezultate"></div>
+            <p class="sim-mesaj" id="simMesaj" role="status" aria-live="polite"></p>
+            <div class="sim-realitate">
+              <strong>Realitatea istorică, în 1936:</strong>
+              <ul id="simRealitate"></ul>
+            </div>
+            <div class="sim-actiuni">
+              <button type="button" class="btn" id="simReset">↺ Revino la situația de referință</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== SURSE ===================== -->
+      <section id="surse" aria-labelledby="titlu-surse">
+        <p class="eticheta-sectiune">Transparență</p>
+        <h2 id="titlu-surse">Surse și date</h2>
+        <p class="intro">Toate cifrele de pe această pagină sunt citite din repozitorul de date inclus în fișier (<code>REPOZITOR_DATE</code>). Fiecare indicator își numește sursele, iar lista completă este mai jos.</p>
+
+        <div class="export">
+          <button type="button" class="btn btn-alama" id="btnCsv">📥 Descarcă datele (CSV)</button>
+          <button type="button" class="btn" id="btnPrint">🖨️ Tipărește sau salvează ca PDF</button>
+        </div>
+        <p id="notaExport" class="nota" role="status" aria-live="polite">CSV-ul se deschide direct în Excel (separator „;”, virgulă zecimală). La tipărire alege „Salvează ca PDF”.</p>
+
+        <ol id="listaBiblio" class="biblio"></ol>
+      </section>
+    </div>
+  </main>
+
+  <!-- Pop-up pentru centrele industriale (element <dialog>) -->
+  <dialog id="popup" aria-labelledby="popupTitlu">
+    <button type="button" class="inchide" id="popupInchide" aria-label="Închide fereastra">×</button>
+    <div id="popupCorp"></div>
+  </dialog>
+
+  <!-- Tooltip-ul plutitor al hărții: un singur element, mutat de JavaScript după cursor -->
+  <div id="tooltipHarta" class="tooltip-plutitor" role="tooltip" aria-hidden="true"></div>
+
+  <!-- Butonul de sunet: apare doar în secțiunea B și pornește / oprește trenul -->
+  <div class="sunet-plutitor">
+    <span class="sunet-eticheta" id="sunetEticheta" aria-hidden="true">Sunet pornit</span>
+    <button type="button" id="btnSunet" class="sunet-btn" aria-pressed="true" aria-label="Sunet pornit. Apasă pentru a opri sunetul." title="Sunet pornit / oprit">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4H4z" fill="currentColor"/>
+        <path class="unde" d="M15.2 9.2a4 4 0 0 1 0 5.6M17.6 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path class="taie" d="M15.5 9.5l5 5M20.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <footer class="subsol">
+    <div class="pagina">
+      <p>Proiect interdisciplinar Istorie × Informatică · Echipa 5 · Clasa a X-a.</p>
+    </div>
+  </footer>
+
+  <!-- ===================== REPOZITORUL DE DATE ===================== -->
+  <script>
+/* REPOZITOR_DATE — toate cifrele, textele și sursele proiectului (fostul date.json).
+   Fiecare indicator are „surse” (ids din „bibliografie”); regula echipei: cifrele se schimbă DOAR aici. */
+const REPOZITOR_DATE = {
+  "meta": {
+    "titlu": "Industrializarea României interbelice — set de date verificat față de sursele accesibile",
+    "versiune": "0.4 (13 octombrie 2026)",
+    "an_start": 1920,
+    "an_sfarsit": 1938,
+    "avertisment": "„Verificat” înseamnă că valoarea a fost regăsită într-o sursă din bibliografie (cu tabelul sau articolul notat), NU că a fost confruntată cu Anuarul Statistic al României 1939/40 sau cu Axenciuc: acestea nu au putut fi consultate. Unele serii (oțel, drumuri, marea industrie 1936–1937) conțin puncte interpolate liniar, marcate „estimat”, doar ca să lege punctele reale; ele nu sunt date istorice. Seriile pentru care nu există puncte (cale ferată, chimie) au rămas goale, cu explicația în notă. Cifrele din sursele secundare trebuie confirmate în sursele primare înainte de predare.",
+    "legenda_incredere": {
+      "verificat": "Cifra a fost regăsită într-o sursă secundară sau o monografie accesată direct în proiect (Calcan, Zaman și Georgescu, Historia, Infofinanciar, Agerpres, AGIR, Wikipedia etc.), nu în Anuarele statistice primare, care nu au fost consultate. Se confirmă ulterior în Anuarul Statistic al României 1939/40 sau în Axenciuc.",
+      "derivat": "Calculată de noi dintr-o altă cifră a sursei (de exemplu barili → tone sau o pondere procentuală).",
+      "estimat": "Valoare nesigură: limită inferioară dată de sursă („peste X”), cifră cu an sau context neclar, ori valoare interpolată liniar între două puncte istorice (nu este o cifră de arhivă). Apare ca punct gol în grafic."
+    },
+    "conversii": { "barili_per_tona_titei": 7.3, "nota": "Valoare orientativă; depinde de densitatea țițeiului." },
+    "acoperire_serii": {
+      "petrol_extractie": "completă 1920–1938: Calcan (2005), tabelul 1",
+      "export_produse_petroliere": "1929–1936: Zaman și Georgescu (2018), citând Calcan și Axenciuc",
+      "otel_productie": "3 puncte din surse (1924, 1935, 1938) + 12 puncte interpolate „estimat” (1925–1934, 1936–1937)",
+      "udr_otel_productie": "3 puncte (1924, 1928, 1935) — doar Reșița, nu toată țara",
+      "intreprinderi_industriale": "5 puncte din surse (1932–1935, 1938) + 2 interpolate „estimat” (1936–1937); 1920–1931 lipsesc",
+      "muncitori_marea_industrie": "5 puncte din surse (1932–1935, 1938) + 2 interpolate „estimat” (1936–1937); 1920–1931 lipsesc",
+      "valoare_productie_marea_industrie": "2 puncte (1933, 1938)",
+      "putere_motoare_marea_industrie": "4 puncte (1930, 1933–1935)",
+      "textile_productie": "1 punct (1934), limită inferioară",
+      "chimie_productie": "goală: singura cifră găsită nu are an",
+      "cale_ferata_km": "goală: nicio serie anuală regăsită într-o sursă accesibilă",
+      "drumuri_km": "2 puncte din surse (1922, 1936) + 13 interpolate „estimat” (1923–1935); fără extrapolare 1937–1938",
+      "port_constanta_trafic": "1 punct (1938)",
+      "port_constanta_export": "4 puncte (1926, 1929, 1931, 1938)"
+    }
+  },
+  "editorial": {
+    "titlu_ziar": "CURIERUL INDUSTRIAL ROMÂN",
+    "subtitlu": "Ediție Specială",
+    "linie": ["București, Octombrie 1938", "Industria și Transporturile", "Prețul: 5 Lei"],
+    "nota_pastisa": "Publicație imaginară, creată de elevi în stilul presei interbelice. Cifrele din articole sunt cele din secțiunea „Surse și date”.",
+    "articole": [
+      {
+        "titlu": "Aurul negru",
+        "text": "Extracția de țiței a României a crescut de la 1,03 milioane de tone în 1920 la maximul interbelic de 8,78 milioane în 1936, apoi a coborât la 6,61 milioane în 1938. În 1939, cu 6,24 milioane de tone, țara rămânea al doilea producător european după Uniunea Sovietică, iar aproape două treimi din producție mergeau la export.",
+        "surse": ["calcan2005", "evz2025"]
+      },
+      {
+        "titlu": "Pe șine",
+        "text": "La 21 septembrie 1920, rețeaua din Transilvania și Banat a trecut oficial sub administrația C.F.R., iar rețeaua feroviară a devenit unitară. Între războaie s-a dublat linia Constanța–Cernavodă (1931) și Adjud–Tecuci (1933). La electrificare sursele se contrazic: Turnock (2004) vorbește doar de studii și de un proiect de electrificare amânat în 1936–1938, în timp ce raportul FES (2021) numără 58 km electrificați în 1938.",
+        "surse": ["berinde2013", "historia_cf", "turnock2004", "fes2021"]
+      },
+      {
+        "titlu": "La Marea Neagră",
+        "text": "În 1938, portul Constanța a operat 4,14 milioane de tone de mărfuri, din care 3,95 milioane erau destinate exportului. Tot în 1938 au sosit la Constanța cele două motonave de pasageri ale Serviciului Maritim Român, „Transilvania” și „Basarabia”, construite la Copenhaga.",
+        "surse": ["agerpres2019a", "adevarul_smr"]
+      },
+      {
+        "titlu": "Bilanțul marii industrii",
+        "text": "Marea industrie prelucrătoare număra 3.487 de unități în 1933 și 3.767 în 1938, iar numărul muncitorilor a crescut de la 184.777 la 289.117. Valoarea producției a urcat de la 34,9 la 69,2 miliarde de lei (cifre în lei curenți, fără ajustare la inflație).",
+        "surse": ["historia_1934", "historia_marea_ind"]
+      }
+    ]
+  },
+  "serii": {
+    "petrol_extractie": {
+      "titlu": "Extracția de țiței",
+      "unitate": "milioane tone",
+      "domeniu": "industrie",
+      "sectiuni": ["A", "B"],
+      "surse": ["calcan2005", "capital2022", "gardescu1933", "aime1930"],
+      "nota": "Serie completă 1920–1938 din tabelul 1 al studiului lui Gh. Calcan (2005), în tone, aici convertite în milioane de tone. Maximul interbelic: 8.784.000 t în 1936. De confirmat în Anuarul Statistic.",
+      "date": [
+        { "an": 1920, "valoare": 1.034, "incredere": "verificat", "nota": "În PDF-ul sursei rândurile 1919–1921 sunt decalate între coloane; reverificați valoarea pe pagina tabelului 1." },
+        { "an": 1921, "valoare": 1.163, "incredere": "verificat", "nota": "În PDF-ul sursei rândurile 1919–1921 sunt decalate între coloane; reverificați valoarea pe pagina tabelului 1." },
+        { "an": 1922, "valoare": 1.366, "incredere": "verificat" },
+        { "an": 1923, "valoare": 1.516, "incredere": "verificat" },
+        { "an": 1924, "valoare": 1.851, "incredere": "verificat", "nota": "Încă sub nivelul din 1913 (1.885.619 t); îl depășește clar în 1925." },
+        { "an": 1925, "valoare": 2.317, "incredere": "verificat", "nota": "Prima depășire clară a nivelului antebelic din 1913 (1.885.619 t)." },
+        { "an": 1926, "valoare": 3.241, "incredere": "verificat" },
+        { "an": 1927, "valoare": 3.661, "incredere": "verificat" },
+        { "an": 1928, "valoare": 4.269, "incredere": "verificat", "nota": "Capital.ro dă „peste 4,28 milioane tone” (diferență sub 0,3%)." },
+        { "an": 1929, "valoare": 4.827, "incredere": "verificat", "nota": "Estimarea AIME din 1930 (35.556.000 barili ≈ 4,87 Mt) este apropiată de valoarea din tabel." },
+        { "an": 1930, "valoare": 5.744, "incredere": "verificat" },
+        { "an": 1931, "valoare": 6.657, "incredere": "verificat" },
+        { "an": 1932, "valoare": 7.35, "incredere": "verificat", "nota": "Gardescu (1933): 52.560.000 barili ≈ 7,2 Mt la 7,3 barili/tonă — diferență de circa 2% din cauza conversiei." },
+        { "an": 1933, "valoare": 7.387, "incredere": "verificat", "nota": "Capital.ro dă „peste 7,37 milioane tone”. Stabilizare în plină criză economică." },
+        { "an": 1934, "valoare": 8.473, "incredere": "verificat" },
+        { "an": 1935, "valoare": 8.394, "incredere": "verificat" },
+        { "an": 1936, "valoare": 8.784, "incredere": "verificat", "nota": "8.784.000 t — maximul interbelic." },
+        { "an": 1937, "valoare": 7.15, "incredere": "verificat", "nota": "Scădere față de 1936 (−18,6%)." },
+        { "an": 1938, "valoare": 6.61, "incredere": "verificat", "nota": "6.610.000 t (alte surse rotunjesc la 6,6 Mt)." }
+      ]
+    },
+    "otel_productie": {
+      "titlu": "Producția de oțel",
+      "unitate": "mii tone",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["infofinanciar_udr", "historia_metal_criza", "scanteia1975"],
+      "de_completat": true,
+      "nota": "Doar 3 puncte provin din surse: 1924 (87 mii t, Reșița = 100% din țară), 1935 (213,086 mii t) și 1938 (284 mii t, singura sursă fiind presa din 1975, deci „estimat”). Anii dintre ele sunt interpolați liniar și marcați „estimat” (cerc gol în grafic), doar ca linia să fie continuă: nu sunt cifre de arhivă. Interpolarea nu poate arăta criza din 1929–1933 și, în 1928, rămâne sub producția Reșiței singure (144 mii t). Seria națională anuală trebuie completată din Anuarul Statistic al României 1939/40 sau din Axenciuc, pe care echipa nu le-a putut consulta.",
+      "date": [
+        { "an": 1924, "valoare": 87, "incredere": "verificat", "nota": "UDR a produs 87.000 t, adică 100% din oțelul țării (Infofinanciar, 2023)." },
+        { "an": 1925, "valoare": 98.5, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        {
+          "an": 1926,
+          "valoare": 109.9,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935). Control: UDR a produs 100.000 t, adică 91% din țară, deci circa 110 mii t la nivel național."
+        },
+        { "an": 1927, "valoare": 121.4, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        {
+          "an": 1928,
+          "valoare": 132.8,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935). Atenție: UDR singură a produs 144.000 t în 1928 (Infofinanciar), deci valoarea națională reală era cel puțin 144 mii t; interpolarea o subestimează."
+        },
+        { "an": 1929, "valoare": 144.3, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1930, "valoare": 155.8, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1931, "valoare": 167.2, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1932, "valoare": 178.7, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1933, "valoare": 190.2, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1934, "valoare": 201.6, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1924 → 1935)." },
+        { "an": 1935, "valoare": 213.086, "incredere": "verificat", "nota": "Livrări de oțel după anuarul din 1936, citat de Historia. Concordă cu UDR: 157.000 t = 76% din producție ⇒ circa 207.000 t." },
+        {
+          "an": 1936,
+          "valoare": 236.7,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1935 → 1938). Punctul din 1938 provine dintr-o sursă de propagandă din 1975."
+        },
+        {
+          "an": 1937,
+          "valoare": 260.4,
+          "incredere": "estimat",
+          "nota": "Valoare interpolată matematic între punctele istorice sigure (1935 → 1938). Punctul din 1938 provine dintr-o sursă de propagandă din 1975."
+        },
+        {
+          "an": 1938,
+          "valoare": 284,
+          "incredere": "estimat",
+          "nota": "Singura sursă este presa comunistă din 1975 (propagandistică), de aceea punctul e „estimat”: confirmați-l în Anuarul Statistic. UDR depășea singură 200.000 t."
+        }
+      ]
+    },
+    "udr_otel_productie": {
+      "titlu": "Oțel produs de UDR Reșița",
+      "unitate": "mii tone",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["infofinanciar_udr"],
+      "nota": "Doar producția uzinelor de la Reșița, nu a întregii țări. În 1926 UDR a depășit 100.000 t (91% din țară), iar în 1938 a depășit 200.000 t. Cifrele vin dintr-un articol de presă care citează enciclopediaromaniei.ro.",
+      "date": [
+        { "an": 1924, "valoare": 87, "incredere": "verificat", "nota": "100% din producția țării." },
+        { "an": 1928, "valoare": 144, "incredere": "verificat" },
+        { "an": 1935, "valoare": 157, "incredere": "verificat", "nota": "76% din producția țării." }
+      ]
+    },
+    "intreprinderi_industriale": {
+      "titlu": "Marea industrie prelucrătoare (unități)",
+      "unitate": "număr unități",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1935", "historia_1934", "historia_marea_ind"],
+      "nota": "Cifre pentru marea industrie prelucrătoare au fost găsite doar pentru 1932–1935 și 1938 (articole Historia care citează anuarele din 1934 și 1936 și „o statistică a timpului”). Pentru 1920–1931 nu am găsit cifre, deci anii respectivi nu sunt incluși în serie (nu am completat cu valori fictive). 1936 și 1937 sunt interpolate liniar între 1935 și 1938 și marcate „estimat”. Punctul din 1935 (3.613) este și el „estimat”: formularea din sursă este ambiguă.",
+      "date": [
+        { "an": 1932, "valoare": 3557, "incredere": "verificat", "nota": "Sursa spune „3.557 de capacități de producție”." },
+        { "an": 1933, "valoare": 3487, "incredere": "verificat" },
+        { "an": 1934, "valoare": 3510, "incredere": "verificat" },
+        { "an": 1935, "valoare": 3613, "incredere": "estimat", "nota": "Formularea din sursă este ambiguă („centre industriale”): poate fi numărul total de unități." },
+        { "an": 1936, "valoare": 3664, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1937, "valoare": 3716, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1938, "valoare": 3767, "incredere": "verificat", "nota": "3.767 de „uzine mari din industria transformatoare”." }
+      ]
+    },
+    "muncitori_marea_industrie": {
+      "titlu": "Muncitori în marea industrie",
+      "unitate": "muncitori",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1935", "historia_1934", "historia_marea_ind"],
+      "nota": "Cifre pentru marea industrie prelucrătoare au fost găsite doar pentru 1932–1935 și 1938 (articole Historia care citează anuarele din 1934 și 1936 și „o statistică a timpului”). Pentru 1920–1931 nu am găsit cifre, deci anii respectivi nu sunt incluși în serie (nu am completat cu valori fictive). 1936 și 1937 sunt interpolate liniar între 1935 și 1938 și marcate „estimat”. Pentru 1934, două articole Historia dau 208.240 și 208.340; am păstrat 208.240 (apare de două ori). Cifra din 1935 este „estimat”: sursa nu o leagă explicit de acest an.",
+      "date": [
+        { "an": 1932, "valoare": 152198, "incredere": "verificat" },
+        { "an": 1933, "valoare": 184777, "incredere": "verificat" },
+        { "an": 1934, "valoare": 208240, "incredere": "verificat" },
+        { "an": 1935, "valoare": 230797, "incredere": "estimat", "nota": "Sursa dă cifra în paragraful despre 1935, dar nu leagă explicit anul de ea." },
+        { "an": 1936, "valoare": 250237, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1937, "valoare": 269677, "incredere": "estimat", "nota": "Valoare interpolată liniar între 1935 și 1938." },
+        { "an": 1938, "valoare": 289117, "incredere": "verificat" }
+      ]
+    },
+    "valoare_productie_marea_industrie": {
+      "titlu": "Valoarea producției marii industrii",
+      "unitate": "miliarde lei (lei curenți)",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_marea_ind"],
+      "nota": "Lei curenți, fără ajustare la inflație. Alte articole dau 35 miliarde pentru 1934 și 65 miliarde pentru 1938 (Infofinanciar): cifrele din surse secundare diferă, deci se confirmă în anuar.",
+      "date": [
+        { "an": 1933, "valoare": 34.941, "incredere": "verificat", "nota": "34.940.747.000 lei." },
+        { "an": 1938, "valoare": 69.207, "incredere": "verificat", "nota": "69.206.738.000 lei." }
+      ]
+    },
+    "putere_motoare_marea_industrie": {
+      "titlu": "Puterea motoarelor din marea industrie",
+      "unitate": "mii CP",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1935", "historia_1934"],
+      "nota": "Puterea totală a motoarelor din fabricile mari, în mii de cai-putere (CP): un indicator al înzestrării tehnice. Cifrele vin din articolele Historia despre 1934 și 1935.",
+      "date": [
+        { "an": 1930, "valoare": 492.715, "incredere": "verificat" },
+        { "an": 1933, "valoare": 529.868, "incredere": "verificat" },
+        { "an": 1934, "valoare": 558.468, "incredere": "verificat" },
+        { "an": 1935, "valoare": 582.846, "incredere": "verificat" }
+      ]
+    },
+    "textile_productie": {
+      "titlu": "Muncitori în industria textilă",
+      "unitate": "muncitori",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_1934"],
+      "de_completat": true,
+      "nota": "Avem un singur punct, ca limită inferioară: articolul Historia despre 1934 spune că textilele erau ramura cu cei mai mulți muncitori din marea industrie, „peste 50.000 de posturi”, fără să dea anul explicit. Seria se completează din Anuarul Statistic / Axenciuc.",
+      "date": [
+        { "an": 1934, "valoare": 50000, "incredere": "estimat", "nota": "Limită inferioară: sursa spune „peste 50.000”; ramura cu cei mai mulți muncitori, urmată de metalurgie (37.796)." }
+      ]
+    },
+    "chimie_productie": {
+      "titlu": "Fabrici chimice active",
+      "unitate": "unități",
+      "domeniu": "industrie",
+      "sectiuni": ["A"],
+      "surse": ["historia_ind_interbelica"],
+      "de_completat": true,
+      "nota": "Seria rămâne goală: documentaristul echipei nu a putut accesa o serie completă (Anuarul Statistic nu a fost consultat). Singura cifră găsită, „254 de întreprinderi cu 20.282 de angajați” într-un articol Historia, nu are an precis (articolul adaugă că „în anul următor” angajații erau 22.282), deci nu poate intra într-un grafic. De completat din Anuarul Statistic al României 1935–1936 sau 1939/40.",
+      "date": []
+    },
+    "cale_ferata_km": {
+      "titlu": "Rețeaua de căi ferate în exploatare",
+      "unitate": "km",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["berinde2013", "turnock2004", "historia_cf", "fes2021"],
+      "de_completat": true,
+      "nota": "Seria rămâne goală: documentaristul echipei nu a putut accesa o serie completă (Anuarul Statistic al României 1939/40 și Axenciuc nu au fost consultate), iar nicio sursă accesibilă nu dă lungimea totală a rețelei pentru ani interbelici. Nu am introdus cifre orientative fără sursă. Repere sigure: rețeaua devine unitară la 21 septembrie 1920; linie dublă Constanța–Cernavodă din 1931 și Adjud–Tecuci din 1933; 360 km de linie dublă în 1938 (FES, 2021). Despre electrificare sursele se contrazic: 58 km în 1938 după FES (2021), doar proiecte amânate în 1936–1938 după Turnock (2004). De completat din capitolul de transporturi al Anuarului.",
+      "date": []
+    },
+    "drumuri_km": {
+      "titlu": "Rețeaua de drumuri",
+      "unitate": "km",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["cotidianul"],
+      "nota": "Doar două puncte provin din sursă: 1922 (102.777 km) și 1936 (108.291 km). Anii dintre ele sunt interpolați liniar și marcați „estimat” (cerc gol); nu sunt date de arhivă. Pentru 1937–1938 nu avem nicio cifră și nu extrapolăm.",
+      "date": [
+        { "an": 1922, "valoare": 102777, "incredere": "verificat" },
+        { "an": 1923, "valoare": 103171, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1924, "valoare": 103565, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1925, "valoare": 103959, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1926, "valoare": 104352, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1927, "valoare": 104746, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1928, "valoare": 105140, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1929, "valoare": 105534, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1930, "valoare": 105928, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1931, "valoare": 106322, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1932, "valoare": 106716, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1933, "valoare": 107109, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1934, "valoare": 107503, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1935, "valoare": 107897, "incredere": "estimat", "nota": "Valoare interpolată matematic între punctele istorice sigure (1922 → 1936)." },
+        { "an": 1936, "valoare": 108291, "incredere": "verificat" }
+      ]
+    },
+    "port_constanta_trafic": {
+      "titlu": "Traficul portului Constanța",
+      "unitate": "mii tone",
+      "domeniu": "transport",
+      "sectiuni": ["A", "B"],
+      "surse": ["agerpres2019a"],
+      "nota": "Trafic total de mărfuri. În 1938, 3.946,357 mii t (95%) erau mărfuri de export, în principal țiței, material lemnos și produse agricole. Pentru alți ani avem doar exporturile (seria următoare).",
+      "date": [
+        { "an": 1938, "valoare": 4138.677, "incredere": "verificat" }
+      ]
+    },
+    "port_constanta_export": {
+      "titlu": "Exporturile prin portul Constanța",
+      "unitate": "mii tone",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["radioconstanta2026", "ziuaconstanta2018", "agerpres2019a"],
+      "nota": "În 1939 exporturile au fost de 3.252,228 mii t (în afara intervalului graficului). Importurile din 1926: 234,128 mii t.",
+      "date": [
+        { "an": 1926, "valoare": 1631.485, "incredere": "verificat" },
+        { "an": 1929, "valoare": 2606.298, "incredere": "verificat" },
+        { "an": 1931, "valoare": 4500, "incredere": "estimat", "nota": "Sursa spune „aproximativ 4,5 milioane de tone”." },
+        { "an": 1938, "valoare": 3946.357, "incredere": "verificat", "nota": "Din traficul total de 4.138,677 mii t (Agerpres, 2019)." }
+      ]
+    },
+    "export_produse_petroliere": {
+      "titlu": "Exportul de petrol și produse petroliere",
+      "unitate": "milioane tone",
+      "domeniu": "transport",
+      "sectiuni": ["A"],
+      "surse": ["zaman2018"],
+      "nota": "Cantitatea exportată, după Zaman și Georgescu (2018), tabelul 5 (calcule pe baza lui Calcan 1997, Georgescu-Roegen 1979 și Axenciuc 2000). Prețul de export a scăzut (indice 100 în 1929 → 40,4 în 1931), dar cantitatea a crescut. Agerpres (2019) dă 5.492.646 t pentru 1935, o cifră diferită, rămasă neclarificată.",
+      "date": [
+        { "an": 1929, "valoare": 2.85, "incredere": "verificat" },
+        { "an": 1930, "valoare": 3.87, "incredere": "verificat" },
+        { "an": 1931, "valoare": 4.67, "incredere": "verificat" },
+        { "an": 1932, "valoare": 5.17, "incredere": "verificat" },
+        { "an": 1933, "valoare": 5.88, "incredere": "verificat" },
+        { "an": 1934, "valoare": 6.55, "incredere": "verificat" },
+        { "an": 1935, "valoare": 6.61, "incredere": "verificat" },
+        { "an": 1936, "valoare": 6.88, "incredere": "verificat" }
+      ]
+    }
+  },
+  "repere": [
+    {
+      "an": 1920,
+      "text": "La 21 septembrie 1920, rețeaua feroviară din Transilvania și Banat trece oficial sub administrația C.F.R.: rețeaua feroviară a României devine unitară.",
+      "sursa": "berinde2013"
+    },
+    {
+      "an": 1920,
+      "text": "Decretul regal nr. 2455 din 8 iunie 1920 reorganizează bunurile din România ale societății StEG ca societate anonimă „Uzinele de Fier și Domeniile Reșița” (capital: 125 de milioane de lei).",
+      "sursa": "infofinanciar_udr"
+    },
+    { "an": 1921, "text": "Fabricile Weitzer și MARTA din Arad, rămase în România după Trianon, fuzionează în societatea Astra (automobile și vagoane).", "sursa": "wiki_astra" },
+    { "an": 1921, "text": "Nicolae Malaxa deschide la București un atelier de reparat locomotive și vagoane; între 1923 și 1927 construiește o uzină lângă Halta Titan.", "sursa": "agir_malaxa" },
+    {
+      "an": 1924,
+      "text": "Legea minelor (Monitorul Oficial din 4 iulie 1924), adoptată de guvernul liberal Brătianu, condiționează concesiunile de societăți anonime românești cu cel puțin 60% capital românesc; a fost modificată prin decretul-lege nr. 971 din 1929.",
+      "sursa": "cotidianul_minelor"
+    },
+    { "an": 1925, "text": "Extracția de țiței (2,32 Mt) depășește clar nivelul din 1913 (1,89 Mt); în 1924 era încă sub el (1,85 Mt).", "sursa": "calcan2005" },
+    { "an": 1925, "text": "Se înființează la Brașov Industria Aeronautică Română (IAR), cu sprijinul statului.", "sursa": "wiki_iar" },
+    {
+      "an": 1927,
+      "text": "Pe baza legii din Monitorul Oficial nr. 57 din 13 martie 1927, care încuraja industria națională, Malaxa încheie cu CFR un contract pentru locomotive de concepție românească.",
+      "sursa": "agir_malaxa"
+    },
+    {
+      "an": 1929,
+      "text": "Marea criză economică: prețul de export al țițeiului scade (indice 100 în 1929 → 40,4 în 1931), dar cantitatea exportată crește de la 2,85 la 4,67 milioane de tone.",
+      "sursa": "zaman2018"
+    },
+    { "an": 1933, "text": "În plină criză, marea industrie are 3.487 de unități și 184.777 de muncitori; în 1938 va avea 3.767 de unități și 289.117 muncitori.", "sursa": "historia_1934" },
+    { "an": 1933, "text": "Uzina Malaxa livrează locomotiva cu numărul 100 (în 1935 atinge maximul: 93 de locomotive într-un an).", "sursa": "agir_malaxa" },
+    { "an": 1935, "text": "Rafinăriile prelucrează maximul interbelic de țiței: 8,13 milioane de tone, aproape 97% din extracție.", "sursa": "calcan2005" },
+    { "an": 1936, "text": "Maximul interbelic al extracției de țiței (8,78 Mt); România este al patrulea producător mondial.", "sursa": "alba24_2026" },
+    { "an": 1937, "text": "La uzina Malaxa intră în funcțiune o linie de fabricare a munițiilor (1937–1938).", "sursa": "romania_insider" },
+    { "an": 1937, "text": "Wikipedia indică 1937 drept an al primului zbor pentru bombardierul ușor IAR 37, construit la Brașov în 50 de exemplare.", "sursa": "wiki_iar" },
+    { "an": 1938, "text": "Portul Constanța operează 4,14 milioane tone de mărfuri, aproape toate pentru export (3,95 Mt).", "sursa": "agerpres2019a" },
+    {
+      "an": 1938,
+      "text": "Motonavele de pasageri „Transilvania” (26 iunie) și „Basarabia” (26 septembrie), construite la Copenhaga, sosesc la Constanța pentru Serviciul Maritim Român.",
+      "sursa": "adevarul_smr"
+    },
+    {
+      "an": 1938,
+      "text": "Doar 58 km de cale ferată sunt electrificați și 360 km au linie dublă (sursa: raportul FES, 2021; Turnock, 2004, vorbește doar de proiecte de electrificare).",
+      "sursa": "fes2021"
+    }
+  ],
+  "flux": {
+    "avertisment": "Schemă orientativă: traseele și proporțiile nu reproduc exact conductele și liniile ferate din epocă.",
+    "cadru": { "lonMin": 25.3, "lonMax": 29.2, "latMin": 43.7, "latMax": 45.3 },
+    "litoral_lon": 28.68,
+    "dunarea": [[25.3, 43.7], [25.97, 43.88], [26.64, 44.05], [27.33, 44.2], [28.03, 44.33], [27.94, 44.69], [27.97, 45.27]],
+    "noduri": [
+      { "id": "moreni", "nume": "Moreni", "tip": "camp", "lon": 25.65, "lat": 44.99, "eticheta": "st" },
+      { "id": "campina", "nume": "Câmpina", "tip": "camp", "lon": 25.74, "lat": 45.13, "eticheta": "sus" },
+      { "id": "ploiesti", "nume": "Ploiești", "tip": "rafinarie", "lon": 26.03, "lat": 44.94, "eticheta": "dr" },
+      { "id": "bucuresti", "nume": "București", "tip": "oras", "lon": 26.1, "lat": 44.43, "eticheta": "dr" },
+      { "id": "giurgiu", "nume": "Giurgiu", "tip": "port", "lon": 25.97, "lat": 43.9, "eticheta": "dr" },
+      { "id": "cernavoda", "nume": "Cernavodă", "tip": "nod", "lon": 28.03, "lat": 44.33, "eticheta": "sus" },
+      { "id": "constanta", "nume": "Constanța", "tip": "port", "lon": 28.65, "lat": 44.18, "eticheta": "jos" }
+    ],
+    "rute": [
+      {
+        "id": "moreni_ploiesti",
+        "nume": "Conductă Moreni → Ploiești",
+        "mod": "conducta",
+        "traseu": ["moreni", "ploiesti"],
+        "pondere": 0.5
+      },
+      {
+        "id": "campina_ploiesti",
+        "nume": "Conductă Câmpina → Ploiești",
+        "mod": "conducta",
+        "traseu": ["campina", "ploiesti"],
+        "pondere": 0.5
+      },
+      {
+        "id": "ploiesti_giurgiu",
+        "nume": "Conductă Ploiești → Giurgiu",
+        "mod": "conducta",
+        "traseu": ["ploiesti", "giurgiu"],
+        "pondere": 0.35
+      },
+      {
+        "id": "ploiesti_constanta",
+        "nume": "Conductă Ploiești → Constanța",
+        "mod": "conducta",
+        "traseu": ["ploiesti", "constanta"],
+        "pondere": 0.6
+      },
+      {
+        "id": "ploiesti_bucuresti",
+        "nume": "Tren cisterne Ploiești → București",
+        "mod": "tren",
+        "traseu": ["ploiesti", "bucuresti"],
+        "pondere": 0.5
+      },
+      {
+        "id": "bucuresti_constanta",
+        "nume": "Tren cisterne București → Constanța",
+        "mod": "tren",
+        "traseu": ["bucuresti", "cernavoda", "constanta"],
+        "pondere": 0.6
+      }
+    ]
+  },
+  "harta": {
+    "avertisment": "Contur schematic al României Întregite (granițele din jurul anului 1930): include Basarabia, Bucovina de Nord și Cadrilaterul (Dobrogea de Sud). De înlocuit cu un GeoJSON real.",
+    "contur_1930": [
+      [22.4, 47.9], [23.05, 48.05], [23.9, 48.0], [24.6, 47.95], [25.15, 48.3],
+      [25.8, 48.6], [26.5, 48.45], [27.8, 48.4], [28.3, 48.15], [28.95, 47.75],
+      [29.15, 47.25], [29.55, 46.8], [29.95, 46.55], [30.3, 46.25], [30.45, 46.05],
+      [30.1, 45.75], [29.7, 45.35], [29.75, 45.15], [29.65, 44.8], [28.95, 44.55],
+      [28.68, 44.2], [28.6, 43.8], [28.17, 43.4], [28.05, 43.33], [27.2, 43.7],
+      [26.4, 43.95], [25.97, 43.88], [24.9, 43.72], [24.0, 43.7], [23.1, 43.85],
+      [22.9, 44.0], [22.55, 44.45], [22.4, 44.7], [21.6, 44.8], [21.4, 44.85],
+      [21.2, 45.15], [20.8, 45.4], [20.55, 45.8], [20.26, 46.12], [20.75, 46.25],
+      [21.1, 46.3], [21.45, 46.35], [21.55, 46.7], [21.8, 46.95], [22.05, 47.2],
+      [22.1, 47.5]
+    ],
+    "regiuni": [
+      { "nume": "Transilvania", "lon": 24.0, "lat": 46.5 },
+      { "nume": "Crișana", "lon": 22.3, "lat": 46.8 },
+      { "nume": "Banat", "lon": 21.5, "lat": 45.6 },
+      { "nume": "Oltenia", "lon": 23.6, "lat": 44.65 },
+      { "nume": "Muntenia", "lon": 26.75, "lat": 44.65 },
+      { "nume": "Moldova", "lon": 27.1, "lat": 46.9 },
+      { "nume": "Basarabia", "lon": 28.55, "lat": 46.65 },
+      { "nume": "Bucovina", "lon": 25.9, "lat": 47.95 },
+      { "nume": "Dobrogea", "lon": 28.35, "lat": 44.85 }
+    ],
+    "ramuri": [
+      { "id": "petrol", "nume": "Petrol (extracție și rafinare)" },
+      { "id": "siderurgie", "nume": "Siderurgie și metalurgie" },
+      { "id": "constructii_masini", "nume": "Construcții de mașini" },
+      { "id": "material_rulant", "nume": "Locomotive și vagoane" },
+      { "id": "aeronautica", "nume": "Industria aeronautică" },
+      { "id": "port", "nume": "Port și export" }
+    ],
+    "centre": [
+      {
+        "id": "bucuresti",
+        "nume": "București",
+        "firma": "Uzinele Malaxa",
+        "regiune": "Muntenia",
+        "rol": "Metalurgie și construcții de mașini",
+        "ramuri": ["siderurgie", "constructii_masini", "material_rulant"],
+        "lon": 26.1,
+        "lat": 44.43,
+        "eticheta": "dr",
+        "fapte": [
+          {
+            "text": "Nicolae Malaxa (1884–1965) a deschis în 1921 un atelier de reparat locomotive și vagoane; între 1923 și 1927 a construit o uzină lângă Halta Titan.",
+            "incredere": "verificat",
+            "sursa": "agir_malaxa"
+          },
+          {
+            "text": "Legea din Monitorul Oficial nr. 57 din 13 martie 1927, care încuraja dezvoltarea industriei naționale, i-a adus un contract cu CFR pentru locomotive de concepție românească. Uzina a fost utilată cu 82 de mașini-unelte cumpărate din Germania și a angajat 180 de muncitori germani calificați.",
+            "incredere": "verificat",
+            "sursa": "agir_malaxa"
+          },
+          {
+            "text": "În 1933, în plină criză economică, uzina a livrat locomotiva cu numărul 100; în 1935 a atins maximul de 93 de locomotive într-un an. Prima locomotivă diesel de concepție românească a fost proiectată în 1936, iar în 1938 CFR a primit un lot de 28 de astfel de locomotive.",
+            "incredere": "verificat",
+            "sursa": "agir_malaxa"
+          },
+          { "text": "În 1937–1938 a intrat în funcțiune în uzină o linie de fabricare a munițiilor.", "incredere": "verificat", "sursa": "romania_insider" },
+          { "text": "Potrivit mai multor istorici, Malaxa a deținut acțiuni și la societatea Astra Arad (mărimea participației nu este dată).", "incredere": "verificat", "sursa": "infofinanciar_perle" },
+          {
+            "text": "Keith Hitchins estimează că Bucureștiul producea circa 17% din veniturile industriale ale țării, sau 22% dacă se adaugă întreprinderile aflate pe o rază de 30 km.",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_perle"
+          }
+        ],
+        "statistici": [
+          { "eticheta": "Fabrici cu peste 500 de muncitori în București", "valoare": 38, "unitate": "fabrici", "an": "1938", "incredere": "verificat", "sursa": "historia_dezv_ind" },
+          { "eticheta": "Muncitori în aceste fabrici", "valoare_text": "circa 77.000", "an": "1938", "incredere": "verificat", "sursa": "historia_dezv_ind" },
+          { "eticheta": "Locomotive livrate de Malaxa (maximul)", "valoare": 93, "unitate": "locomotive", "an": "1935", "incredere": "verificat", "sursa": "agir_malaxa" },
+          { "eticheta": "Locomotive diesel livrate CFR într-un singur lot", "valoare": 28, "unitate": "locomotive", "an": "1938", "incredere": "verificat", "sursa": "agir_malaxa" },
+          {
+            "eticheta": "Ponderea Capitalei în veniturile industriale (după Hitchins)",
+            "valoare_text": "17% (22% cu împrejurimile)",
+            "an": "interbelic",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_perle"
+          }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "resita",
+        "nume": "Reșița",
+        "firma": "Uzinele de Fier și Domeniile Reșița (UDR)",
+        "regiune": "Banat",
+        "rol": "Siderurgie și construcții de locomotive",
+        "ramuri": ["siderurgie", "constructii_masini", "material_rulant"],
+        "lon": 21.89,
+        "lat": 45.3,
+        "eticheta": "dr",
+        "fapte": [
+          { "text": "Din 1855, uzinele din Reșița au făcut parte din consorțiul internațional StEG.", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          {
+            "text": "Decretul regal nr. 2455 din 8 iunie 1920 a transformat bunurile StEG din România în societatea anonimă „Uzinele de Fier și Domeniile Reșița”, cu capital de 125 de milioane de lei. Din prima emisiune de 150.000 de acțiuni a câte 500 de lei, 148.000 au rămas la StEG.",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_udr"
+          },
+          {
+            "text": "Cele 148.000 de acțiuni din 150.000 rămase la StEG arată că 1920 a fost o transformare a societății, nu o trecere în proprietatea statului; naționalizarea a venit abia în 1948.",
+            "incredere": "derivat",
+            "surse": ["infofinanciar_udr", "wiki_resita"]
+          },
+          {
+            "text": "În 1939, UDR asigura 100% din producția internă de furnale înalte, 80% din oțelul țării și 50% din locomotivele cumpărate de CFR; avea participații la peste 20 de societăți din România, iar Max Auschnitt a fost numit administrator al uzinelor.",
+            "incredere": "verificat",
+            "sursa": "infofinanciar_udr"
+          },
+          { "text": "Din anii 1920, uzinele aveau o fabrică de locomotive cu capacitate de 100 de unități pe an.", "incredere": "verificat", "sursa": "wiki_resita" }
+        ],
+        "statistici": [
+          { "eticheta": "Oțel produs de UDR (100% din țară)", "valoare": 87000, "unitate": "tone", "an": "1924", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR (91% din țară)", "valoare": 100000, "unitate": "tone", "an": "1926", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR", "valoare": 144000, "unitate": "tone", "an": "1928", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR (76% din țară)", "valoare": 157000, "unitate": "tone", "an": "1935", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Oțel produs de UDR", "valoare_text": "peste 200.000 t", "an": "1938", "incredere": "verificat", "sursa": "infofinanciar_udr" },
+          { "eticheta": "Angajați UDR", "valoare": 7000, "unitate": "angajați", "an": "1925", "incredere": "verificat", "sursa": "infofinanciar_udr" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "brasov",
+        "nume": "Brașov",
+        "firma": "IAR – Industria Aeronautică Română",
+        "regiune": "Transilvania",
+        "rol": "Industria aeronautică",
+        "ramuri": ["aeronautica", "constructii_masini"],
+        "lon": 25.6,
+        "lat": 45.65,
+        "eticheta": "dr",
+        "fapte": [
+          { "text": "IAR a fost înființată în 1925 la Brașov, cu sprijinul statului.", "incredere": "verificat", "sursa": "wiki_iar" },
+          {
+            "text": "Primele avioane au fost construite sub licență: Potez 25 (217 exemplare), Morane-Saulnier MS.35 (30), Fleet 10G (95) și, din 1936, vânătorul IAR P.11F (95).",
+            "incredere": "verificat",
+            "sursa": "wiki_iar"
+          },
+          {
+            "text": "Uzina a construit și modele proiectate în țară, între care cele ale lui Elie Carafoli de la începutul anilor ’30: IAR 14 (21 de exemplare, 1933), IAR 27 (peste 200), bombardierele ușoare IAR 37 (50), IAR 38 (75) și IAR 39 (95) și IAR 79 (72). Vânătorul IAR 80 a zburat în 1939 (250 de exemplare).",
+            "incredere": "verificat",
+            "sursa": "wiki_iar"
+          },
+          {
+            "text": "La recensământul din 1930, cele trei fabrici de avioane ale țării aveau 989 de angajați, iar cea mai mare, de la Brașov, 895 de muncitori și personal de conducere.",
+            "incredere": "verificat",
+            "sursa": "historia_metal1930"
+          }
+        ],
+        "statistici": [
+          { "eticheta": "Angajați la fabrica de avioane de la Brașov", "valoare": 895, "unitate": "angajați", "an": "1930", "incredere": "verificat", "sursa": "historia_metal1930" },
+          { "eticheta": "Angajați în cele 3 fabrici de avioane din țară", "valoare": 989, "unitate": "angajați", "an": "1930", "incredere": "verificat", "sursa": "historia_metal1930" },
+          { "eticheta": "Potez 25 construite sub licență", "valoare": 217, "unitate": "avioane", "an": "interbelic", "incredere": "verificat", "sursa": "wiki_iar" },
+          { "eticheta": "IAR 39 construite", "valoare": 95, "unitate": "avioane", "an": "interbelic", "incredere": "verificat", "sursa": "wiki_iar" },
+          { "eticheta": "IAR 27 construite", "valoare_text": "peste 200", "an": "interbelic", "incredere": "estimat", "sursa": "wiki_iar" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "arad",
+        "nume": "Arad",
+        "firma": "Astra Arad",
+        "regiune": "Crișana",
+        "rol": "Vagoane de cale ferată",
+        "ramuri": ["material_rulant", "constructii_masini"],
+        "lon": 21.31,
+        "lat": 46.18,
+        "eticheta": "dr",
+        "fapte": [
+          { "text": "Johann Weitzer și-a deschis propriul atelier în 1854, iar în 1891 a înființat la Arad o filială a firmei austriece.", "incredere": "verificat", "sursa": "wiki_astra" },
+          {
+            "text": "Între 1909 și 1912 uzina a construit 150 de automobile sub licență Westinghouse; din 1912, după preluarea de către Austro-Daimler, s-a numit MARTA, iar producția civilă s-a oprit în 1914, după circa 500 de automobile.",
+            "incredere": "verificat",
+            "sursa": "wiki_astra"
+          },
+          {
+            "text": "În 1921, după destrămarea Austro-Ungariei și Tratatul de la Trianon, cele două firme rămase în România, Weitzer și MARTA, au fuzionat în Fabrica de automobile și vagoane Astra.",
+            "incredere": "verificat",
+            "sursa": "wiki_astra"
+          },
+          { "text": "În 1922–1926 Astra a produs și automobile și camioane, dar produsul principal au fost vehiculele de cale ferată (material rulant).", "incredere": "verificat", "sursa": "wiki_astra" },
+          { "text": "Potrivit mai multor istorici, Nicolae Malaxa a deținut acțiuni la Astra.", "incredere": "verificat", "sursa": "infofinanciar_perle" }
+        ],
+        "statistici": [
+          { "eticheta": "Automobile construite sub licență Westinghouse", "valoare": 150, "unitate": "automobile", "an": "1909–1912", "incredere": "verificat", "sursa": "wiki_astra" },
+          { "eticheta": "Automobile MARTA până la oprirea producției civile", "valoare_text": "circa 500", "an": "1912–1914", "incredere": "verificat", "sursa": "wiki_astra" },
+          { "eticheta": "Fuziunea în societatea Astra", "valoare_text": "Weitzer + MARTA", "an": "1921", "incredere": "verificat", "sursa": "wiki_astra" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "ploiesti",
+        "nume": "Ploiești",
+        "firma": "Zona petrolieră Prahova–Dâmbovița",
+        "regiune": "Muntenia",
+        "rol": "Extracție și rafinare de petrol",
+        "ramuri": ["petrol"],
+        "lon": 26.03,
+        "lat": 44.94,
+        "eticheta": "dr",
+        "fapte": [
+          {
+            "text": "La sfârșitul perioadei interbelice (sursa nu dă anul), România avea peste 40 de rafinării, conducte spre Giurgiu și Constanța și peste 10.000 de vagoane-cisternă.",
+            "incredere": "estimat",
+            "sursa": "evz2025"
+          },
+          {
+            "text": "Steaua Română a construit la Câmpina, în 1897, o rafinărie cu capacitatea de 1.200 de tone pe zi; presa o numește „cea mai mare și mai modernă rafinărie europeană a vremii” (afirmație fără sursă).",
+            "incredere": "verificat",
+            "sursa": "playtech2025"
+          },
+          { "text": "Compania „Concordia” a introdus în 1926 instalația de cracare „Dubbs”.", "incredere": "verificat", "sursa": "calcan2005" },
+          { "text": "Costul forajului a scăzut de la 17.800 de lei pe metru în 1926 la 2.300 de lei în 1936; în 1937 s-au forat 394.500 de metri.", "incredere": "verificat", "sursa": "calcan2005" },
+          { "text": "Rafinăriile au prelucrat în 1935 maximul interbelic de țiței: 8,13 milioane de tone, circa 97% din extracția anului.", "incredere": "verificat", "sursa": "calcan2005" }
+        ],
+        "statistici": [
+          { "eticheta": "Extracția de țiței a României", "valoare": 8.784, "unitate": "milioane tone", "an": "1936", "incredere": "verificat", "sursa": "calcan2005" },
+          { "eticheta": "Țiței prelucrat în rafinării (maximul)", "valoare": 8.134, "unitate": "milioane tone", "an": "1935", "incredere": "verificat", "sursa": "calcan2005" },
+          { "eticheta": "Export de petrol și produse petroliere", "valoare": 6.88, "unitate": "milioane tone", "an": "1936", "incredere": "verificat", "sursa": "zaman2018" },
+          { "eticheta": "Rafinării în România (limită inferioară)", "valoare_text": "peste 40", "an": "interbelic", "incredere": "estimat", "sursa": "evz2025" },
+          { "eticheta": "Capacitatea rafinăriei din Câmpina", "valoare": 1200, "unitate": "tone / zi", "an": "1897", "incredere": "verificat", "sursa": "playtech2025" },
+          { "eticheta": "Costul forajului (lei pe metru liniar)", "valoare_text": "17.800 → 2.300", "an": "1926 → 1936", "incredere": "verificat", "sursa": "calcan2005" }
+        ],
+        "imagine": null,
+        "audio": null
+      },
+      {
+        "id": "constanta",
+        "nume": "Constanța",
+        "firma": "Portul Constanța",
+        "regiune": "Dobrogea",
+        "rol": "Port maritim și export",
+        "ramuri": ["port", "petrol"],
+        "lon": 28.65,
+        "lat": 44.18,
+        "eticheta": "st",
+        "fapte": [
+          {
+            "text": "În 1938, portul a operat 4.138.677 de tone de mărfuri, din care 3.946.357 de tone erau pentru export, în principal țiței, material lemnos și produse agricole.",
+            "incredere": "verificat",
+            "sursa": "agerpres2019a"
+          },
+          { "text": "În 1928, portul avea trei diguri însumând 2.944 m, cheuri de 4.622 m și șase bazine, ultimul fiind cel pentru petrol.", "incredere": "verificat", "sursa": "radioconstanta2026" },
+          {
+            "text": "Serviciul Maritim Român (SMR), înființat în 1895, a legat Constanța de Istanbul (1895), Pireu (1897) și Alexandria (1899), apoi de Haifa (1924) și de Beirut (1933).",
+            "incredere": "verificat",
+            "sursa": "egypt_smr"
+          },
+          {
+            "text": "În 1938 au sosit la Constanța motonavele de pasageri „Transilvania” (26 iunie) și „Basarabia” (26 septembrie), comandate la șantierul Burmeister & Wain din Copenhaga: 6.672 de tone brute, 22,5 noduri, 80 de locuri la clasa I, 100 la clasa a II-a și 216 la clasa a III-a, plus 800 de tone de marfă. Făceau curse regulate Constanța–Alexandria–Haifa–Beirut–Pireu–Istanbul.",
+            "incredere": "verificat",
+            "sursa": "adevarul_smr"
+          },
+          {
+            "text": "Flota comercială maritimă însuma 26 de nave cu o capacitate totală de transport de 58.204 de tone. Sursa (o monografie din 1980, citată de Agerpres) nu repetă anul în această frază, iar numărul navelor SMR nu a putut fi aflat.",
+            "incredere": "estimat",
+            "sursa": "agerpres2019a"
+          }
+        ],
+        "statistici": [
+          { "eticheta": "Trafic total de mărfuri", "valoare": 4138677, "unitate": "tone", "an": "1938", "incredere": "verificat", "sursa": "agerpres2019a" },
+          { "eticheta": "Din care mărfuri de export", "valoare": 3946357, "unitate": "tone", "an": "1938", "incredere": "verificat", "sursa": "agerpres2019a" },
+          { "eticheta": "Export prin Constanța", "valoare": 2606298, "unitate": "tone", "an": "1929", "incredere": "verificat", "sursa": "radioconstanta2026" },
+          { "eticheta": "Export prin Constanța", "valoare": 3252228, "unitate": "tone", "an": "1939", "incredere": "verificat", "sursa": "radioconstanta2026" },
+          { "eticheta": "Flota comercială maritimă (26 de nave)", "valoare": 58204, "unitate": "tone capacitate", "an": "c. 1938", "incredere": "estimat", "sursa": "agerpres2019a" },
+          { "eticheta": "Motonava „Transilvania” (tonaj brut)", "valoare": 6672, "unitate": "tone brute", "an": "1938", "incredere": "verificat", "sursa": "adevarul_smr" }
+        ],
+        "imagine": null,
+        "audio": null
+      }
+    ]
+  },
+  "simulator": {
+    "titlu": "Fii Ministrul Industriei în 1936!",
+    "avertisment": "Joc didactic: coeficienții sunt aleși de noi ca să arate compromisurile economice, nu sunt date istorice. Singura cifră reală folosită este producția de țiței din anul de referință.",
+    "an_referinta": 1936,
+    "controale": [
+      {
+        "id": "investitii",
+        "eticheta": "Investiții în rafinării interne",
+        "unitate": "%",
+        "min": 0,
+        "max": 100,
+        "pas": 5,
+        "implicit": 50,
+        "descriere": "Mai multe rafinării înseamnă mai multă valoare adăugată în țară, dar costă bani publici."
+      },
+      {
+        "id": "taxa",
+        "eticheta": "Taxă pe exportul de țiței",
+        "unitate": "%",
+        "min": 0,
+        "max": 40,
+        "pas": 1,
+        "implicit": 10,
+        "descriere": "Aduce bani la buget, dar scumpește țițeiul românesc pe piețele externe."
+      },
+      {
+        "id": "cfr",
+        "eticheta": "Buget pentru extinderea CFR",
+        "unitate": "%",
+        "min": 0,
+        "max": 100,
+        "pas": 5,
+        "implicit": 50,
+        "descriere": "Mai multe linii și vagoane-cisternă duc mai repede țițeiul spre port."
+      }
+    ],
+    "parametri": {
+      "cota_export": 0.6,
+      "taxa_referinta": 10,
+      "investitii_referinta": 50,
+      "cfr_referinta": 50,
+      "sensibilitate_export": 0.025,
+      "sensibilitate_capacitate": 1.2,
+      "pondere_rafinare": 0.4,
+      "pondere_transport": 0.25,
+      "pondere_export": 0.35,
+      "castig_rafinare": 0.6,
+      "castig_transport": 0.5,
+      "buget_baza": 50,
+      "venit_taxa_per_punct": 2,
+      "pondere_fiscal": 0.3,
+      "penalizare_deficit": 0.6,
+      "pondere_mod_inv": 0.55
+    },
+    "praguri": { "export_prost": 0.6, "deficit_mare": 8, "gatuire": 0.2, "venit_bun": 102, "modernizare_buna": 60 },
+    "explicatii_model": "Venit național (indice, 100 = situația de referință) = 100 × (0,40 × rafinare + 0,25 × transport + 0,35 × export) + 0,3 × (venit din taxă − venit de referință) − 0,6 × deficit. Rafinarea crește cu investițiile; transportul cu bugetul CFR; exportul scade când taxa urcă (−2,5% pentru fiecare punct de taxă peste 10%) și e limitat dacă CFR nu poate duce țițeiul la port. Venitul din taxă = taxă × cota exportată × 2 și are un maxim la taxa de ~25% (curbă de tip Laffer).",
+    "realitate": [
+      { "text": "În 1936, România a extras 8,78 milioane de tone de țiței, maximul interbelic.", "sursa": "calcan2005" },
+      { "text": "În același an, țara era al patrulea producător mondial de țiței, după SUA, URSS și Venezuela.", "sursa": "alba24_2026" },
+      { "text": "În anii ’30, exporturile de produse petroliere au depășit frecvent jumătate din producție.", "sursa": "alba24_2026" },
+      { "text": "În 1939, România rămânea al doilea producător european de petrol, după Uniunea Sovietică.", "sursa": "evz2025" }
+    ]
+  },
+  "audio": {
+    "nota": "Pune fișierele în assets/audio/ și completează căile de mai jos. Folosiți doar înregistrări cu licență clară (domeniu public, Creative Commons sau create de voi) și treceți-le în bibliografie. Exemplu pentru un centru din harta.centre: \"audio\": { \"fisier\": \"assets/audio/malaxa.mp3\", \"transcriere\": \"textul rostit în ghid\" }.",
+    "fundal": { "fisier": null, "titlu": null, "credit": null, "volum": 0.1 },
+    "efecte": { "volum": 0.25 },
+    "ghid": { "filtru_radio": true, "volum": 0.9 }
+  },
+  "bibliografie": [
+    {
+      "id": "calcan2005",
+      "scurt": "Calcan 2005",
+      "autor": "Gheorghe Calcan",
+      "titlu": "Aspects of Romanian Petroleum Industry in the Inter-war Period",
+      "an": 2005,
+      "tip": "secundară academică",
+      "url": "https://mgu.bg/wp-content//uploads/2021/10/dkalkan.pdf",
+      "nota": "Tabelul 1 dă extracția anuală de țiței (tone) pentru 1857–1941; de aici provin toate valorile din seria „petrol_extractie”. Studiul nu indică sursa tabelului; trimite la Arhivele Naționale Prahova, Moniteur du Pétrole Roumain și Calcan (1977).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "capital2022",
+      "scurt": "Capital.ro 2022",
+      "autor": "Ionel-Claudiu Dumitrescu",
+      "titlu": "Marea Criză Economică și interpretările eronate asupra fenomenului istoric interbelic",
+      "an": 2022,
+      "tip": "presă (pe baza anuarelor interbelice)",
+      "url": "https://www.capital.ro/marea-criza-economica-si-interpretarile-eronate-asupra-fenomenului-istoric-interbelic.html",
+      "nota": "Cifrele 1928 și 1933 trebuie confirmate în Anuarul Statistic.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "gardescu1933",
+      "scurt": "Gardescu 1933",
+      "autor": "I. J. Gardescu",
+      "titlu": "Petroleum Development in Rumania in 1932",
+      "an": 1933,
+      "tip": "publicație de epocă (AIME)",
+      "url": "https://onemine.org/documents/production-foreign-petroleum-development-in-rumania-in-1932",
+      "nota": "Date în barili, convertite în tone în date.json.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "aime1930",
+      "scurt": "AIME 1930",
+      "autor": "AIME (corespondență specială)",
+      "titlu": "Petroleum Production in Rumania in 1929",
+      "an": 1930,
+      "tip": "publicație de epocă (AIME)",
+      "url": "https://onemine.org/documents/papers-foreign-production-petroleum-production-in-rumania-in-1929-special-correspondence-",
+      "nota": "Estimare în barili, convertită în tone.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "evz2025",
+      "scurt": "EVZ",
+      "autor": "Evenimentul Zilei",
+      "titlu": "România, puterea petrolieră a Europei. Istoria extracției de petrol între 1857 și 1939",
+      "an": "f.a.",
+      "tip": "presă",
+      "url": "https://evz.ro/romania-puterea-petrol-europa-istoria-extractiei.html",
+      "nota": "Sursă secundară; verificați cifrele în lucrări academice.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "alba24_2026",
+      "scurt": "Alba24 2026",
+      "autor": "Alba24 (pe baza materialului lui Radu Dudău, Energy Policy Group)",
+      "titlu": "Țara Românească domina lumea petrolului, acum 169 de ani",
+      "an": 2026,
+      "tip": "presă",
+      "url": "https://alba24.ro/tara-romaneasca-domina-lumea-petrolului-acum-169-de-ani-avea-prima-rafinarie-din-lume-si-era-prima-tara-producatoare-de-titei-1154348.html",
+      "nota": "Sursă secundară pentru locul patru mondial în 1936 și pentru ponderea exportului în anii ’30.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "playtech2025",
+      "scurt": "Playtech",
+      "autor": "Playtech",
+      "titlu": "România, pe prima pagină a istoriei aurului negru",
+      "an": 2025,
+      "tip": "presă",
+      "url": "https://playtech.ro/2025/romania-pe-prima-pagina-a-istoriei-aurului-negru-aici-s-a-construit-prima-sonda-petroliera-comerciala-din-lume/",
+      "nota": "Sursă secundară pentru rafinăria de la Câmpina și nivelul antebelic atins în 1924.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "agerpres2019a",
+      "scurt": "Agerpres 2019",
+      "autor": "Agerpres",
+      "titlu": "Documentar: 110 ani de la inaugurarea oficială a Portului Constanța",
+      "an": 2019,
+      "tip": "presă (citează „Județele patriei”)",
+      "url": "https://agerpres.ro/documentare/2019/09/27/documentar-110-ani-de-la-inaugurarea-oficiala-a-portului-constanta--375928",
+      "nota": "Date despre traficul din 1938.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "agerpres2019b",
+      "scurt": "Agerpres 2019 (reportaj)",
+      "autor": "Agerpres",
+      "titlu": "Reportaj: Portul Constanța se îndreaptă, la 110 ani de la inaugurare, spre al patrulea record anual european la tranzitul de cereale",
+      "an": 2019,
+      "tip": "presă",
+      "url": "https://agerpres.ro/economic-intern/2019/09/26/reportaj-portul-constanta-se-indreapta-la-110-ani-de-la-inaugurare-spre-al-patrulea-record-anual-european-la-tranzitul-de-cereale--375903",
+      "nota": "Cifra pentru exportul de produse petroliere din 1935 are nevoie de clarificare.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "cotidianul",
+      "scurt": "Cotidianul",
+      "autor": "Cotidianul",
+      "titlu": "Autostrada Londra–București–Istanbul",
+      "an": "f.a.",
+      "tip": "presă (citează I. Mihalache, Drumurile în România, în Enciclopedia României)",
+      "url": "https://www.cotidianul.ro/autostrada-londra-bucuresti-istanbul/",
+      "nota": "Lungimea rețelei de drumuri în 1922 și 1936.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "fes2021",
+      "scurt": "FES 2021",
+      "autor": "Cornel Ban, Sorin Gog",
+      "titlu": "PNRR și căile ferate: România feroviară văzută de Comisia Europeană",
+      "an": 2021,
+      "tip": "studiu (Friedrich-Ebert-Stiftung)",
+      "url": "https://www.agendaconstructiilor.ro/files/files/2021/studiu-fes-cai-ferate.pdf",
+      "nota": "Date despre electrificare și linie dublă în 1938.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "berinde2013",
+      "scurt": "Berinde 2013",
+      "autor": "Andrei Berinde",
+      "titlu": "Instalarea Administrației C.F.R. în Transilvania după Marea Unire 1918–1920",
+      "an": 2013,
+      "tip": "articol academic",
+      "url": "https://ceeol.com/search/article-detail?id=1050188",
+      "nota": "Unificarea rețelei feroviare, 21 septembrie 1920.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "scanteia1975",
+      "scurt": "Scânteia 1975",
+      "autor": "Scânteia",
+      "titlu": "Ediția din 10 decembrie 1975 (retrospectivă despre producția de oțel)",
+      "an": 1975,
+      "tip": "presă comunistă — folosiți critic",
+      "url": "https://bibliotecadeva.ro/periodice/scanteia/1975/12/scanteia_1975_12_10373.pdf",
+      "nota": "Sursă cu scop propagandistic: doar ca reper, de confirmat în Anuarul Statistic.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "anuar_insse",
+      "scurt": "Anuarul Statistic",
+      "autor": "Institutul Central de Statistică",
+      "titlu": "Anuarul Statistic al României (edițiile interbelice, în special 1939/40)",
+      "an": "1939",
+      "tip": "sursă primară — de consultat",
+      "url": "http://dspace.bcucluj.ro/handle/123456789/64160",
+      "nota": "Ediția 1939–1940 este digitizată de BCU Cluj (PDF de 39,7 MB). NU a putut fi consultată pentru acest set de date: cifrele din acest fișier provin din surse secundare. Prioritatea nr. 1 pentru Statistician: confirmarea seriilor în acest anuar.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "axenciuc",
+      "scurt": "Axenciuc",
+      "autor": "Victor Axenciuc",
+      "titlu": "Evoluția economică a României. Cercetări statistico-istorice 1859–1947",
+      "an": "1992–2000",
+      "tip": "sinteză academică — de consultat",
+      "url": null,
+      "nota": "Neconsultat pentru acest set de date. Serii industriale și de transport pentru întreaga perioadă; pp. 361, 608 și 705 sunt citate de Zaman și Georgescu (2018)."
+    },
+    {
+      "id": "cojoc",
+      "scurt": "Cojoc",
+      "autor": "Mariana Cojoc",
+      "titlu": "Constanța – port internațional. Comerțul exterior al României prin portul Constanța 1878–1939",
+      "an": "f.a.",
+      "tip": "sinteză academică — de consultat",
+      "url": null,
+      "nota": "Pentru exporturile de petrol prin Constanța."
+    },
+    {
+      "id": "ivanus2009",
+      "scurt": "Ivănuș 2009",
+      "autor": "Gheorghe Ivănuș și colab.",
+      "titlu": "The Petroleum and Gas Industry in Romania (cap. „The Maturity of an Industry, 1920–1939”)",
+      "an": 2009,
+      "tip": "sinteză academică — de consultat",
+      "url": null,
+      "nota": "Editura AGIR."
+    },
+    {
+      "id": "zaman2018",
+      "scurt": "Zaman și Georgescu 2018",
+      "autor": "Zaman, G.; Georgescu, G.",
+      "titlu": "A retrospective study on Romania’s external trade in the past 100 years (MPRA Paper nr. 89707)",
+      "an": 2018,
+      "tip": "studiu academic",
+      "url": "https://mpra.ub.uni-muenchen.de/id/eprint/89707",
+      "nota": "Tabelul 5: exporturile de petrol 1929–1936, după Calcan (1997), Georgescu-Roegen (1979) și Axenciuc (2000).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "infofinanciar_udr",
+      "scurt": "Infofinanciar 2023 (UDR)",
+      "autor": "Alexandru Turcu",
+      "titlu": "Începuturile industriei grele românești. Povestea Uzinelor și Domeniilor Reșița, cel mai mare grup din economia interbelică (Infofinanciar, 4 martie 2023)",
+      "an": 2023,
+      "tip": "presă economică",
+      "url": "https://www.infofinanciar.ro/inceputurile-industriei-grele-romanesti-povestea-uzinelor-si-domeniilor-resita-cel-mai-mare-grup-din-economia-interbelica",
+      "nota": "Decretul din 1920, capitalul, producția de oțel a UDR. Articolul numește „naționalizare” reorganizarea din 1920, dar cifrele din el arată că acțiunile au rămas la StEG: noi nu folosim termenul.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "infofinanciar_perle",
+      "scurt": "Infofinanciar 2022",
+      "autor": "Alexandru Turcu",
+      "titlu": "Povestea celor mai puternice companii din interbelic. Perlele industriei românești (Infofinanciar, 23 mai 2022)",
+      "an": 2022,
+      "tip": "presă economică",
+      "url": "https://www.infofinanciar.ro/povestea-celor-mai-puternice-companii-din-interbelic-perlele-industriei-romanesti",
+      "nota": "Malaxa, UDR, Astra; citează Keith Hitchins pentru ponderea Bucureștiului. Are formulări neriguroase (ex. „naționalizarea” StEG).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_marea_ind",
+      "scurt": "Historia (marea industrie)",
+      "titlu": "Marea industrie din România Mare (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/marea-industrie-din-romania-mare-2332176.html",
+      "nota": "1938: 3.767 de uzine mari, 289.117 angajați, producție de 69.206.738.000 lei; 1933: 34.940.747.000 lei. Citează „o statistică a timpului”; bibliografia include Anuarul statistic 1939 și 1940 și C. Verdeș (1940).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_1934",
+      "scurt": "Historia (1934)",
+      "titlu": "Transformarea României Mari din punct de vedere industrial, în anul 1934 (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/transformarea-romaniei-mari-din-punct-de-vedere-2520027.html",
+      "nota": "1933: 3.487 de unități și 184.777 de muncitori; 1934: 3.510 și 208.240; peste 50.000 de muncitori în textile; metalurgie: 351 de unități și 37.796 de muncitori. Citează anuarul statistic din 1934.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_1935",
+      "scurt": "Historia (1935)",
+      "autor": "Ionel-Claudiu Dumitrescu",
+      "titlu": "Dezvoltarea industrială a României Mari în anul 1935 (Historia.ro, 26 iunie 2026)",
+      "an": 2026,
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/dezvoltarea-industriala-a-romaniei-mari-in-anul-2539235.html",
+      "nota": "1932: 3.557 de capacități și 152.198 de angajați; 1935: 230.797 de muncitori. Formulările despre unități sunt ambigue.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_ind_interbelica",
+      "scurt": "Historia (industrializare)",
+      "titlu": "Industrializarea României interbelice (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/industrializarea-romaniei-interbelice-638776.html",
+      "nota": "1934: 254 de întreprinderi chimice cu 20.282 de angajați. Bibliografia include Anuarul statistic 1935–1936.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_dezv_ind",
+      "scurt": "Historia (București)",
+      "titlu": "Dezvoltarea industriei în România Mare (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/dezvoltarea-industriei-in-romania-mare-2305435.html",
+      "nota": "1938, București: 38 de fabrici cu peste 500 de muncitori fiecare, circa 77.000 de angajați în total.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_metal1930",
+      "scurt": "Historia (metalurgie 1930)",
+      "autor": "Ionel-Claudiu Dumitrescu",
+      "titlu": "Industria metalurgică din România Mare a anului 1930 (Historia.ro, 2 iulie 2024)",
+      "an": 2024,
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/industria-metalurgica-din-romania-mare-a-anului-2372647.html",
+      "nota": "Date din recensământul din 1930: fabrica de avioane de la Brașov avea 895 de angajați (989 în cele 3 fabrici de avioane din țară).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_metal_criza",
+      "scurt": "Historia (oțel)",
+      "titlu": "Uimitoarea transformare metalurgică a României Mari, în timpul Marii Crize Economice (Historia.ro)",
+      "an": "f.a.",
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/uimitoarea-transformare-metalurgica-a-romaniei-2419494.html",
+      "nota": "Oțel 1935: 213.086 t livrate, după anuarul din 1936. Alte cifre din articol (1929, 1930) sunt incompatibile cu UDR și nu au fost folosite.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "historia_cf",
+      "scurt": "Historia (CFR)",
+      "autor": "Tudor Sprînceană",
+      "titlu": "Căile Ferate Române în epoca modernă (Historia.ro, 7 aprilie 2023)",
+      "an": 2023,
+      "tip": "presă de popularizare",
+      "url": "https://historia.ro/sectiune/general/caile-ferate-romane-in-epoca-moderna-2256732.html",
+      "nota": "Dublarea liniei Constanța–Cernavodă (1931) și Adjud–Tecuci (1933). Nu dă lungimea totală a rețelei.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "turnock2004",
+      "scurt": "Turnock 2004",
+      "autor": "David Turnock",
+      "titlu": "Railway Network Development in Inter-war Romania: Economic and Strategic Motives (Geographica Pannonica, nr. 8, pp. 16–24)",
+      "an": 2004,
+      "tip": "studiu academic",
+      "url": "https://scindeks-clanci.ceon.rs/data/pdf/0354-8724/2004/0354-87240408016T.pdf",
+      "nota": "Linii noi 1921–1940, linii duble și proiecte de electrificare; nu dă lungimea totală a rețelei. Anul 2004 este dedus din indexul Scindeks.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "radioconstanta2026",
+      "scurt": "Radio Constanța 2026",
+      "autor": "Doina Sirbu",
+      "titlu": "Calendar istoric MINAC: 24 februarie – Date statistice despre evoluția Portului Constanța în epoca interbelică (Radio România Constanța)",
+      "an": 2026,
+      "tip": "presă (preia date MINAC)",
+      "url": "https://www.radioconstanta.ro/2026/02/24/calendar-istoric-minac-24-februarie-date-statistice-despre-evolutia-portului-constanta-in-epoca-interbelica/",
+      "nota": "Export 1926, 1929, 1931, 1939; dotările portului în 1928. Sursa primară nu e precizată clar.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "ziuaconstanta2018",
+      "scurt": "Ziua de Constanța 2018",
+      "autor": "Cristian Cealera",
+      "titlu": "Scurtă istorie a Portului modern Constanța (IV): Import-export și perioada interbelică (Ziua de Constanța, 3 octombrie 2018)",
+      "an": 2018,
+      "tip": "presă locală",
+      "url": "https://www.ziuaconstanta.ro/stiri/invitati/scurta-istorie-a-portului-modern-constanta-iv-import-export-si-perioada-interbelica-672434.html",
+      "nota": "Aceleași cifre de export ca la Radio Constanța.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "adevarul_smr",
+      "scurt": "Adevărul (SMR)",
+      "titlu": "Basarabia și Transilvania, „lebedele Mării Negre” (Adevărul, ediția Constanța)",
+      "an": "f.a.",
+      "tip": "presă locală",
+      "url": "https://adevarul.ro/stiri-locale/constanta/basarabia-si-transilvania-lebedele-marii-negre-1557696.html",
+      "nota": "Motonavele SMR construite la Copenhaga: sosirea în 1938, caracteristici tehnice, cursele. Articolul susține că ar fi fost primele nave civile cu propulsie diesel din lume; noi nu preluăm această afirmație.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "egypt_smr",
+      "scurt": "Egypt Study Circle (SMR)",
+      "titlu": "Romanian Maritime Service (S.M.R.) — Egypt Study Circle",
+      "an": "2025",
+      "tip": "sursă filatelică (istoria liniilor)",
+      "url": "https://egyptstudycircle.org.uk/2025/Members/Postal%20History/Romanian%20Maritime/R_Mar_Srv.html",
+      "nota": "Înființarea SMR în 1895 și extinderea liniilor (Pireu 1897, Alexandria 1899, Haifa 1924, Beirut 1933). Nu dă dimensiunea flotei.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "wiki_astra",
+      "scurt": "Wikipedia (Astra)",
+      "titlu": "Astra Arad (Wikipedia, engleză)",
+      "an": "f.a.",
+      "tip": "enciclopedie online — de confirmat",
+      "url": "https://en.wikipedia.org/wiki/Astra_Arad",
+      "nota": "Weitzer 1854/1891, MARTA 1912, fuziunea din 1921, producția 1922–1926. Nu dă numărul de muncitori.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "wiki_iar",
+      "scurt": "Wikipedia (IAR)",
+      "titlu": "Industria Aeronautică Română (Wikipedia, engleză)",
+      "an": "f.a.",
+      "tip": "enciclopedie online — de confirmat",
+      "url": "https://en.wikipedia.org/wiki/Industria_Aeronautic%C4%83_Rom%C3%A2n%C4%83",
+      "nota": "Înființare 1925, modele și numărul de exemplare; citează Antoniu și Cicoș (2007) și Gudju și colab. (1974).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "wiki_resita",
+      "scurt": "Wikipedia (Reșița)",
+      "titlu": "Reșița Works (Wikipedia, engleză)",
+      "an": "f.a.",
+      "tip": "enciclopedie online — de confirmat",
+      "url": "https://en.wikipedia.org/wiki/Uzinele_Resita",
+      "nota": "Decretul din 1920 ca transformare (nu naționalizare); secția de locomotive de 100 de unități pe an.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "agir_malaxa",
+      "scurt": "AGIR (Malaxa)",
+      "titlu": "Ingineri mari personalități: Nicolae Malaxa 1884–1965 (AGIR, Univers Ingineresc nr. 16/2004)",
+      "an": 2004,
+      "tip": "revistă profesională",
+      "url": "https://www.agir.ro/univers-ingineresc/numar-16-2004/ingineri-mari-personalitati-nicolae-malaxa-1884---1965_826.html",
+      "nota": "Cronologia uzinei Malaxa 1921–1940 (legea din 1927, locomotiva nr. 100, maximul din 1935, producția din 1938).",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "romania_insider",
+      "scurt": "Romania-Insider (Malaxa)",
+      "titlu": "Famous Romanians: Nicolae Malaxa, the tycoon who built the first Romanian locomotive and car (Romania-Insider)",
+      "an": "f.a.",
+      "tip": "presă în limba engleză",
+      "url": "https://romania-insider.com/famous-romanians-nicolae-malaxa-the-tycoon-who-built-the-first-romanian-locomotive-and-car",
+      "nota": "Fabrica de la Titan (1923–1927), linia de muniții din 1937–1938.",
+      "accesat": "2026-10-13"
+    },
+    {
+      "id": "cotidianul_minelor",
+      "scurt": "Cotidianul (Legea minelor)",
+      "titlu": "Centenar: Legea minelor din 4 iulie 1924 (I) (Cotidianul)",
+      "an": 2024,
+      "tip": "presă (cu citate din Gh. Buzatu)",
+      "url": "https://www.cotidianul.ro/centenar-legea-minelor-din-4-iulie-1924-i/",
+      "nota": "Data, guvernul, art. 32–33 (societăți anonime românești, minimum 60% capital românesc) și modificarea din 1929.",
+      "accesat": "2026-10-13"
+    }
+  ]
+};
+
+  </script>
+
+  <!-- ===================== LOGICA APLICAȚIEI ===================== -->
+  <script>
+'use strict';
+
+/* ==========================================================================
+   LOGICA APLICAȚIEI — Industrializarea României interbelice (1920–1938)
+   --------------------------------------------------------------------------
+    1. Utilitare
+    2. Pornire (datele vin din REPOZITOR_DATE, fără fetch, deci merge și din file://)
+    3. Sunet — sinteză Web Audio: trenul (cuplaje, puf-uri de locomotivă, roți pe șine, fluier)
+    4. „Ziarul interbelic”
+    5. Secțiunea A — Chart.js (cu grafic de rezervă pe Canvas, dacă Chart.js nu se încarcă)
+    6. Secțiunea B — HTML5 Canvas: fluxul petrolului
+    7. Secțiunea C — SVG: harta (desenare · tooltip · filtru · pop-up)
+    8. Ghidul vocal din pop-up („Ascultă istoria”)
+    9. Secțiunea D — Simulatorul „Fii Ministrul Industriei în 1936!”
+   10. Export (CSV) și tipărire (PDF)
+   11. Bibliografie
+
+   Regulă de echipă: cifrele istorice și coeficienții jocului trăiesc DOAR în REPOZITOR_DATE.
+   Aici scriem logică, nu statistici.
+   ========================================================================== */
+
+/* ---------- 1. UTILITARE ---------- */
+
+const NS_SVG = 'http://www.w3.org/2000/svg';
+const URL_CHART_JS = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
+const REDUS_MISCARE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const DATE = REPOZITOR_DATE; // toate cifrele și textele vin din scriptul REPOZITOR_DATE
+let C = {};                  // culorile și fonturile citite din CSS
+
+const $ = (selector) => document.querySelector(selector);
+
+const format = (v, zecimale = 2) =>
+  v == null ? '—' : Number(v).toLocaleString('ro-RO', { maximumFractionDigits: zecimale });
+
+/** Număr cu semn explicit (+12 / −3) — folosit la soldul bugetar. */
+const cuSemn = (v, zecimale = 1) => (v > 0 ? '+' : v < 0 ? '−' : '') + format(Math.abs(v), zecimale);
+
+/** Creează un element HTML. Textul se pune cu textContent (sigur, fără innerHTML). */
+function el(tag, props = {}, ...copii) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else e.setAttribute(k, v);
+  }
+  copii.flat().filter((c) => c != null && c !== false).forEach((c) => e.append(c));
+  return e;
+}
+
+/** Creează un element SVG. */
+function svgEl(tag, props = {}) {
+  const e = document.createElementNS(NS_SVG, tag);
+  for (const [k, v] of Object.entries(props)) e.setAttribute(k, v);
+  return e;
+}
+
+const interval = (de, pana) => Array.from({ length: pana - de + 1 }, (_, i) => de + i);
+const punct = (serie, an) => serie.date.find((p) => p.an === an) || null;
+const areDate = (serie) => serie.date.some((p) => p.valoare != null);
+const limiteaza = (x, min, max) => Math.min(max, Math.max(min, x));
+
+/** „#b99a66” + 0.4 → „rgba(185, 154, 102, 0.4)” */
+function cuTransparenta(hex, alfa) {
+  const h = String(hex).replace('#', '');
+  const n = parseInt(h.length === 3 ? h.replace(/./g, '$&$&') : h, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alfa})`;
+}
+
+/** Sursa bibliografică după id (sau null). */
+const sursaDupaId = (id) => DATE.bibliografie.find((b) => b.id === id) || null;
+const numeSursa = (id) => { const s = sursaDupaId(id); return s ? (s.scurt || s.titlu) : null; };
+
+/** „Surse: Calcan 2005, EVZ” — legături către lista din secțiunea „Surse și date”. */
+function linkuriSurse(ids, clasa = 'ziar-surse') {
+  const surse = ids.map(sursaDupaId).filter(Boolean);
+  if (!surse.length) return null;
+  const p = el('p', { class: clasa }, 'Surse: ');
+  surse.forEach((s, i) => {
+    if (i) p.append(', ');
+    p.append(el('a', { href: `#sursa-${s.id}`, text: s.scurt || s.titlu }));
+  });
+  return p;
+}
+
+/** Cadrul (min/max lon/lat) al unei liste de puncte [lon, lat]. */
+function cadruDin(puncte) {
+  const lon = puncte.map((p) => p[0]);
+  const lat = puncte.map((p) => p[1]);
+  return { lonMin: Math.min(...lon), lonMax: Math.max(...lon), latMin: Math.min(...lat), latMax: Math.max(...lat) };
+}
+
+/**
+ * Proiecție simplă (lon, lat) → (x, y), cu corecția cos(latitudine) ca harta să nu fie turtită.
+ * Funcționează la fel pentru Canvas și pentru SVG.
+ */
+function creeazaProiectie(cadru, latime, inaltime, margine) {
+  const k = Math.cos((((cadru.latMin + cadru.latMax) / 2) * Math.PI) / 180);
+  const w = (cadru.lonMax - cadru.lonMin) * k;
+  const h = cadru.latMax - cadru.latMin;
+  const scala = Math.min((latime - 2 * margine) / w, (inaltime - 2 * margine) / h);
+  const dx = (latime - w * scala) / 2;
+  const dy = (inaltime - h * scala) / 2;
+  return (lon, lat) => [dx + (lon - cadru.lonMin) * k * scala, dy + (cadru.latMax - lat) * scala];
+}
+
+/** Un canvas copiat pe fundal de pergament, ca graficele să se vadă și pe hârtie albă (la tipărire). */
+function imagineCuFundal(canvas) {
+  const copie = document.createElement('canvas');
+  copie.width = canvas.width;
+  copie.height = canvas.height;
+  const g = copie.getContext('2d');
+  g.fillStyle = C.hartie2;
+  g.fillRect(0, 0, copie.width, copie.height);
+  g.drawImage(canvas, 0, 0);
+  return copie.toDataURL('image/png');
+}
+
+/* ---------- 2. PORNIRE ---------- */
+
+/** Bandă cu mesaj de eroare, în partea de sus a conținutului. */
+function arataEroare(mesaj) {
+  const banda = el('div', { class: 'eroare', role: 'alert' }, el('strong', { text: 'Ceva nu a mers. ' }), mesaj);
+  $('#continut .pagina').prepend(banda);
+  return banda;
+}
+
+/** Pornește un modul în siguranță: dacă unul se strică, celelalte merg mai departe. */
+function ruleaza(nume, functie) {
+  try {
+    functie();
+  } catch (eroare) {
+    console.error(`[${nume}]`, eroare);
+    arataEroare(`Modulul „${nume}” nu a putut porni (detalii în consola browserului).`);
+  }
+}
+
+function citesteCulori() {
+  const stil = getComputedStyle(document.documentElement);
+  const v = (nume) => stil.getPropertyValue(nume).trim();
+  C = {
+    hartie: v('--hartie'), hartie2: v('--hartie-2'),
+    cerneala: v('--cerneala'), cernealaSoft: v('--cerneala-soft'),
+    rosu: v('--rosu'), alama: v('--alama'), alamaText: v('--alama-text'),
+    otel: v('--otel'), petrol: v('--petrol'),
+    fontTitlu: v('--font-titlu'), fontText: v('--font-text')
+  };
+}
+
+/**
+ * Chart.js vine de pe CDN. Îl încărcăm noi, cu un termen de 7 secunde: dacă nu răspunde
+ * (fără internet, rețea școlară), pagina pornește oricum și folosește graficul de rezervă.
+ */
+function incarcaChartJs() {
+  return new Promise((rezolva) => {
+    if (typeof Chart !== 'undefined') { rezolva(true); return; }
+    const script = document.createElement('script');
+    let gata = false;
+    const termina = (ok) => { if (gata) return; gata = true; clearTimeout(termen); rezolva(ok); };
+    const termen = setTimeout(() => termina(false), 7000);
+    script.src = URL_CHART_JS;
+    script.async = true;
+    script.onload = () => termina(typeof Chart !== 'undefined');
+    script.onerror = () => termina(false);
+    document.head.append(script);
+  });
+}
+
+function porneste() {
+  citesteCulori();
+  ruleaza('Sunet', initSunet);
+  ruleaza('Ziar', initEditorial);
+  ruleaza('Secțiunea B', initSectiuneB);
+  ruleaza('Secțiunea C', initSectiuneC);
+  ruleaza('Secțiunea D', initSimulator);
+  ruleaza('Bibliografie', initBibliografie);
+  ruleaza('Export', initExport);
+  incarcaChartJs().then((ok) => {
+    A.chartJs = ok;
+    ruleaza('Secțiunea A', initSectiuneA);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', porneste);
+
+/* ---------- 3. SUNET — Web Audio: un tren care rulează (se aude DOAR în secțiunea B) ---------- */
+
+/*
+   Totul este SINTETIZAT în cod (AudioContext), fără fișiere audio: merge din fișier local
+   și nu are probleme de drepturi de autor.
+
+   Unde se aude: numai în secțiunea B („Aurul negru și transporturile”), cât timp harta cu trenuri e pe
+   ecran. La intrarea pe site, în secțiunea A, pe harta interactivă (hover, click, filtru) și în simulator
+   NU se aude nimic. Când pleci din secțiunea B, sunetul se stinge lin.
+
+   Politica browserelor: sunetul poate porni doar după un gest al utilizatorului (click, tastă, atingere).
+   De aceea AudioContext se creează abia la primul gest din pagină (vezi initSunet); dacă secțiunea B e deja
+   pe ecran în acel moment, trenul pornește imediat, iar dacă nu, pornește când ajungi la ea.
+
+   Cum sună: un tren de marfă (cisterne cu țiței) care rulează fără oprire —
+     • HURUITUL — un zgomot grav, de fond, care „respiră” lent (trenul ia curbe);
+     • PUF-URILE locomotivei cu abur — „ș-fuf”, ș-fuf” moi, fără lovituri: zgomot filtrat, cu atac lin;
+     • ROȚILE PE ȘINE — „ta-tac, ta-tac”: două lovituri mici la fiecare îmbinare a șinelor;
+     • FLUIERUL — din când în când (la 7–13 secunde): un acord de două note, cu puțină respirație și vibrato,
+       uneori un semnal lung, alteori „scurt, lung” sau „scurt, scurt, lung”.
+   Ritmul puf-urilor și al roților crește odată cu producția de petrol a anului ales.
+   Nu există lovituri de metal, cuplaje sau bătăi grave: ele sunau a ciocan și au fost scoase.
+*/
+
+const NIVEL_SUNET = 2.4;                   // amplificarea vocilor înaintea volumului general (REPOZITOR_DATE → audio.efecte.volum)
+const NOTE_FLUIER = [294, 370];            // acordul fluierului: re și fa diez (terță mare), grav, ca de locomotivă de marfă
+const MODELE_FLUIER = [                    // [moment (s), durată (s)] pentru fiecare semnal din model
+  [[0, 1.3]],                              // un semnal lung
+  [[0, 0.35], [0.55, 1.0]],                // scurt, apoi lung
+  [[0, 0.3], [0.5, 0.3], [1.0, 0.9]]       // scurt, scurt, lung
+];
+
+const Sunet = {
+  ctx: null, master: null, iesire: null, activat: true, zgomot: null, semnal: 0,
+  activ: false, timere: {}, bus: null, lfo: null, huruit: null, modelFluier: -1,
+  stare: () => ({ intensitate: 0.5, vizibil: true }),
+  intervalFluier: () => 7000 + Math.random() * 6000,    // milisecunde până la următorul fluier
+  laSchimbare: () => {},                                // legat de pagină în initSunet
+  stat: { ciuf: 0, tac: 0, fluier: 0 },                 // câte sunete de fiecare fel s-au programat (pentru teste)
+  numar: 0,
+
+  /** Creează (o singură dată) sau reia contextul audio. Se cheamă doar din gesturi ale utilizatorului. */
+  deblocheaza() {
+    if (this.ctx && this.ctx.state === 'running') return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    if (!this.ctx) {
+      try { this.ctx = new AC(); } catch (eroare) { console.warn('AudioContext indisponibil', eroare); return false; }
+      const comp = this.ctx.createDynamicsCompressor(); // împiedică „plesnirea” când se suprapun sunete
+      comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 6;
+      comp.attack.value = 0.003; comp.release.value = 0.2;
+      this.master = this.ctx.createGain();
+      this.master.gain.value = (DATE.audio && DATE.audio.efecte && DATE.audio.efecte.volum) ?? 0.25;
+      this.master.connect(comp).connect(this.ctx.destination);
+      this.iesire = comp;
+      this.ctx.addEventListener('statechange', () => this.laSchimbare());
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => { /* fără gest, rămâne suspendat */ });
+    if (this.ctx.state === 'running') this.laSchimbare();
+    return true;
+  },
+
+  /** Contextul audio există și rulează (adică utilizatorul a făcut deja un gest în pagină). */
+  pregatit() {
+    return Boolean(this.ctx && this.ctx.state === 'running');
+  },
+
+  /** Două secunde de zgomot alb, refolosite de toate sunetele. */
+  _zgomot() {
+    if (!this.zgomot) {
+      const c = this.ctx;
+      const n = c.sampleRate * 2;
+      this.zgomot = c.createBuffer(1, n, c.sampleRate);
+      const date = this.zgomot.getChannelData(0);
+      for (let i = 0; i < n; i++) date[i] = Math.random() * 2 - 1;
+    }
+    return this.zgomot;
+  },
+
+  /* ---------- cărămizile: fiecare funcție programează UN sunet la momentul t ---------- */
+
+  /** Un puf de locomotivă, MOALE: „ș” (abur) + „fuf” (zgomot cu filtru jos care se închide). Fără bătaie de bas. */
+  _ciuf(dest, t, vol) {
+    const c = this.ctx;
+    const v = Math.max(vol, 0.0002) * (0.88 + Math.random() * 0.24);   // niciun puf nu e identic cu altul
+    const ton = 0.9 + Math.random() * 0.2;
+
+    // „ș” — aburul care iese: zgomot în jur de 2,4 kHz, atac lin
+    const s1 = c.createBufferSource();
+    s1.buffer = this._zgomot();
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 2400 * ton;
+    bp.Q.value = 0.7;
+    const g1 = c.createGain();
+    g1.gain.setValueAtTime(0.0001, t);
+    g1.gain.exponentialRampToValueAtTime(v * 0.35, t + 0.02);
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    s1.connect(bp).connect(g1).connect(dest);
+    s1.start(t, Math.random() * 1.6);
+    s1.stop(t + 0.12);
+
+    // „fuf” — corpul pufului: zgomot a cărui bandă se închide de la ~1,5 kHz spre ~0,3 kHz
+    const s2 = c.createBufferSource();
+    s2.buffer = this._zgomot();
+    const hp = c.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 90;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.value = 0.6;
+    lp.frequency.setValueAtTime(1500 * ton, t);
+    lp.frequency.exponentialRampToValueAtTime(300 * ton, t + 0.2);
+    const g2 = c.createGain();
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(v * 1.2, t + 0.022);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    s2.connect(hp).connect(lp).connect(g2).connect(dest);
+    s2.start(t, Math.random() * 1.6);
+    s2.stop(t + 0.3);
+
+    this.numar++;
+    this.stat.ciuf++;
+  },
+
+  /** O lovitură MICĂ de roată pe îmbinarea șinelor: clic moale + bufnitură scurtă (fără rezonanță metalică). */
+  _tac(dest, t, vol) {
+    const c = this.ctx;
+    const v = Math.max(vol, 0.0002) * (0.9 + Math.random() * 0.2);
+
+    const s = c.createBufferSource();
+    s.buffer = this._zgomot();
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 1500;
+    bp.Q.value = 0.8;
+    const g1 = c.createGain();
+    g1.gain.setValueAtTime(0.0001, t);
+    g1.gain.exponentialRampToValueAtTime(v * 0.9, t + 0.004);
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    s.connect(bp).connect(g1).connect(dest);
+    s.start(t, Math.random() * 1.6);
+    s.stop(t + 0.07);
+
+    const o = c.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(105, t + 0.08);
+    const g2 = c.createGain();
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(v * 0.45, t + 0.006);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    o.connect(g2).connect(dest);
+    o.start(t);
+    o.stop(t + 0.12);
+
+    this.stat.tac++;
+  },
+
+  /** „Ta-tac”: două lovituri la mică distanță (osia din față, apoi cea din spate, puțin mai slabă). */
+  _dublet(dest, t, vol, interval = 0.1) {
+    this._tac(dest, t, vol);
+    this._tac(dest, t + interval, vol * 0.8);
+  },
+
+  /** Un semnal de fluier: acord de două note (triunghi + octava lor), vibrato lent și puțină respirație. */
+  _fluier(dest, t, durata = 0.9, note = NOTE_FLUIER, vol = 1) {
+    const c = this.ctx;
+    const v = 0.16 * vol * NIVEL_SUNET;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t + 0.1);
+    g.gain.setValueAtTime(v, t + Math.max(0.12, durata - 0.28));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + durata + 0.08);
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 3200;
+    g.connect(lp).connect(dest);
+
+    note.forEach((f, k) => {
+      const lfo = c.createOscillator();         // vibrato lent, ca să nu sune a ton de test
+      lfo.frequency.value = 5 + k * 0.4;
+      const adancime = c.createGain();
+      adancime.gain.value = f * 0.004;
+      lfo.connect(adancime);
+      [['triangle', f, 1], ['sine', f * 2, 0.28]].forEach(([tip, frecventa, amplitudine]) => {
+        const o = c.createOscillator();
+        o.type = tip;
+        o.frequency.setValueAtTime(frecventa * 0.95, t);                       // atacul urcă în 70 ms spre notă
+        o.frequency.linearRampToValueAtTime(frecventa, t + 0.07);
+        o.frequency.linearRampToValueAtTime(frecventa * 0.985, t + durata + 0.08);
+        adancime.connect(o.frequency);
+        const ga = c.createGain();
+        ga.gain.value = amplitudine / note.length;
+        o.connect(ga).connect(g);
+        o.start(t);
+        o.stop(t + durata + 0.12);
+      });
+      lfo.start(t);
+      lfo.stop(t + durata + 0.12);
+    });
+
+    const s = c.createBufferSource();            // respirația: zgomot îngust în jurul notei de sus
+    s.buffer = this._zgomot();
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = note[note.length - 1] * 1.5;
+    bp.Q.value = 5;
+    const gz = c.createGain();
+    gz.gain.value = 0.22;
+    s.connect(bp).connect(gz).connect(g);
+    s.start(t, Math.random() * 1.6);
+    s.stop(t + durata + 0.12);
+    this.stat.fluier++;
+  },
+
+  /** Un „fluier” întreg, după un model ales la întâmplare (nu de două ori la rând același). Întoarce durata lui. */
+  _semnalFluier(dest, t) {
+    this.modelFluier = (this.modelFluier + 1 + Math.floor(Math.random() * 2)) % MODELE_FLUIER.length;
+    const model = MODELE_FLUIER[this.modelFluier];
+    model.forEach(([dt, durata]) => this._fluier(dest, t + dt, durata));
+    const [dt, durata] = model[model.length - 1];
+    return dt + durata;
+  },
+
+  /** Huruitul de fond: zgomot foarte grav (sub 140 Hz) + o dungă la ~320 Hz și un „vuiet” larg la ~650 Hz. */
+  _huruit(dest, t, vol) {
+    const c = this.ctx;
+    const s = c.createBufferSource();
+    s.buffer = this._zgomot();
+    s.loop = true;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 140;
+    lp.Q.value = 0.7;
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 320;
+    bp.Q.value = 0.6;
+    const sus = c.createGain();
+    sus.gain.value = 0.35;
+    const vuiet = c.createBiquadFilter();
+    vuiet.type = 'bandpass';
+    vuiet.frequency.value = 650;
+    vuiet.Q.value = 0.5;
+    const gv = c.createGain();
+    gv.gain.value = 0.18;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(vol, 0.0002), t + 0.8);
+    s.connect(lp).connect(g);
+    s.connect(bp).connect(sus).connect(g);
+    s.connect(vuiet).connect(gv).connect(g);
+    g.connect(dest);
+    s.start(t, Math.random() * 1.6);
+    return { g, s };
+  },
+
+  /* ---------- trenul care rulează ---------- */
+
+  /** Inelul care pulsează în jurul butonului de sunet când fluieră trenul. */
+  semnaleaza() {
+    const buton = $('#btnSunet');
+    if (!buton) return;
+    buton.classList.remove('suna');
+    void buton.offsetWidth;                            // repornește animația CSS
+    buton.classList.add('suna');
+    clearTimeout(this.semnal);
+    this.semnal = setTimeout(() => buton.classList.remove('suna'), 950);
+  },
+
+  /**
+   * Pornește trenul. `citesteStare()` întoarce { intensitate: 0..1, vizibil: bool } — cât de intens e fluxul
+   * de petrol acum. Nu face nimic dacă utilizatorul n-a făcut încă un gest în pagină sau dacă sunetul e oprit.
+   */
+  porneste(citesteStare) {
+    if (this.activ || !this.activat || !this.pregatit()) return;
+    this.stare = citesteStare;
+    this.activ = true;
+    const c = this.ctx;
+    const t = c.currentTime + 0.05;
+
+    // magistrala trenului: intrare lină (1,5 s) și o „respirație” foarte lentă a volumului
+    const bus = c.createGain();
+    bus.gain.setValueAtTime(0.0001, t);
+    bus.gain.exponentialRampToValueAtTime(0.85, t + 1.5);
+    const lfo = c.createOscillator();
+    lfo.frequency.value = 0.08;
+    const adancime = c.createGain();
+    adancime.gain.value = 0.12;
+    lfo.connect(adancime).connect(bus.gain);
+    lfo.start(t);
+    bus.connect(this.master);
+    this.bus = bus;
+    this.lfo = lfo;
+
+    this.huruit = this._huruit(bus, t, NIVEL_SUNET * 0.3);
+
+    // Două ritmuri independente, programate cu ceasul audio (fără bâlbâieli): cu cât producția anului
+    // e mai mare, cu atât puf-urile și roțile merg mai repede.
+    const accent = [1, 0.6, 0.85, 0.6];
+    this.ritm('ciuf', (i) => 0.56 - 0.24 * i, (tp, i, n) =>
+      this._ciuf(bus, tp, NIVEL_SUNET * (0.5 + 0.4 * i) * accent[n % 4]));
+    this.ritm('roti', (i) => 0.5 - 0.2 * i, (tp, i) =>
+      this._dublet(bus, tp, NIVEL_SUNET * (0.3 + 0.3 * i), 0.1 - 0.02 * i));
+
+    // fluierul: primul după ~1,6 s, apoi la intervale neregulate (vezi intervalFluier)
+    const fluiera = (ms) => {
+      this.timere.fluier = setTimeout(() => {
+        if (!this.activ) return;
+        if (this.stare().vizibil !== false && this.pregatit()) {
+          this._semnalFluier(this.bus, this.ctx.currentTime + 0.05);
+          this.semnaleaza();
+        }
+        fluiera(this.intervalFluier());
+      }, ms);
+    };
+    fluiera(1600);
+  },
+
+  /** Oprește trenul: volumul scade lin în 0,6 s, apoi totul se deconectează. */
+  opreste() {
+    this.activ = false;
+    Object.values(this.timere).forEach(clearTimeout);
+    this.timere = {};
+    const { ctx: c, bus, lfo, huruit } = this;
+    if (!c || !bus) return;
+    this.bus = null;
+    this.lfo = null;
+    this.huruit = null;
+    const t = c.currentTime;
+    bus.gain.cancelScheduledValues(t);
+    bus.gain.setValueAtTime(Math.max(bus.gain.value, 0.0002), t);
+    bus.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    setTimeout(() => {
+      try { lfo.stop(); } catch (e) { /* deja oprit */ }
+      try { huruit.s.stop(); } catch (e) { /* deja oprit */ }
+      try { bus.disconnect(); } catch (e) { /* deja deconectat */ }
+    }, 900);
+  },
+
+  /**
+   * Un ritm programat cu ceasul audio: la fiecare 60 ms ne uităm 0,25 s înainte și programăm loviturile
+   * care cad în fereastra aceea. `perioada(i)` = secundele până la următoarea lovitură (i = intensitatea 0..1).
+   */
+  ritm(nume, perioada, joaca) {
+    const c = this.ctx;
+    let urmatoarea = c.currentTime + 0.05;
+    let n = 0;
+    const pas = () => {
+      if (!this.activ) return;
+      const s = this.stare();
+      const i = limiteaza(s.intensitate, 0, 1);
+      if (urmatoarea < c.currentTime - 0.05) urmatoarea = c.currentTime + 0.05;   // tab adormit: nu recuperăm cu o rafală
+      while (urmatoarea < c.currentTime + 0.25) {
+        if (s.vizibil && c.state === 'running') joaca(urmatoarea, i, n);
+        urmatoarea += perioada(i);
+        n++;
+      }
+      this.timere[nume] = setTimeout(pas, 60);
+    };
+    pas();
+  }
+};
+
+function initSunet() {
+  const buton = $('#btnSunet');
+  const eticheta = $('#sunetEticheta');
+
+  const actualizeaza = () => {
+    const asteapta = Sunet.activat && !Sunet.pregatit();       // pornit, dar browserul așteaptă primul gest
+    buton.setAttribute('aria-pressed', String(Sunet.activat));
+    buton.setAttribute('aria-label', Sunet.activat ? 'Sunet pornit. Apasă pentru a opri sunetul.' : 'Sunet oprit. Apasă pentru a porni sunetul.');
+    eticheta.textContent = !Sunet.activat ? 'Sunet oprit' : asteapta ? 'Apasă oriunde pe pagină pentru sunet' : 'Sunet pornit';
+  };
+
+  // când contextul audio își schimbă starea (de ex. după primul gest), pornim / oprim trenul și actualizăm eticheta
+  Sunet.laSchimbare = () => { actualizeazaSunetB(); actualizeaza(); };
+
+  buton.addEventListener('click', () => {
+    Sunet.deblocheaza();
+    Sunet.activat = !Sunet.activat;
+    if (!Sunet.activat) Sunet.opreste();
+    actualizeazaSunetB();             // dacă secțiunea B e pe ecran, trenul pornește / se oprește odată cu butonul
+    actualizeaza();
+  });
+
+  // Primul gest din pagină (click, tastă sau atingere, oriunde) pregătește sunetul.
+  const deblocare = () => { Sunet.deblocheaza(); };
+  ['pointerdown', 'keydown', 'touchend'].forEach((eveniment) =>
+    document.addEventListener(eveniment, deblocare, { capture: true, passive: true }));
+
+  // fila ascunsă = tren oprit
+  document.addEventListener('visibilitychange', actualizeazaSunetB);
+
+  actualizeaza();
+}
+
+/* ---------- 4. „ZIARUL INTERBELIC” ---------- */
+
+function initEditorial() {
+  const e = DATE.editorial;
+  if (!e) { $('#ziar').hidden = true; return; }
+
+  $('#ziarTitlu').textContent = e.titlu_ziar;
+  $('#ziarSubtitlu').textContent = e.subtitlu;
+  $('#ziarLinie').replaceChildren(...e.linie.map((text) => el('li', { text })));
+  $('#ziarColoane').replaceChildren(...e.articole.map((a) =>
+    el('article', { class: 'ziar-articol' },
+      el('h3', { text: a.titlu }),
+      el('p', { text: a.text }),
+      linkuriSurse(a.surse || []))));
+  $('#ziarNota').textContent = e.nota_pastisa;
+}
+
+/* ---------- 5. SECȚIUNEA A — Chart.js ---------- */
+
+const A = { cheie: 'petrol_extractie', anFinal: 1938, tip: 'line', grafic: null, puncte: [], chartJs: false, cv: null, rez: null };
+
+function initSectiuneA() {
+  const { an_start, an_sfarsit } = DATE.meta;
+  A.anFinal = an_sfarsit;
+  A.cv = $('#graficBoom');
+
+  if (A.chartJs) {
+    Chart.defaults.font.family = C.fontText;
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = C.cernealaSoft;
+    Chart.defaults.borderColor = cuTransparenta(C.cerneala, 0.1);
+  } else {
+    // graficul de rezervă: același aspect, desenat direct pe canvas
+    new ResizeObserver(deseneazaRezervaCanvas).observe(A.cv.parentElement);
+    A.cv.addEventListener('pointermove', (e) => {
+      if (!A.rez || !A.rez.geom) return;
+      const g = A.rez.geom;
+      const x = e.clientX - A.cv.getBoundingClientRect().left;
+      let i = Math.floor((x - g.stanga) / g.latimeSlot);
+      if (i < 0 || i >= g.n) i = -1;
+      if (i !== A.rez.hover) { A.rez.hover = i; deseneazaRezervaCanvas(); }
+    });
+    A.cv.addEventListener('pointerleave', () => {
+      if (A.rez && A.rez.hover !== -1) { A.rez.hover = -1; deseneazaRezervaCanvas(); }
+    });
+  }
+
+  // lista de indicatori, grupată pe domenii
+  const sel = $('#selIndicator');
+  const grupuri = {
+    industrie: el('optgroup', { label: 'Industrie' }),
+    transport: el('optgroup', { label: 'Transporturi' })
+  };
+  for (const [cheie, serie] of Object.entries(DATE.serii)) {
+    if (!serie.sectiuni.includes('A')) continue;
+    const text = serie.titlu + (areDate(serie) ? '' : ' (fără date încă)');
+    (grupuri[serie.domeniu] || grupuri.industrie).append(el('option', { value: cheie, text }));
+  }
+  sel.append(grupuri.industrie, grupuri.transport);
+  sel.value = A.cheie;
+  sel.addEventListener('change', () => {
+    A.cheie = sel.value;
+    deseneazaA();
+  });
+
+  // cursorul de ani
+  const rng = $('#rngAn');
+  rng.min = an_start;
+  rng.max = an_sfarsit;
+  rng.value = an_sfarsit;
+  rng.addEventListener('input', () => { A.anFinal = Number(rng.value); deseneazaA(); });
+
+  // linie / coloane
+  document.querySelectorAll('[data-tip]').forEach((buton) =>
+    buton.addEventListener('click', () => {
+      A.tip = buton.dataset.tip;
+      document.querySelectorAll('[data-tip]').forEach((b) => b.setAttribute('aria-pressed', String(b === buton)));
+      deseneazaA();
+    })
+  );
+
+  deseneazaA();
+}
+
+function deseneazaA() {
+  const serie = DATE.serii[A.cheie];
+  const ani = interval(DATE.meta.an_start, A.anFinal);
+  A.puncte = ani.map((an) => punct(serie, an));
+  const valori = A.puncte.map((p) => (p ? p.valoare : null));
+
+  if (A.chartJs) deseneazaChartJs(serie, ani, valori);
+  else deseneazaRezerva(serie, ani, valori);
+
+  A.cv.setAttribute('aria-label',
+    `Grafic ${A.tip === 'bar' ? 'cu coloane' : 'liniar'}: ${serie.titlu} (${serie.unitate}), ${DATE.meta.an_start}–${A.anFinal}`);
+  actualizeazaTextA(serie, ani, valori);
+}
+
+/** Graficul Chart.js: toate punctele și coloanele sunt la fel (burgund, cu inel de pergament), fără deosebiri între ani. */
+function deseneazaChartJs(serie, ani, valori) {
+  const dataset = A.tip === 'bar'
+    ? {
+        data: valori,
+        backgroundColor: cuTransparenta(C.rosu, 0.88),
+        hoverBackgroundColor: C.alama,
+        borderWidth: 0, borderRadius: 1, maxBarThickness: 30
+      }
+    : {
+        data: valori,
+        borderColor: C.rosu, borderWidth: 2.5, tension: 0.25, spanGaps: true,
+        pointRadius: 4, pointHoverRadius: 6,
+        pointBackgroundColor: C.rosu, pointBorderColor: C.hartie2, pointBorderWidth: 1.5,
+        pointHoverBackgroundColor: C.alama, pointHoverBorderColor: C.hartie2,
+        fill: true,
+        backgroundColor: (ctx) => {                      // umbră fină sub linie, din alamă → transparent
+          const { chart } = ctx;
+          const { ctx: g, chartArea } = chart;
+          if (!chartArea) return 'transparent';
+          const grad = g.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          grad.addColorStop(0, cuTransparenta(C.alama, 0.28));
+          grad.addColorStop(1, cuTransparenta(C.alama, 0));
+          return grad;
+        }
+      };
+  dataset.label = serie.titlu;
+
+  const config = {
+    type: A.tip,
+    data: { labels: ani, datasets: [dataset] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: REDUS_MISCARE ? 0 : 600 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          // același aer ca tooltip-ul hărții: fundal închis, margine din alamă
+          backgroundColor: '#2a2622', borderColor: C.alama, borderWidth: 1,
+          titleColor: '#d9b25f', bodyColor: '#f1e8cf',
+          titleFont: { family: C.fontTitlu, size: 14 }, bodyFont: { family: C.fontText, size: 13 },
+          padding: 10, cornerRadius: 2, displayColors: false,
+          callbacks: { label: (ctx) => (ctx.parsed.y == null ? '' : `${format(ctx.parsed.y)} ${serie.unitate}`) }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, border: { color: cuTransparenta(C.cerneala, 0.35) }, ticks: { color: C.cernealaSoft, maxRotation: 0, autoSkipPadding: 14 } },
+        y: {
+          beginAtZero: A.tip === 'bar',
+          border: { display: false },
+          grid: { color: cuTransparenta(C.cerneala, 0.1) },
+          ticks: { color: C.cernealaSoft, callback: (v) => format(v) },
+          title: { display: true, text: serie.unitate, color: C.cernealaSoft }
+        }
+      }
+    }
+  };
+
+  if (A.grafic && A.grafic.config.type === config.type) {
+    A.grafic.data = config.data;       // același tip: actualizăm datele, cu animație
+    A.grafic.options = config.options;
+    A.grafic.update();
+  } else {
+    if (A.grafic) A.grafic.destroy();  // tip nou (linie ↔ coloane): refacem graficul
+    A.grafic = new Chart(A.cv, config);
+  }
+}
+
+/* --- Graficul de rezervă (Canvas), dacă Chart.js nu s-a putut încărca --- */
+
+function deseneazaRezerva(serie, ani, valori) {
+  const hover = A.rez ? A.rez.hover : -1;
+  A.rez = { ani, valori, unitate: serie.unitate, hover: hover < ani.length ? hover : -1, geom: null };
+  deseneazaRezervaCanvas();
+}
+
+/** Pas „rotund” pentru axa verticală (1, 2, 2,5, 5 × 10ⁿ). */
+function pasFrumos(brut) {
+  const exp = Math.pow(10, Math.floor(Math.log10(brut)));
+  const f = brut / exp;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * exp;
+}
+
+function deseneazaRezervaCanvas() {
+  const R = A.rez;
+  const cv = A.cv;
+  if (!R || !cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.parentElement.clientWidth;
+  const H = cv.parentElement.clientHeight;
+  if (!W || !H) return;
+  cv.width = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  const g = cv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+
+  const { ani, valori } = R;
+  const prezente = valori.filter((v) => v != null);
+  if (!prezente.length) {
+    g.fillStyle = C.cernealaSoft;
+    g.font = `400 15px ${C.fontText}`;
+    g.textAlign = 'center';
+    g.fillText('Nu există încă date pentru acest indicator.', W / 2, H / 2);
+    R.geom = null;
+    return;
+  }
+
+  // domeniul axei verticale
+  const coloane = A.tip === 'bar';
+  let min = Math.min(...prezente);
+  let max = Math.max(...prezente);
+  if (coloane) {
+    min = Math.min(0, min);
+  } else {
+    const aer = (max - min || max || 1) * 0.12;
+    min = min >= 0 ? Math.max(0, min - aer) : min - aer;
+    max += aer;
+  }
+  if (max === min) max = min + 1;
+  const pas = pasFrumos((max - min) / 5);
+  const y0 = Math.floor(min / pas) * pas;
+  const y1 = Math.ceil(max / pas) * pas;
+
+  // marginile se potrivesc cu cea mai lată etichetă
+  g.font = `400 12px ${C.fontText}`;
+  const ticks = [];
+  for (let v = y0; v <= y1 + pas / 2; v += pas) ticks.push(Number(v.toFixed(10)));
+  const latEticheta = Math.max(...ticks.map((v) => g.measureText(format(v)).width));
+  const stanga = Math.ceil(latEticheta) + 18;
+  const dreapta = 14;
+  const sus = 26;
+  const jos = 30;
+  const lat = W - stanga - dreapta;
+  const inal = H - sus - jos;
+  const n = ani.length;
+  const latimeSlot = lat / n;
+  const px = (i) => stanga + (i + 0.5) * latimeSlot;
+  const py = (v) => sus + (1 - (v - y0) / (y1 - y0)) * inal;
+  R.geom = { stanga, latimeSlot, n };
+
+  // grila și etichetele axei verticale
+  g.textBaseline = 'middle';
+  g.textAlign = 'right';
+  for (const v of ticks) {
+    const y = py(v);
+    g.strokeStyle = cuTransparenta(C.cerneala, 0.1);
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(stanga, Math.round(y) + 0.5);
+    g.lineTo(W - dreapta, Math.round(y) + 0.5);
+    g.stroke();
+    g.fillStyle = C.cernealaSoft;
+    g.fillText(format(v), stanga - 10, y);
+  }
+  g.textAlign = 'left';
+  g.fillText(R.unitate, 2, 9);
+
+  // etichetele axei orizontale (ani), destul de rare ca să nu se atingă
+  g.textAlign = 'center';
+  g.textBaseline = 'alphabetic';
+  const k = Math.max(1, Math.ceil(40 / latimeSlot));
+  for (let i = 0; i < n; i += k) g.fillText(String(ani[i]), px(i), H - 9);
+  g.strokeStyle = cuTransparenta(C.cerneala, 0.35);
+  g.beginPath();
+  g.moveTo(stanga, sus + inal + 0.5);
+  g.lineTo(W - dreapta, sus + inal + 0.5);
+  g.stroke();
+
+  // datele
+  if (coloane) {
+    const w = Math.min(30, latimeSlot * 0.62);
+    valori.forEach((v, i) => {
+      if (v == null) return;
+      g.fillStyle = i === R.hover ? C.alama : cuTransparenta(C.rosu, 0.88);
+      const yv = py(v);
+      const yBaza = py(Math.max(0, y0));
+      g.fillRect(px(i) - w / 2, Math.min(yv, yBaza), w, Math.max(1, Math.abs(yBaza - yv)));
+    });
+  } else {
+    const pct = [];
+    valori.forEach((v, i) => { if (v != null) pct.push([px(i), py(v), i]); });
+    if (pct.length > 1) {
+      const grad = g.createLinearGradient(0, sus, 0, sus + inal);
+      grad.addColorStop(0, cuTransparenta(C.alama, 0.28));
+      grad.addColorStop(1, cuTransparenta(C.alama, 0));
+      g.beginPath();
+      pct.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+      g.lineTo(pct[pct.length - 1][0], sus + inal);
+      g.lineTo(pct[0][0], sus + inal);
+      g.closePath();
+      g.fillStyle = grad;
+      g.fill();
+      g.beginPath();
+      pct.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+      g.strokeStyle = C.rosu;
+      g.lineWidth = 2;
+      g.lineJoin = 'round';
+      g.stroke();
+    }
+    for (const [x, y, i] of pct) {
+      g.beginPath();
+      g.arc(x, y, i === R.hover ? 6 : 4, 0, Math.PI * 2);
+      g.fillStyle = i === R.hover ? C.alama : C.rosu;
+      g.fill();
+      g.lineWidth = 1.5;
+      g.strokeStyle = C.hartie2;
+      g.stroke();
+    }
+  }
+
+  // „tooltip”: linie fină + casetă cu anul și valoarea
+  const h = R.hover;
+  if (h >= 0 && valori[h] != null) {
+    const x = px(h);
+    const y = py(valori[h]);
+    if (!coloane) {
+      g.strokeStyle = cuTransparenta(C.alama, 0.55);
+      g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(x + 0.5, sus);
+      g.lineTo(x + 0.5, sus + inal);
+      g.stroke();
+    }
+    const titlu = String(ani[h]);
+    const text = `${format(valori[h])} ${R.unitate}`;
+    g.font = `500 15px ${C.fontTitlu}`;
+    const lt = g.measureText(titlu).width;
+    g.font = `400 13px ${C.fontText}`;
+    const lx = g.measureText(text).width;
+    const cw = Math.max(lt, lx) + 24;
+    const ch = 54;
+    const cx = Math.min(W - cw - 4, Math.max(4, x + 14));
+    const cy = Math.max(4, y - ch - 10);
+    g.fillStyle = 'rgba(42, 38, 34, 0.96)';
+    g.strokeStyle = C.alama;
+    g.lineWidth = 1;
+    g.fillRect(cx, cy, cw, ch);
+    g.strokeRect(cx + 0.5, cy + 0.5, cw - 1, ch - 1);
+    g.textAlign = 'left';
+    g.textBaseline = 'alphabetic';
+    g.fillStyle = '#d9b25f';
+    g.font = `500 15px ${C.fontTitlu}`;
+    g.fillText(titlu, cx + 12, cy + 22);
+    g.fillStyle = '#f1e8cf';
+    g.font = `400 13px ${C.fontText}`;
+    g.fillText(text, cx + 12, cy + 42);
+  }
+}
+
+function actualizeazaTextA(serie, ani, valori) {
+  const p = A.puncte[A.puncte.length - 1]; // punctul din anul selectat
+  const areValoare = Boolean(p && p.valoare != null);
+
+  $('#outAn').textContent = A.anFinal;
+  $('#kpiAn').textContent = A.anFinal;
+  $('#kpiValoare').textContent = areValoare ? `${format(p.valoare)} ${serie.unitate}` : 'fără date';
+
+  // câți ani din interval au valori
+  const nr = valori.filter((x) => x != null).length;
+  let nota = '';
+  if (!areDate(serie)) nota = 'Pentru acest indicator nu există încă date în repozitor.';
+  else if (nr < valori.length) nota = `Date disponibile: ${nr} din ${valori.length} ani din intervalul ales.`;
+  $('#notaA').textContent = nota;
+
+  // sursele indicatorului
+  const surse = linkuriSurse(serie.surse || [], 'surse-linie');
+  $('#surseA').replaceChildren(...(surse ? [...surse.childNodes] : []));
+
+  // varianta „tabel” a graficului (pentru cititoare de ecran și pentru cine vrea cifrele exacte)
+  $('#tabelUnitate').textContent = `Valoare (${serie.unitate})`;
+  $('#tabelA').replaceChildren(...ani
+    .map((an, i) => [an, valori[i]])
+    .filter(([, v]) => v != null)
+    .map(([an, v]) => el('tr', {}, el('td', { text: an }), el('td', { text: format(v) }))));
+
+  // contextul istoric până în anul selectat (cele mai recente 4 repere)
+  const lista = $('#repereA');
+  lista.replaceChildren();
+  DATE.repere
+    .filter((r) => r.an >= DATE.meta.an_start && r.an <= A.anFinal)
+    .sort((a, b) => b.an - a.an)
+    .slice(0, 4)
+    .forEach((r) => lista.append(el('li', {}, el('strong', { text: `${r.an} — ` }), r.text)));
+}
+
+/* ---------- 6. SECȚIUNEA B — HTML5 Canvas ---------- */
+
+const B = {
+  an: 0, joaca: false, cronometru: null, vizibil: true, murdar: true,
+  latime: 0, inaltime: 0, proiectie: null,
+  noduri: new Map(), rute: [], dunare: [],
+  valoare: 0, max: 1, anMax: 0, cv: null, ctx: null, sunetVizibil: false
+};
+
+const POZITII_ETICHETE = { dr: [10, 4, 'left'], st: [-10, 4, 'right'], sus: [0, -12, 'center'], jos: [0, 22, 'center'] };
+
+function initSectiuneB() {
+  B.cv = $('#canvasFlux');
+  B.ctx = B.cv.getContext('2d');
+
+  const valori = DATE.serii.petrol_extractie.date.filter((p) => p.valoare != null);
+  B.max = Math.max(...valori.map((p) => p.valoare));
+  B.anMax = valori.find((p) => p.valoare === B.max).an;
+  B.an = B.anMax;
+
+  const rng = $('#rngAnFlux');
+  rng.min = DATE.meta.an_start;
+  rng.max = DATE.meta.an_sfarsit;
+  rng.addEventListener('input', () => setAnB(Number(rng.value)));
+  $('#btnJoaca').addEventListener('click', comutaJoaca);
+
+  new ResizeObserver(redimensioneazaB).observe(B.cv.parentElement);
+  new IntersectionObserver(([intrare]) => { B.vizibil = intrare.isIntersecting; }).observe(B.cv);
+  // sunetul trenului: doar când cel puțin o treime din harta cu trenuri e pe ecran
+  new IntersectionObserver(([intrare]) => {
+    B.sunetVizibil = intrare.intersectionRatio >= 0.33;
+    actualizeazaSunetB();
+  }, { threshold: [0, 0.33] }).observe(B.cv.parentElement);
+
+  redimensioneazaB();
+  setAnB(B.an);
+  requestAnimationFrame(bucla);
+}
+
+function redimensioneazaB() {
+  const dpr = window.devicePixelRatio || 1;
+  const lat = Math.max(280, Math.floor(B.cv.parentElement.clientWidth));
+  if (lat === B.latime && B.proiectie) return;
+  const inal = Math.round(lat * (lat < 560 ? 0.9 : 0.54));
+
+  B.latime = lat;
+  B.inaltime = inal;
+  B.cv.width = Math.round(lat * dpr);   // rezoluție reală (ecrane retina)
+  B.cv.height = Math.round(inal * dpr);
+  B.cv.style.height = `${inal}px`;
+  B.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const flux = DATE.flux;
+  B.proiectie = creeazaProiectie(flux.cadru, lat, inal, 46);
+  B.noduri = new Map(flux.noduri.map((n) => {
+    const [x, y] = B.proiectie(n.lon, n.lat);
+    return [n.id, { ...n, x, y }];
+  }));
+  B.dunare = flux.dunarea.map(([lon, lat2]) => B.proiectie(lon, lat2));
+  B.rute = flux.rute.map((r) => {
+    const pct = r.traseu.map((id) => { const n = B.noduri.get(id); return [n.x, n.y]; });
+    let lungime = 0;
+    for (let i = 1; i < pct.length; i++) {
+      lungime += Math.hypot(pct[i][0] - pct[i - 1][0], pct[i][1] - pct[i - 1][1]);
+    }
+    return { ...r, pct, lungime };
+  });
+  B.murdar = true;
+}
+
+function setAnB(an) {
+  B.an = an;
+  const p = punct(DATE.serii.petrol_extractie, an);
+  B.valoare = p && p.valoare != null ? p.valoare : 0;
+
+  $('#rngAnFlux').value = an;
+  $('#outAnFlux').textContent = an;
+  $('#infoFlux').replaceChildren(
+    el('strong', { text: `${an}: ` }),
+    `extracție de ${format(B.valoare)} milioane tone de țiței (${Math.round((B.valoare / B.max) * 100)}% din maximul interbelic, atins în ${B.anMax}).`
+  );
+  B.murdar = true;
+}
+
+function comutaJoaca() {
+  B.joaca = !B.joaca;
+  clearInterval(B.cronometru);
+  const buton = $('#btnJoaca');
+  buton.textContent = B.joaca ? '⏸ Pauză' : '▶ Redă anii';
+  buton.setAttribute('aria-pressed', String(B.joaca));
+
+  if (B.joaca) {
+    if (B.an >= DATE.meta.an_sfarsit) setAnB(DATE.meta.an_start);
+    B.cronometru = setInterval(() => {
+      if (B.an >= DATE.meta.an_sfarsit) comutaJoaca();
+      else setAnB(B.an + 1);
+    }, 900);
+  }
+}
+
+/**
+ * Trenul se aude doar în secțiunea B: cât timp harta cu trenuri e pe ecran, fila e vizibilă și butonul de sunet
+ * e pornit. Butonul de sunet apare și el doar aici. („Redă anii” schimbă anul, nu pornește sunetul.)
+ */
+function actualizeazaSunetB() {
+  const plutitor = document.querySelector('.sunet-plutitor');
+  if (plutitor) plutitor.classList.toggle('vizibil', Boolean(B.sunetVizibil));
+  const voie = Sunet.activat && B.sunetVizibil && !document.hidden;
+  if (voie) {
+    Sunet.porneste(() => ({
+      intensitate: B.max ? B.valoare / B.max : 0,
+      vizibil: B.vizibil && !document.hidden
+    }));
+  } else if (Sunet.activ) {
+    Sunet.opreste();
+  }
+}
+
+function bucla(ms) {
+  if (B.vizibil && !document.hidden) {
+    if (!REDUS_MISCARE) deseneazaB(ms / 1000);
+    else if (B.murdar) { deseneazaB(0); B.murdar = false; } // fără mișcare: redesenăm doar la schimbări
+  }
+  requestAnimationFrame(bucla);
+}
+
+/** Poziția (x, y, unghi) la distanța d de-a lungul unei rute. */
+function pozitiePeRuta(ruta, d) {
+  let parcurs = 0;
+  for (let i = 1; i < ruta.pct.length; i++) {
+    const [x0, y0] = ruta.pct[i - 1];
+    const [x1, y1] = ruta.pct[i];
+    const seg = Math.hypot(x1 - x0, y1 - y0);
+    if (d <= parcurs + seg || i === ruta.pct.length - 1) {
+      const u = seg === 0 ? 0 : Math.min(1, (d - parcurs) / seg);
+      return [x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, Math.atan2(y1 - y0, x1 - x0)];
+    }
+    parcurs += seg;
+  }
+  return [0, 0, 0];
+}
+
+function traseaza(ctx, pct) {
+  ctx.beginPath();
+  pct.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.stroke();
+}
+
+function deseneazaB(t) {
+  const { ctx, latime: W, inaltime: H } = B;
+  ctx.clearRect(0, 0, W, H);
+
+  // Marea Neagră
+  const xMare = B.proiectie(DATE.flux.litoral_lon, 44)[0];
+  ctx.fillStyle = 'rgba(53, 78, 99, 0.16)';
+  ctx.fillRect(xMare, 0, W - xMare, H);
+  ctx.save();
+  ctx.translate((xMare + W) / 2 + 4, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = C.otel;
+  ctx.font = `italic 15px ${C.fontTitlu}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('Marea Neagră', 0, 0);
+  ctx.restore();
+
+  // Dunărea
+  ctx.save();
+  ctx.strokeStyle = 'rgba(53, 78, 99, 0.5)';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  traseaza(ctx, B.dunare);
+  ctx.restore();
+  ctx.fillStyle = C.otel;
+  ctx.font = `italic 13px ${C.fontTitlu}`;
+  ctx.textAlign = 'left';
+  const [dx, dy] = B.dunare[2];
+  ctx.fillText('Dunărea', dx - 10, dy + 22);
+
+  // liniile rutelor
+  for (const r of B.rute) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (r.mod === 'conducta') {
+      ctx.strokeStyle = C.petrol;
+      ctx.lineWidth = 3.5;
+      traseaza(ctx, r.pct);
+    } else {
+      ctx.strokeStyle = C.cerneala;
+      ctx.lineWidth = 4;
+      traseaza(ctx, r.pct);
+      ctx.strokeStyle = C.hartie;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 6]);
+      traseaza(ctx, r.pct);
+    }
+    ctx.restore();
+  }
+
+  // particulele: puncte aurii pe conducte, trenuri cisternă pe calea ferată
+  const intensitate = B.valoare / B.max;
+  const factor = Math.max(0.6, Math.min(1, W / 700));
+  for (const r of B.rute) {
+    const conducta = r.mod === 'conducta';
+    const n = Math.max(1, Math.round(intensitate * r.pondere * (conducta ? 16 : 5)));
+    const viteza = conducta ? 38 : 64; // px pe secundă
+    for (let i = 0; i < n; i++) {
+      const f = (i / n + (t * viteza) / r.lungime) % 1;
+      const [x, y, unghi] = pozitiePeRuta(r, f * r.lungime);
+      if (conducta) {
+        ctx.beginPath();
+        ctx.arc(x, y, 3.4, 0, Math.PI * 2);
+        ctx.fillStyle = C.alama;
+        ctx.fill();
+      } else {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(unghi);
+        for (let vag = 0; vag < 3; vag++) {
+          ctx.fillStyle = vag === 0 ? C.petrol : C.rosu; // primul vagon = locomotiva
+          ctx.fillRect((-18 + vag * 12) * factor, -3.5 * factor, 10 * factor, 7 * factor);
+        }
+        ctx.restore();
+      }
+    }
+  }
+
+  // nodurile (câmpuri, rafinării, orașe, porturi)
+  const culoriNoduri = { camp: C.alama, rafinarie: C.rosu, oras: C.cerneala, port: C.otel, nod: C.cerneala };
+  ctx.font = `600 13px ${C.fontText}`;
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = C.hartie;
+  for (const n of B.noduri.values()) {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 6.5, 0, Math.PI * 2);
+    ctx.fillStyle = culoriNoduri[n.tip] || C.cerneala;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = C.hartie2;
+    ctx.stroke();
+
+    const [ox, oy, aliniere] = POZITII_ETICHETE[n.eticheta] || POZITII_ETICHETE.dr;
+    ctx.textAlign = aliniere;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = C.hartie;
+    ctx.strokeText(n.nume, n.x + ox, n.y + oy);
+    ctx.fillStyle = C.cerneala;
+    ctx.fillText(n.nume, n.x + ox, n.y + oy);
+  }
+}
+
+/* ---------- 7. SECȚIUNEA C — SVG: harta ---------- */
+
+/*
+   Harta e împărțită în module mici, ca să le poată lucra mai mulți colegi:
+     deseneazaHarta()        — grila, conturul, regiunile și orașele
+     initTooltipPlutitor()   — caseta care urmărește cursorul + aprinderea regiunii (+ sunetul)
+     filtrareDinamicaHarta() — filtrul pe ramuri industriale
+     initPopup()             — fereastra cu detalii (click pe oraș)
+*/
+
+const HARTA = {
+  svg: null, tooltip: null,
+  orase: new Map(),     // id centru → { centru, g }
+  regiuni: new Map(),   // nume regiune → elementul <text> din SVG
+  filtru: 'toate',
+  px: 0, py: 0, raf: 0
+};
+
+function initSectiuneC() {
+  HARTA.svg = $('#hartaSvg');
+  HARTA.tooltip = $('#tooltipHarta');
+  deseneazaHarta();
+  initTooltipPlutitor();
+  initFiltruIndustrie();
+  initPopup();
+}
+
+/* 8.1 Desenarea hărții */
+function deseneazaHarta() {
+  const svg = HARTA.svg;
+  const L = 800;
+  const H = 600;
+  svg.setAttribute('viewBox', `0 0 ${L} ${H}`);
+
+  const contur = DATE.harta.contur_1930;
+  const cadru = cadruDin(contur);
+  const proiectie = creeazaProiectie(cadru, L, H, 30);
+
+  // grila de coordonate: linii foarte fine, din 2° în 2° pe longitudine și din 1° în 1° pe latitudine
+  const grila = svgEl('path', { class: 'grila' });
+  let dGrila = '';
+  for (let lon = Math.floor(cadru.lonMin / 2) * 2; lon <= cadru.lonMax + 2; lon += 2) {
+    const [x1, y1] = proiectie(lon, cadru.latMax + 2);
+    const [x2, y2] = proiectie(lon, cadru.latMin - 2);
+    dGrila += `M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`;
+  }
+  for (let lat = Math.floor(cadru.latMin) - 1; lat <= cadru.latMax + 1; lat += 1) {
+    const [x1, y1] = proiectie(cadru.lonMin - 3, lat);
+    const [x2, y2] = proiectie(cadru.lonMax + 3, lat);
+    dGrila += `M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`;
+  }
+  grila.setAttribute('d', dGrila);
+  svg.append(grila);
+
+  // conturul țării
+  const d = contur
+    .map(([lon, lat], i) => {
+      const [x, y] = proiectie(lon, lat);
+      return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(' ') + ' Z';
+  svg.append(svgEl('path', { d, class: 'contur' }));
+
+  // numele regiunilor istorice — păstrăm referința, ca să le „aprindem” la hover pe un oraș
+  for (const r of DATE.harta.regiuni) {
+    const [x, y] = proiectie(r.lon, r.lat);
+    const text = svgEl('text', { x: x.toFixed(1), y: y.toFixed(1), class: 'regiune' });
+    text.textContent = r.nume;
+    svg.append(text);
+    HARTA.regiuni.set(r.nume, text);
+  }
+
+  // centrele industriale (interactive)
+  for (const c of DATE.harta.centre) {
+    const [x, y] = proiectie(c.lon, c.lat);
+    const stanga = c.eticheta === 'st';
+    const g = svgEl('g', {
+      class: 'oras', tabindex: '0', role: 'button',
+      'data-id': c.id,
+      'aria-label': `${c.nume} — ${c.firma}. Deschide detaliile`
+    });
+    g.append(
+      svgEl('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 20, class: 'oras-zona' }),
+      svgEl('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 10, class: 'oras-halo' }),
+      svgEl('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 5, class: 'oras-punct' })
+    );
+    const eticheta = svgEl('text', {
+      x: (x + (stanga ? -13 : 13)).toFixed(1),
+      y: (y + 4).toFixed(1),
+      'text-anchor': stanga ? 'end' : 'start'
+    });
+    eticheta.textContent = c.nume;
+    g.append(eticheta);
+
+    g.addEventListener('click', () => deschidePopup(c));
+    g.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); deschidePopup(c); }
+    });
+    svg.append(g);
+    HARTA.orase.set(c.id, { centru: c, g });
+  }
+}
+
+/* 8.2 Tooltip plutitor + aprinderea regiunii */
+
+/** Aprinde (on = true) sau stinge textul regiunii istorice din care face parte centrul. */
+function aprindeRegiune(numeRegiune, on) {
+  const text = HARTA.regiuni.get(numeRegiune);
+  if (text) text.classList.toggle('regiune-activa', on);
+}
+
+/** Pune tooltip-ul lângă cursor; dacă n-ar încăpea pe ecran, îl răsfrânge pe cealaltă parte. */
+function pozitioneazaTooltip(x, y) {
+  const t = HARTA.tooltip;
+  const w = t.offsetWidth;
+  const h = t.offsetHeight;
+  const dist = 18;
+  const rasfrangeX = x + dist + w > window.innerWidth - 8;
+  const rasfrangeY = y + dist + h > window.innerHeight - 8;
+  const stanga = rasfrangeX ? x - dist - w : x + dist;
+  const sus = rasfrangeY ? y - dist - h : y + dist;
+  t.style.left = `${Math.max(8, stanga)}px`;
+  t.style.top = `${Math.max(8, sus)}px`;
+}
+
+/** Mișcarea mouse-ului produce zeci de evenimente pe secundă; le „strângem” într-un singur cadru. */
+function mutaTooltip(x, y) {
+  HARTA.px = x;
+  HARTA.py = y;
+  if (HARTA.raf) return;
+  HARTA.raf = requestAnimationFrame(() => {
+    HARTA.raf = 0;
+    pozitioneazaTooltip(HARTA.px, HARTA.py);
+  });
+}
+
+function arataTooltip(c, x, y) {
+  const t = HARTA.tooltip;
+  t.replaceChildren(
+    el('span', { class: 'tt-regiune', text: c.regiune }),
+    el('span', { class: 'tt-nume', text: c.nume }),
+    el('span', { class: 'tt-rand' }, el('b', { text: 'Concern: ' }), c.firma),
+    el('span', { class: 'tt-rand' }, el('b', { text: 'Rol economic: ' }), c.rol),
+    el('span', { class: 'tt-sfat', text: 'Click pentru detalii' })
+  );
+  pozitioneazaTooltip(x, y);        // întâi poziția, apoi apariția → fără „salt” din colțul ecranului
+  t.classList.add('vizibil');
+  t.setAttribute('aria-hidden', 'false');
+}
+
+function ascundeTooltip() {
+  HARTA.tooltip.classList.remove('vizibil');
+  HARTA.tooltip.setAttribute('aria-hidden', 'true');
+}
+
+function initTooltipPlutitor() {
+  for (const { centru: c, g } of HARTA.orase.values()) {
+    // Mouse sau stylus: tooltip care urmărește cursorul (pe hartă nu se aude nimic).
+    // Pe touch nu arătăm tooltip-ul (tap = pop-up direct).
+    g.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'touch') return;
+      arataTooltip(c, e.clientX, e.clientY);
+      aprindeRegiune(c.regiune, true);
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      mutaTooltip(e.clientX, e.clientY);
+    });
+    g.addEventListener('pointerleave', () => {
+      ascundeTooltip();
+      aprindeRegiune(c.regiune, false);
+    });
+    // Tastatura: același efect, ancorat lângă oraș (nu există cursor)
+    g.addEventListener('focus', () => {
+      const r = g.getBoundingClientRect();
+      arataTooltip(c, r.right, r.bottom);
+      aprindeRegiune(c.regiune, true);
+    });
+    g.addEventListener('blur', () => {
+      ascundeTooltip();
+      aprindeRegiune(c.regiune, false);
+    });
+  }
+}
+
+/* 8.3 Filtrul pe ramuri industriale */
+
+/**
+ * Evidențiază orașele care aparțin ramurii alese și estompează restul.
+ * valoareFiltru = id-ul unei ramuri din REPOZITOR_DATE → harta.ramuri (ex. "petrol", "siderurgie")
+ *                 sau "toate" pentru a reveni la harta completă.
+ */
+function filtrareDinamicaHarta(valoareFiltru) {
+  const toate = !valoareFiltru || valoareFiltru === 'toate';
+  HARTA.filtru = toate ? 'toate' : valoareFiltru;
+
+  const evidentiate = [];
+  for (const { centru: c, g } of HARTA.orase.values()) {
+    const potrivit = toate || (c.ramuri || []).includes(valoareFiltru);
+    g.classList.toggle('atenuat', !toate && !potrivit);      // CSS: .oras.atenuat { opacity: .15 }
+    g.classList.toggle('accentuat', !toate && potrivit);     // CSS: halo auriu care pulsează
+    if (!toate && potrivit) evidentiate.push(c.nume);
+  }
+
+  // mesaj pentru ecran și pentru cititoarele de ecran
+  const status = $('#statusFiltru');
+  if (toate) {
+    status.textContent = `Se văd toate cele ${HARTA.orase.size} centre industriale.`;
+  } else {
+    const ramura = DATE.harta.ramuri.find((r) => r.id === valoareFiltru);
+    const nume = ramura ? ramura.nume : valoareFiltru;
+    status.textContent = evidentiate.length
+      ? `Ramura „${nume}”: ${evidentiate.length} ${evidentiate.length === 1 ? 'centru evidențiat' : 'centre evidențiate'} — ${evidentiate.join(', ')}.`
+      : `Ramura „${nume}”: niciun centru din această hartă.`;
+  }
+
+  // ține dropdown-ul în acord cu filtrul, dacă funcția e apelată din alt loc din cod
+  const sel = $('#filtruIndustrie');
+  if (sel && sel.value !== HARTA.filtru && [...sel.options].some((o) => o.value === HARTA.filtru)) {
+    sel.value = HARTA.filtru;
+  }
+}
+
+function initFiltruIndustrie() {
+  const sel = $('#filtruIndustrie');
+  // opțiunile vin din REPOZITOR_DATE, deci un coleg poate adăuga o ramură fără să atingă codul
+  for (const r of DATE.harta.ramuri) {
+    sel.append(el('option', { value: r.id, text: r.nume }));
+  }
+  sel.addEventListener('change', () => {
+    filtrareDinamicaHarta(sel.value);
+  });
+  filtrareDinamicaHarta('toate');
+}
+
+/* 8.4 Pop-up cu detalii */
+
+function initPopup() {
+  const popup = $('#popup');
+  const inchide = () => {
+    Ghid.opreste();
+    if (typeof popup.close === 'function') popup.close();
+    else popup.removeAttribute('open');
+  };
+  $('#popupInchide').addEventListener('click', inchide);
+  // click pe fundalul întunecat (în afara ferestrei) închide pop-up-ul
+  popup.addEventListener('click', (e) => {
+    const r = popup.getBoundingClientRect();
+    const inAfara = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    if (e.target === popup && inAfara) inchide();
+  });
+  popup.addEventListener('close', () => Ghid.opreste()); // și la Esc
+}
+
+function deschidePopup(c) {
+  const popup = $('#popup');
+  ascundeTooltip();
+  aprindeRegiune(c.regiune, false);
+  Ghid.opreste();
+  $('#popupCorp').replaceChildren(...construiestePopup(c));
+  if (typeof popup.showModal === 'function') popup.showModal();
+  else popup.setAttribute('open', '');
+}
+
+function construiestePopup(c) {
+  const parti = [
+    el('p', { class: 'eticheta-pop', text: `${c.regiune} · ${c.rol}` }),
+    el('h3', { id: 'popupTitlu', text: `${c.nume} — ${c.firma}` })
+  ];
+
+  // ghid vocal: vocea sintetică a browserului citește fișa orașului
+  if ('speechSynthesis' in window) {
+    const buton = el('button', {
+      type: 'button', class: 'btn', 'aria-pressed': 'false',
+      'data-eticheta': 'Ascultă istoria'
+    }, 'Ascultă istoria');
+    buton.addEventListener('click', () => Ghid.comuta(c, buton));
+    parti.push(el('div', { class: 'ghid-audio' }, buton,
+      el('p', { class: 'ghid-nota', text: 'Fișa orașului, citită cu vocea sintetică a browserului.' })));
+  }
+
+  // imaginea de epocă (câmpul "imagine" din REPOZITOR_DATE), dacă există
+  if (c.imagine) {
+    parti.push(el('figure', {},
+      el('img', { src: c.imagine.fisier, alt: c.imagine.alt, loading: 'lazy' }),
+      el('figcaption', { text: c.imagine.credit })));
+  }
+
+  if (c.fapte.length) {
+    parti.push(el('ul', {}, c.fapte.map((f) => {
+      const nume = numeSursa(f.sursa);
+      return el('li', {}, f.text, nume ? el('span', { class: 'sursa-mica', text: `(${nume})` }) : null);
+    })));
+  }
+
+  if (c.statistici.length) {
+    const tabel = el('table', {},
+      el('thead', {}, el('tr', {}, el('th', { text: 'Indicator' }), el('th', { text: 'Valoare' }), el('th', { text: 'An' }))),
+      el('tbody', {}, c.statistici.map((s) => {
+        const nume = numeSursa(s.sursa);
+        return el('tr', {},
+          el('td', {}, s.eticheta, nume ? el('span', { class: 'sursa-mica', text: nume }) : null),
+          el('td', { text: s.valoare_text ?? `${format(s.valoare, 2)} ${s.unitate}` }),
+          el('td', { text: s.an }));
+      })));
+    parti.push(tabel);
+  }
+  return parti;
+}
+
+/* ---------- 8. GHIDUL VOCAL („Ascultă istoria”) ---------- */
+
+/** Textul citit de ghid: transcrierea din REPOZITOR_DATE sau, în lipsă, o compunem din fișa orașului. */
+function textGhid(c) {
+  if (c.audio && c.audio.transcriere) return c.audio.transcriere;
+  const stat = c.statistici.map((s) =>
+    `${s.eticheta}: ${s.valoare_text ?? `${format(s.valoare, 2)} ${s.unitate}`}, în ${s.an}.`);
+  return [`${c.nume}. ${c.firma}.`, `${c.rol}.`, ...c.fapte.map((f) => f.text), ...stat].join(' ');
+}
+
+const Ghid = {
+  buton: null,
+
+  comuta(c, buton) {
+    if (this.buton === buton) { this.opreste(); return; }   // al doilea click = oprire
+    this.opreste();
+    this.buton = buton;
+    buton.setAttribute('aria-pressed', 'true');
+    buton.textContent = 'Oprește ghidul';
+
+    const s = window.speechSynthesis;
+    s.cancel();
+    const u = new SpeechSynthesisUtterance(textGhid(c));
+    u.lang = 'ro-RO';
+    const voce = s.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('ro'));
+    if (voce) u.voice = voce;
+    u.rate = 0.95;
+    u.onend = u.onerror = () => this.opreste();
+    s.speak(u);
+  },
+
+  opreste() {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (this.buton) {
+      this.buton.setAttribute('aria-pressed', 'false');
+      this.buton.textContent = this.buton.dataset.eticheta || 'Ascultă istoria';
+      this.buton = null;
+    }
+  }
+};
+
+/* ---------- 9. SECȚIUNEA D — SIMULATORUL ---------- */
+
+const SIM = { campuri: {}, carduri: {}, productie: 0 };
+
+/**
+ * Modelul jocului — o funcție pură: primește deciziile și coeficienții din REPOZITOR_DATE,
+ * întoarce rezultatele. Fiind pură, o putem testa ușor: modelSim({ investitii: 50, taxa: 10, cfr: 50 }, p, 8.78).
+ */
+function modelSim(intrari, p, productie) {
+  const invN = intrari.investitii / 100;
+  const cfrN = intrari.cfr / 100;
+  const invRef = p.investitii_referinta / 100;
+  const cfrRef = p.cfr_referinta / 100;
+
+  // Taxa mare scumpește țițeiul românesc → cumpărătorii se îndreaptă spre alți furnizori
+  const factorExport = Math.max(0, 1 - p.sensibilitate_export * (intrari.taxa - p.taxa_referinta));
+  // Dacă CFR nu poate duce țițeiul la port, exportul e limitat de capacitatea de transport
+  const capacitate = Math.min(1, 1 - p.sensibilitate_capacitate * (cfrRef - cfrN));
+  const idxExport = factorExport * Math.max(0, capacitate);
+  const idxRafinare = 1 + p.castig_rafinare * (invN - invRef);
+  const idxTransport = 1 + p.castig_transport * (cfrN - cfrRef);
+
+  const venitProductie = 100 * (
+    p.pondere_rafinare * idxRafinare + p.pondere_transport * idxTransport + p.pondere_export * idxExport);
+
+  // Bugetul: o bază fixă + încasările din taxa de export; cheltuielile sunt investițiile + CFR
+  const venitTaxa = intrari.taxa * p.cota_export * factorExport * p.venit_taxa_per_punct;
+  const venitTaxaRef = p.taxa_referinta * p.cota_export * p.venit_taxa_per_punct;
+  const cheltuieli = (intrari.investitii + intrari.cfr) / 2;
+  const sold = p.buget_baza + venitTaxa - cheltuieli;
+  const deficit = Math.max(0, -sold);
+
+  return {
+    venit: venitProductie + p.pondere_fiscal * (venitTaxa - venitTaxaRef) - p.penalizare_deficit * deficit,
+    modernizare: 100 * (p.pondere_mod_inv * invN + (1 - p.pondere_mod_inv) * cfrN),
+    exportMt: productie * p.cota_export * idxExport,
+    sold, deficit, idxExport, idxRafinare, idxTransport, venitTaxa, cfrN, invN
+  };
+}
+
+/** Alege mesajul final (prima condiție îndeplinită, în ordinea gravității). */
+function mesajSim(r, praguri) {
+  if (r.deficit > praguri.deficit_mare) {
+    return ['Deficit bugetar!', `Ai cheltuit cu ${format(r.deficit, 1)} puncte mai mult decât ai încasat. În joc, deficitul scade venitul național: statul ar trebui să se împrumute sau să mărească alte taxe.`];
+  }
+  if (r.cfrN < praguri.gatuire) {
+    return ['Gâtuire în transport!', 'Sondele produc, dar vagoanele-cisternă și conductele nu fac față: țițeiul se adună la rafinării și ajunge greu în portul Constanța.'];
+  }
+  if (r.idxExport < praguri.export_prost) {
+    return ['Exporturi în scădere!', 'Taxa pe export a scumpit țițeiul românesc și cumpărătorii străini caută alți furnizori; statul încasează mai puțin decât ai fi crezut.'];
+  }
+  if (r.venit >= praguri.venit_bun && r.modernizare >= praguri.modernizare_buna) {
+    return ['Echilibru reușit!', 'Rafinării moderne, transport care ține pasul și o taxă care nu sperie cumpărătorii: venitul crește fără să se rupă bugetul.'];
+  }
+  if (r.modernizare >= praguri.modernizare_buna) {
+    return ['Modernizare scumpă.', 'Industria și transporturile s-au modernizat, dar costurile încă nu se văd în venitul național. Merită răbdare… sau o taxă mai bine calibrată.'];
+  }
+  return ['Politică prudentă.', 'Rezultatele sunt apropiate de situația de referință. Încearcă să crești investițiile și bugetul CFR, dar ține un ochi pe buget.'];
+}
+
+function initSimulator() {
+  const S = DATE.simulator;
+  const p0 = punct(DATE.serii.petrol_extractie, S.an_referinta);
+  SIM.productie = p0 ? p0.valoare : 0;
+
+  $('#simAvertisment').textContent =
+    `${S.avertisment} (În ${S.an_referinta}, extracția a fost de ${format(SIM.productie)} milioane tone.)`;
+
+  // controalele (glisoarele) vin din REPOZITOR_DATE
+  const zona = $('#simControale');
+  for (const c of S.controale) {
+    const id = `sim-${c.id}`;
+    const iesire = el('output', { class: 'sim-valoare', for: id });
+    const glisor = el('input', { type: 'range', id, min: c.min, max: c.max, step: c.pas, value: c.implicit });
+    zona.append(el('div', { class: 'sim-comanda' },
+      el('label', { for: id, text: c.eticheta }), iesire, glisor,
+      el('p', { class: 'sim-descriere', text: c.descriere })));
+    SIM.campuri[c.id] = { glisor, iesire, unitate: c.unitate, implicit: c.implicit };
+    glisor.addEventListener('input', actualizeazaSim);
+  }
+
+  // cele 4 „carduri” cu rezultate
+  const definitii = [
+    ['venit', 'Venit național (indice)', '100 = referință'],
+    ['modernizare', 'Rata de modernizare', '%'],
+    ['export', 'Țiței exportat', 'milioane tone'],
+    ['sold', 'Sold bugetar', 'puncte de buget']
+  ];
+  const rezultate = $('#simRezultate');
+  for (const [id, eticheta, unitate] of definitii) {
+    const numar = el('span', { class: 'sim-numar', text: '—' });
+    const bara = el('i');
+    const card = el('div', { class: 'sim-card' },
+      el('span', { class: 'sim-eticheta', text: eticheta }),
+      numar, el('span', { class: 'sim-unitate', text: unitate }),
+      el('div', { class: 'bara-sim' }, bara));
+    rezultate.append(card);
+    SIM.carduri[id] = { card, numar, bara };
+  }
+
+  // „realitatea istorică” de comparat cu rezultatul jocului
+  $('#simRealitate').replaceChildren(...S.realitate.map((r) =>
+    el('li', {}, r.text + ' ', linkuriSurse([r.sursa], 'sim-sursa-inline'))));
+
+  $('#simReset').addEventListener('click', () => {
+    Object.values(SIM.campuri).forEach((c) => { c.glisor.value = c.implicit; });
+    actualizeazaSim();
+  });
+  actualizeazaSim();
+}
+
+function actualizeazaSim() {
+  const S = DATE.simulator;
+  const intrari = {};
+  for (const [id, c] of Object.entries(SIM.campuri)) {
+    intrari[id] = Number(c.glisor.value);
+    c.iesire.textContent = `${format(intrari[id], 0)}${c.unitate}`;
+  }
+  const r = modelSim(intrari, S.parametri, SIM.productie);
+
+  const arataCard = (id, text, procentBara, stare) => {
+    const k = SIM.carduri[id];
+    k.numar.textContent = text;
+    k.bara.style.width = `${limiteaza(procentBara, 0, 100)}%`;
+    k.card.classList.toggle('bun', stare === 'bun');
+    k.card.classList.toggle('rau', stare === 'rau');
+  };
+  arataCard('venit', format(r.venit, 1), ((r.venit - 60) / 80) * 100, r.venit >= 100 ? 'bun' : r.venit < 90 ? 'rau' : '');
+  arataCard('modernizare', format(r.modernizare, 0), r.modernizare, r.modernizare >= S.praguri.modernizare_buna ? 'bun' : '');
+  arataCard('export', format(r.exportMt, 2), (r.exportMt / SIM.productie) * 100, r.idxExport < S.praguri.export_prost ? 'rau' : '');
+  arataCard('sold', cuSemn(r.sold, 1), 50 + r.sold, r.sold < 0 ? 'rau' : '');
+
+  const [titlu, text] = mesajSim(r, S.praguri);
+  $('#simMesaj').replaceChildren(el('strong', { text: `${titlu} ` }), text);
+}
+
+/* ---------- 10. EXPORT (CSV) ȘI TIPĂRIRE (PDF) ---------- */
+
+/** O celulă CSV: numere cu virgulă zecimală (Excel-RO), text în ghilimele dacă e nevoie. */
+function celulaCsv(v) {
+  if (v == null || v === '') return '';
+  let s = typeof v === 'number' ? String(v).replace('.', ',') : String(v);
+  // protecție: textul care începe cu = + - @ ar putea fi luat de Excel drept formulă
+  if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function numeSurse(ids) {
+  return ids.map((id) => numeSursa(id) || id).join(' + ');
+}
+
+/** Toate cifrele din REPOZITOR_DATE, într-un singur tabel „lung”: un rând = o valoare. */
+function construiesteCsv() {
+  const SEP = ';';
+  const randuri = [['Categorie', 'Indicator', 'Unitate', 'An', 'Valoare', 'Sursa (sursele)']];
+  const domenii = { industrie: 'Industrie', transport: 'Transporturi' };
+
+  for (const serie of Object.values(DATE.serii)) {
+    const cat = domenii[serie.domeniu] || serie.domeniu;
+    const surse = numeSurse(serie.surse || []);
+    if (!serie.date.length) {
+      randuri.push([cat, serie.titlu, serie.unitate, '', '', surse]);
+      continue;
+    }
+    for (const p of serie.date) {
+      randuri.push([cat, serie.titlu, serie.unitate, p.an, p.valoare, surse]);
+    }
+  }
+  for (const centru of DATE.harta.centre) {
+    for (const s of centru.statistici) {
+      randuri.push(['Centru industrial', `${centru.nume} — ${s.eticheta}`, s.unitate || '', s.an,
+        s.valoare ?? s.valoare_text, numeSurse(s.sursa ? [s.sursa] : [])]);
+    }
+  }
+  for (const r of DATE.repere) {
+    randuri.push(['Reper istoric', r.text, '', r.an, '', numeSurse([r.sursa])]);
+  }
+  return randuri.map((rand) => rand.map(celulaCsv).join(SEP)).join('\r\n');
+}
+
+function descarcaCsv() {
+  const csv = construiesteCsv();
+  // „﻿” (BOM) face ca Excel să citească corect diacriticele UTF-8
+  const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const legatura = el('a', { href: url, download: 'date_industrializare_interbelica.csv' });
+  document.body.append(legatura);
+  legatura.click();
+  legatura.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  $('#notaExport').textContent = `Fișier generat: date_industrializare_interbelica.csv (${csv.split('\r\n').length - 1} rânduri de date). Deschide-l în Excel sau Google Sheets.`;
+}
+
+/** Înainte de tipărire, graficele canvas devin imagini (canvas-urile se tipăresc nesigur). */
+function pregatestePrint() {
+  $('#dataPrint').textContent = new Date().toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+  try {
+    if (A.cv) {
+      if (A.grafic) A.grafic.update('none');
+      $('#imgGraficPrint').src = imagineCuFundal(A.cv);
+    }
+    if (B.cv) {
+      deseneazaB(0);
+      $('#imgFluxPrint').src = imagineCuFundal(B.cv);
+    }
+  } catch (eroare) {
+    console.warn('Pregătirea pentru tipărire a întâmpinat o problemă', eroare);
+  }
+}
+
+function initExport() {
+  $('#btnCsv').addEventListener('click', descarcaCsv);
+  $('#btnPrint').addEventListener('click', () => { pregatestePrint(); window.print(); });
+  window.addEventListener('beforeprint', pregatestePrint); // și pentru Ctrl+P
+}
+
+/* ---------- 11. BIBLIOGRAFIE ---------- */
+
+function initBibliografie() {
+  const lista = $('#listaBiblio');
+  DATE.bibliografie.forEach((b) => {
+    const titlu = b.url
+      ? el('a', { href: b.url, target: '_blank', rel: 'noopener noreferrer', text: b.titlu })
+      : el('span', { text: b.titlu });
+    lista.append(el('li', { id: `sursa-${b.id}` },
+      b.autor ? `${b.autor} — ` : null,
+      titlu,
+      ` (${b.an}). `,
+      el('span', { class: 'tip-sursa', text: b.tip }),
+      b.nota ? ` ${b.nota}` : null));
+  });
+}
+
+  </script>
+</body>
+</html>

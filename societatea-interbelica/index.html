@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prezentare</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef2f7;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Stil buton Înapoi */
+        .btn-inapoi {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background-color: #ffffff;
+            color: #333333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .btn-inapoi:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            background-color: #f8f9fa;
+        }
+
+        .btn-inapoi:active {
+            transform: translateY(0);
+        }
+        
+        .prezentare {
+            width: 78vw;
+            height: 78vh;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+        }
+        
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        @media (max-width: 700px) {
+            .prezentare {
+                width: 94vw;
+                height: 72vh;
+            }
+            .btn-inapoi {
+                top: 16px;
+                left: 16px;
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Butonul de Înapoi -->
+    <a href="/romania-interbelica" class="btn-inapoi">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Înapoi
+    </a>
+
+    <div class="prezentare">
+        <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSx1DEQinwny3kZamusha3xwvnCAgcxbIk-z85CEmkwxwv1mbvei4R4JKFZOtOpkw/pubembed?start=true&amp;loop=true&amp;delayms=30000" allowfullscreen>
+        </iframe>
+    </div>
+
+</body>
+</html>

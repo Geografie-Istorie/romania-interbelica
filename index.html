@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proiecte Istoria României</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .btn-proiect {
+            background-color: #3498db;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-proiect:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+        .btn-pdf {
+            background-color: #e74c3c;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-pdf:hover {
+            background-color: #c0392b;
+        }
+        .webografie {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 1000px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .webografie h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .webografie h3 {
+            color: #16a085;
+            margin-top: 20px;
+        }
+        .webografie ul {
+            padding-left: 20px;
+        }
+        .webografie li {
+            margin-bottom: 8px;
+        }
+        .webografie a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .webografie a:hover {
+            text-decoration: underline;
+        }
+
+        /* Stiluri Fereastră Modală (Ghid) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            overflow-y: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 850px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            line-height: 1.6;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .ghid-tabel {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .ghid-tabel th, .ghid-tabel td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .ghid-tabel th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Platformă Proiecte Istorice</h1>
+    <div class="subtitle">Clasa a X-a | Profil Matematică-Informatică</div>
+
+    <!-- Buton Ghid Functional -->
+    <a href="ghidul-elevului.pdf" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+    <button class="btn-pdf">📖 Vezi Ghidul Proiectului</button>
+    </a>
+
+    <!-- Gridul cu cele 6 Proiecte -->
+    <div class="grid-container">
+        <a href="romania-intregita/" class="btn-proiect">1. România Întregită (1918-1939)</a>
+        <a href="infrastructura-urbanizare/" class="btn-proiect">2. Infrastructura și dezvoltarea urbană</a>
+        <a href="neoliberalism-taranism/" class="btn-proiect">3. Neoliberalism vs. Țărănism</a>
+        <a href="agrar-modernizare/" class="btn-proiect">4. Agrar și Modernizare</a>
+        <a href="industrie-transporturi/" class="btn-proiect">5. Industria și Transporturile</a>
+        <a href="societatea-interbelica/" class="btn-proiect">6. Societatea interbelică</a>
+    </div>
+
+    <!-- Secțiunea Webografie acumulată din toate proiectele -->
+    <div class="webografie">
+        <h2>📚 Webografie & Surse Complete</h2>
+        
+        <h3>1. România Întregită (1918-1939)</h3>
+        <ul>
+            <li><a href="https://anr.gov.ro" target="_blank">Arhivele Naționale ale României - Documente administrative și hărți GeoJSON</a></li>
+            <li><a href="http://digibuc.ro" target="_blank">Biblioteca Digitală a Bucureștilor - Surse primare privitoare la Marea Unire</a></li>
+        </ul>
+
+        <h3>2. Infrastructura și dezvoltarea urbană</h3>
+        <ul>
+            <li><a href="https://uniuneaarhitectilor.ro" target="_blank">Uniunea Arhitecților din România - Planuri urbanistice, autostrăzi și rețele de metrou</a></li>
+            <li><a href="https://uauim.ro" target="_blank">UAUIM - Istoria lucrărilor publice și a locuințelor sociale în perioada interbelică</a></li>
+        </ul>
+
+        <h3>3. Neoliberalism vs. Țărănism</h3>
+        <ul>
+            <li><a href="https://bcub.ro" target="_blank">Ștefan Zeletin - „Burghezia română. Originea și rolul ei istoric” (1925) & „Neoliberalismul” (1927)</a></li>
+            <li><a href="https://academiaromana.ro" target="_blank">Virgil Madgearu - „Agrarianism, capitalism, imperialism” (1936) & Date statistice din recensământul general din 1930</a></li>
+        </ul>
+
+        <h3>4. Agrar și Modernizare</h3>
+        <ul>
+            <li><a href="http://bcucluj.ro" target="_blank">BCU Cluj - Monitorul Oficial: Decretele și statisticile istorice ale Reformei Agrare din 1921</a></li>
+        </ul>
+
+        <h3>5. Industria și Transporturile</h3>
+        <ul>
+            <li><a href="http://muzeulcfr.ro" target="_blank">Muzeul CFR & Curierul Industrial Român - Seriile statistice ale producției de petrol și căi ferate (1920-1938)</a></li>
+        </ul>
+
+        <h3>6. Societatea interbelică</h3>
+        <ul>
+            <li><a href="https://muzeulnationalistorie.ro" target="_blank">Muzeul Național de Istorie a României - Arhive digitale de presă cotidiană (Viitorul, Dreptatea) și colecții multimedia</a></li>
+        </ul>
+    </div>
+
+    <!-- Fereastră Modală Ghid -->
+    <div id="ghidModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>GHIDUL ELEVULUI: PROIECTUL DE CREARE A RESURSELOR DIGITALE LA ISTORIE</h2>
+            <p><strong>Clasa a X-a | Profil Matematică-Informatică</strong></p>
+            <p>Activitate interdisciplinară ce îmbină analiza istorică riguroasă cu competențele avansate de programare și design digital.</p>
+            
+            <h3>1. Obiective și structură</h3>
+            <ul>
+                <li><strong>Durată:</strong> 2 săptămâni</li>
+                <li><strong>Format echipă:</strong> 5 membri (cu roluri clare: Programator Lead, Documentarist, Analist Date, UI/UX Designer, Editor Multimedia)</li>
+            </ul>
+
+            <h3>2. Repartizarea echipelor</h3>
+            <table class="ghid-tabel">
+                <thead>
+                    <tr>
+                        <th>Echipă</th>
+                        <th>Tematică principală</th>
+                        <th>Livrabil digital</th>
+                        <th>Tehnologii</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Echipa 1</td><td>România Întregită (1918-1939)</td><td>Harta Interactivă (Sistem GIS)</td><td>Leaflet.js, GeoJSON</td></tr>
+                    <tr><td>Echipa 2</td><td>Infrastructura și dezvoltarea urbană</td><td>Harta Interactivă & Timeline</td><td>Mapbox, TimelineJS</td></tr>
+                    <tr><td>Echipa 3</td><td>Neoliberalism vs. Țărănism</td><td>Infografic & Simulator Economic</td><td>Figma, Chart.js, JS</td></tr>
+                    <tr><td>Echipa 4</td><td>Agrar și Modernizare</td><td>Revistă Digitală / Modul Interactiv</td><td>Genially, Canva</td></tr>
+                    <tr><td>Echipa 5</td><td>Industria și Transporturile</td><td>Infografic cu Grafice Dinamice</td><td>Chart.js, SVG, Canvas</td></tr>
+                    <tr><td>Echipa 6</td><td>Societatea interbelică</td><td>Revistă Digitală Multimedia</td><td>FlipHTML5, Audio/Video</td></tr>
+                </tbody>
+            </table>
+
+            <h3>3. Calendar & Evaluare</h3>
+            <p><strong>Săptămâna 1:</strong> Documentare, wireframe, culegere coordonate GIS și structurare date (JSON/CSV).</p>
+            <p><strong>Săptămâna 2:</strong> Asamblare, testare responsivitate, publicare pe GitHub Pages/Netlify și susținerea prezentării (10 min).</p>
+            <p><strong>Punctaj maxim:</strong> Istorie (2.5p), Tehnic (2.5p), Design (2.0p), Echipă (1.5p), Prezentare (1.5p). *1 punct acordat din oficiu.</p>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('ghidModal').style.display = 'block';
+document.body.style.overflow = 'hidden'; /* Oprește scroll-ul paginii principale */
+}
+function closeModal() {
+document.getElementById('ghidModal').style.display = 'none';
+document.body.style.overflow = 'auto';
+}
+window.onclick = function(event) {
+var modal = document.getElementById('ghidModal');
+if (event.target == modal) {
+closeModal();
+}
+}

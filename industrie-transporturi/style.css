@@ -1,0 +1,604 @@
+/* ==========================================================================
+   style.css — versiunea 2 · Art Deco interbelic, cu aer modern
+   --------------------------------------------------------------------------
+   Cuprins
+     1. Variabile (paleta, fonturile)       8. Harta SVG (regiuni, orașe, filtru)
+     2. Bază și textura de pergament        9. Tooltip plutitor (.tooltip-plutitor)
+     3. Hero și navigare                   10. Pop-up (dialog) și ghid audio
+     4. Secțiuni, titluri, panou dublu     11. Simulator „Fii Ministrul”
+     5. „Curierul Industrial” (ziarul)     12. Gramofon, insigne, bibliografie, export
+     6. Controale și grafic Chart.js       13. Responsiv și mișcare redusă
+     7. Canvas (fluxul petrolului)         14. Tipărire (@media print)
+
+   ATENȚIE: app.js citește din :root variabilele --hartie, --hartie-2, --cerneala,
+   --rosu, --rosu-deschis, --alama, --petrol, --otel, --font-titlu și --font-text
+   (pentru Chart.js și Canvas). Dacă le redenumești aici, redenumește-le și în app.js.
+   ========================================================================== */
+
+
+/* ---------- 1. VARIABILE ---------- */
+:root {
+  /* Paleta cerută */
+  --hartie: #f3ebd5;            /* fundal cald, de pergament */
+  --hartie-2: #faf4e2;          /* interiorul panourilor (mai deschis) */
+  --cerneala: #2b2825;          /* cărbune închis — în loc de negru pur */
+  --cerneala-soft: #5a544c;     /* text secundar */
+  --rosu: #842320;              /* roșu-burgund */
+  --rosu-deschis: rgba(132, 35, 32, 0.35);
+  --alama: #b08234;             /* alamă fină (decor, linii, puncte) */
+  --alama-text: #7a5a1c;        /* alamă mai închisă, pentru text mic (contrast bun) */
+  --otel: #354e63;              /* oțel feroviar */
+  --petrol: #1f332f;            /* verde-petrol închis (hero, subsol) */
+  --umbra-adanca: rgba(20, 14, 8, 0.45);
+
+  /* Tipografie */
+  --font-titlu: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-text: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --raza: 2px;                  /* colțuri aproape drepte = aer Art Deco */
+  --umbra: 0 10px 28px rgba(43, 40, 37, 0.10);
+}
+
+
+/* ---------- 2. BAZĂ ȘI TEXTURA DE PERGAMENT ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* „hidden” să câștige mereu în fața altor reguli display */
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--cerneala);
+  background-color: var(--hartie);
+  /* Granulația hârtiei: două grile minuscule de puncte (radial-gradient),
+     una maronie și una aurie, cu pasuri diferite (5px și 7px) ca să nu se vadă un tipar regulat. */
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(110, 80, 30, 0.10) 0.7px, transparent 1.2px),
+    radial-gradient(circle at 4px 5px, rgba(176, 130, 52, 0.10) 0.6px, transparent 1.1px);
+  background-size: 5px 5px, 7px 7px;
+}
+
+/* Patina: pete calde la colțuri, pe un strat fix, ca hârtia să nu fie plată.
+   Stratul e „pointer-events: none”, deci nu blochează click-urile. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 0% 0%, rgba(176, 130, 52, 0.20), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(132, 35, 32, 0.09), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(176, 130, 52, 0.08), transparent 70%);
+}
+
+.pagina { width: min(1100px, 100% - 2rem); margin-inline: auto; }
+
+.sari {
+  position: absolute; left: -999px; top: 0;
+  background: var(--hartie-2); padding: .5rem 1rem; z-index: 100;
+}
+.sari:focus { left: 0; }
+
+a { color: var(--rosu); }
+:focus-visible { outline: 3px solid var(--alama); outline-offset: 2px; }
+
+
+/* ---------- 3. HERO ȘI NAVIGARE ---------- */
+.hero {
+  position: relative;
+  color: var(--hartie);
+  padding: clamp(2.5rem, 7vw, 5rem) 0 2.5rem;
+  border-bottom: 6px double var(--alama);
+  background-color: var(--petrol);
+  /* Soare Art Deco: raze fine care pornesc din centrul de jos al antetului. */
+  background-image:
+    repeating-conic-gradient(from 0deg at 50% 125%, rgba(176, 130, 52, 0.13) 0 3deg, transparent 3deg 9deg),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25), transparent 60%);
+}
+.hero h1 {
+  font-family: var(--font-titlu);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.6rem);
+  line-height: 1.1;
+  margin: .4rem 0 1rem;
+}
+.hero .lead { max-width: 60ch; color: #e8dfc4; font-size: 1.15rem; margin: 0; }
+
+.kicker, .eticheta-sectiune {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--alama-text);
+}
+.hero .kicker { color: var(--alama); }
+
+.nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+.nav a {
+  color: var(--hartie); text-decoration: none; font-size: .95rem;
+  border: 1px solid rgba(176, 130, 52, .7);
+  padding: .4rem .9rem; border-radius: var(--raza);
+  transition: background .2s, color .2s;
+}
+.nav a:hover, .nav a:focus-visible { background: var(--alama); color: var(--petrol); border-color: var(--alama); }
+
+
+/* ---------- 4. SECȚIUNI, TITLURI, PANOU CU CHENAR DUBLU ---------- */
+section { padding: clamp(2rem, 6vw, 4rem) 0; }
+section + section { border-top: 1px solid rgba(43, 40, 37, .14); }
+
+h2 {
+  font-family: var(--font-titlu);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  margin: .2rem 0 .6rem;
+}
+/* Linie dublă din alamă sub titlurile de secțiune — mic accent Art Deco */
+section > h2::after {
+  content: "";
+  display: block;
+  width: 84px; height: 6px;
+  margin-top: .55rem;
+  border-top: 1px solid var(--alama);
+  border-bottom: 1px solid var(--alama);
+}
+.subtitlu { font-family: var(--font-titlu); font-size: 1.1rem; margin: 1.5rem 0 .5rem; }
+.intro { max-width: 70ch; margin: 0 0 1.5rem; }
+.nota { font-size: .9rem; color: var(--cerneala-soft); margin: .75rem 0 0; }
+
+/* .panou — CHENAR DUBLU (simetric):
+     1) border-ul gros, solid, la exterior;
+     2) outline-ul fin, din alamă, la 8px în interior;
+     3) linia punctată (::before), la 12px în interior, peste tot la fel. */
+.panou {
+  position: relative;
+  background-color: rgba(250, 244, 226, 0.92);
+  background-image: radial-gradient(circle at 1px 1px, rgba(110, 80, 30, 0.07) 0.7px, transparent 1.2px);
+  background-size: 6px 6px;
+  border: 3px solid var(--cerneala);
+  border-radius: var(--raza);
+  box-shadow: var(--umbra);
+  padding: clamp(1.4rem, 3.5vw, 2.1rem);
+  outline: 1px solid var(--alama);
+  outline-offset: -8px;
+}
+.panou::before {
+  content: "";
+  position: absolute;
+  inset: 12px;                 /* aceeași distanță pe toate laturile = simetrie */
+  border: 1px dotted var(--alama);
+  pointer-events: none;        /* nu blochează click-urile din panou */
+}
+/* Mici „colțuri” pătrate din alamă, ca pe afișele din anii ’30 */
+.panou::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  --c: var(--alama);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 7px 7px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 7px 7px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 7px 7px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 7px 7px no-repeat;
+}
+
+
+/* ---------- 5. „CURIERUL INDUSTRIAL ROMÂN” (ziarul interbelic) ---------- */
+.ziar { padding-bottom: clamp(1.5rem, 4vw, 3rem); }
+.ziar-foaie {
+  position: relative;
+  padding: clamp(1.1rem, 3vw, 2rem);
+  background-color: #f6eed7;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(90, 70, 30, 0.12) 0.7px, transparent 1.2px),
+    linear-gradient(180deg, rgba(176, 130, 52, 0.10), transparent 25%, transparent 75%, rgba(132, 35, 32, 0.07));
+  background-size: 4px 4px, auto;
+  border: 1px solid rgba(43, 40, 37, .5);
+  box-shadow: 0 12px 30px rgba(43, 40, 37, .18), inset 0 0 40px rgba(176, 130, 52, .18);
+}
+.ziar-antet { text-align: center; border-bottom: 3px double var(--cerneala); padding-bottom: .8rem; }
+.ziar-sus {
+  margin: 0 0 .2rem;
+  font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; font-weight: 700;
+  color: var(--cerneala-soft);
+}
+.ziar-titlu {
+  font-family: var(--font-titlu);
+  font-weight: 900;
+  font-size: clamp(1.7rem, 6.2vw, 3.8rem);
+  line-height: 1.05;
+  letter-spacing: .02em;
+  margin: 0;
+  text-transform: uppercase;
+}
+.ziar-subtitlu {
+  font-family: var(--font-titlu); font-style: italic; font-weight: 500;
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  color: var(--rosu);
+  margin: .2rem 0 0;
+}
+.ziar-linie {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: .3rem 1rem;
+  list-style: none; margin: .8rem 0 1.2rem; padding: .35rem 0;
+  border-top: 1px solid var(--cerneala); border-bottom: 1px solid var(--cerneala);
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700;
+}
+/* Coloanele ziarului: 4 pe ecrane late, 2 pe tablete, 1 pe telefon (vezi secțiunea 13) */
+.ziar-coloane {
+  column-count: 4;
+  column-gap: 1.6rem;
+  column-rule: 1px solid rgba(43, 40, 37, .45);
+}
+.ziar-articol { break-inside: avoid; margin: 0 0 1.1rem; }
+.ziar-articol h3 {
+  font-family: var(--font-titlu); font-weight: 700; text-transform: uppercase;
+  font-size: 1.05rem; line-height: 1.2; margin: 0 0 .35rem;
+  border-bottom: 1px solid var(--cerneala); padding-bottom: .2rem;
+}
+.ziar-articol p { margin: 0; font-size: .95rem; line-height: 1.5; text-align: justify; hyphens: auto; }
+/* Litera mare de la începutul fiecărui articol */
+.ziar-articol h3 + p::first-letter {
+  font-family: var(--font-titlu); font-weight: 900; color: var(--rosu);
+  float: left; font-size: 2.6rem; line-height: .85; padding: .12rem .3rem 0 0;
+}
+.ziar-surse { margin-top: .35rem; font-size: .72rem; letter-spacing: .04em; color: var(--cerneala-soft); }
+.ziar-surse a { color: var(--otel); }
+.ziar-nota { text-align: center; font-size: .8rem; font-style: italic; margin: .8rem 0 0; color: var(--cerneala-soft); }
+
+
+/* ---------- 6. CONTROALE ȘI GRAFIC CHART.JS ---------- */
+.controale { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem 1.5rem; margin-bottom: 1rem; }
+.controale label { display: flex; flex-direction: column; gap: .3rem; font-weight: 600; font-size: .9rem; }
+select, input[type="range"] { font: inherit; }
+select {
+  padding: .45rem .6rem; border: 1px solid var(--cerneala); border-radius: var(--raza);
+  background: var(--hartie-2); color: var(--cerneala); min-width: 15rem; max-width: 100%;
+}
+input[type="range"] { accent-color: var(--rosu); width: 260px; max-width: 100%; }
+.grup-butoane { display: flex; gap: .4rem; }
+
+.btn {
+  font: inherit; font-size: .95rem; cursor: pointer;
+  padding: .45rem 1rem; border-radius: var(--raza);
+  border: 1px solid var(--cerneala); background: transparent; color: var(--cerneala);
+  transition: background .2s, color .2s;
+}
+.btn:hover { background: rgba(43, 40, 37, .08); }
+.btn[aria-pressed="true"] { background: var(--cerneala); color: var(--hartie); }
+.btn-alama { background: var(--rosu); border-color: var(--rosu); color: var(--hartie-2); }
+.btn-alama:hover { background: #6a1b19; }
+
+.controale .comutator { flex-direction: row; align-items: center; gap: .45rem; padding-bottom: .55rem; }
+.comutator input { width: 1.05rem; height: 1.05rem; accent-color: var(--rosu); }
+
+.cadru-grafic { position: relative; height: clamp(260px, 48vw, 420px); }
+
+.kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; margin: 1rem 0 0; }
+.kpi > div { background: rgba(243, 235, 213, .75); padding: .6rem .9rem; border-left: 4px solid var(--alama); }
+.kpi dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cerneala-soft); }
+.kpi dd { margin: 0; font: 700 1.3rem var(--font-titlu); }
+
+.repere { margin: 0; padding-left: 1.2rem; }
+.repere li { margin-bottom: .4rem; }
+
+
+/* ---------- 7. CANVAS ---------- */
+.cadru-canvas { width: 100%; background: rgba(243, 235, 213, .8); border: 1px solid rgba(43, 40, 37, .35); }
+.cadru-canvas canvas { display: block; width: 100%; }
+.info-flux { margin: .75rem 0 0; font-size: 1rem; }
+
+.legenda { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; list-style: none; padding: 0; margin: .75rem 0 0; font-size: .9rem; }
+.pct { display: inline-block; width: .8rem; height: .8rem; margin-right: .35rem; vertical-align: -1px; }
+.pct-camp { background: var(--alama); border-radius: 50%; }
+.pct-rafinarie { background: var(--rosu); border-radius: 50%; }
+.pct-port { background: var(--otel); border-radius: 50%; }
+.pct-conducta { background: var(--petrol); height: .35rem; vertical-align: 2px; width: 1.2rem; }
+.pct-tren { background: var(--rosu); width: 1rem; height: .5rem; vertical-align: 1px; }
+
+
+/* ---------- 8. HARTA SVG ---------- */
+.harta-defilare { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.doar-mobil { display: none; }
+#hartaSvg { display: block; width: 100%; height: auto; max-width: 880px; margin-inline: auto; }
+.contur { fill: #ecdfbb; stroke: var(--cerneala); stroke-width: 2; stroke-linejoin: round; }
+
+/* Numele regiunilor istorice: estompate, până când trecem cu mouse-ul peste un centru */
+.regiune {
+  font-family: var(--font-titlu); font-size: 13px; letter-spacing: .18em;
+  fill: var(--otel); opacity: .38;
+  text-anchor: middle; text-transform: uppercase;
+  pointer-events: none;
+  transition: fill .25s ease, opacity .25s ease, letter-spacing .25s ease;
+}
+/* Regiunea „aprinsă” de hover pe un centru: roșu regal, opacitate plină */
+.regiune.regiune-activa {
+  fill: var(--rosu);
+  opacity: 1;
+  font-weight: 700;
+  letter-spacing: .26em;
+}
+
+/* Centrele industriale */
+.oras { cursor: pointer; transition: opacity .3s ease; }
+/* Zonă de atingere/hover mai mare decât punctul vizibil (transparentă, dar prinde mouse-ul și degetul) */
+.oras-zona { fill: transparent; }
+.oras-halo {
+  fill: rgba(132, 35, 32, .2);
+  transform-box: fill-box; transform-origin: center;   /* scalăm cercul pe loc, nu din colțul hărții */
+  transition: transform .2s ease, fill .2s ease;
+}
+.oras-punct { fill: var(--rosu); stroke: var(--hartie-2); stroke-width: 2; }
+.oras:hover .oras-halo, .oras:focus-visible .oras-halo { transform: scale(1.5); }
+.oras:focus { outline: none; }
+.oras:focus-visible .oras-halo { stroke: var(--cerneala); stroke-width: 2; }
+.oras text {
+  font: 600 14px var(--font-text); fill: var(--cerneala);
+  paint-order: stroke; stroke: var(--hartie-2); stroke-width: 3px;
+}
+
+/* FILTRU: orașele din afara ramurii alese devin aproape transparente,
+   iar cele din ramura aleasă sunt accentuate cu un halo auriu care pulsează. */
+.oras.atenuat { opacity: 0.15; }
+.oras.atenuat:hover, .oras.atenuat:focus-visible { opacity: .6; }   /* tot se pot inspecta, dacă vrei */
+.oras.accentuat .oras-halo { fill: rgba(176, 130, 52, .45); transform: scale(1.35); animation: puls-oras 1.8s ease-in-out infinite; }
+.oras.accentuat text { font-weight: 700; }
+@keyframes puls-oras {
+  0%, 100% { transform: scale(1.25); }
+  50% { transform: scale(1.7); }
+}
+
+.controale-harta { align-items: center; }
+.status-filtru { margin: 0; font-size: .92rem; color: var(--cerneala-soft); flex: 1 1 18rem; }
+.sfat-harta { font-size: .9rem; color: var(--cerneala-soft); margin: 0 0 .5rem; }
+
+
+/* ---------- 9. TOOLTIP PLUTITOR (.tooltip-plutitor) ----------
+   Un singur element, mutat de JS după cursor cu left/top (e.clientX / e.clientY).
+   Starea ascunsă = mic (scale .85) și transparent; .vizibil îl „umflă” lin la mărime normală. */
+.tooltip-plutitor {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 60;
+  max-width: 270px;
+  padding: .7rem .9rem .75rem;
+  color: #f1e8cf;
+  font-size: .9rem; line-height: 1.4;
+  background: linear-gradient(160deg, #2e2a26, #1a1715);       /* fundal întunecat */
+  border: 1px solid var(--alama);                                 /* margine subțire din alamă */
+  outline: 1px solid rgba(176, 130, 52, .5);                      /* a doua linie fină, ca la panouri */
+  outline-offset: -5px;
+  box-shadow:
+    0 18px 38px var(--umbra-adanca),                              /* umbre adânci, pentru contrast maxim */
+    0 4px 10px rgba(0, 0, 0, .5);
+  pointer-events: none;           /* tooltip-ul nu trebuie să „fure” mouse-ul de pe oraș */
+  opacity: 0;
+  transform: scale(.85);
+  transform-origin: top left;
+  transition: opacity .16s ease, transform .18s cubic-bezier(.2, .9, .3, 1.2);
+}
+.tooltip-plutitor.vizibil { opacity: 1; transform: scale(1); }
+.tooltip-plutitor .tt-regiune { display: block; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--alama); font-weight: 700; }
+.tooltip-plutitor .tt-nume { display: block; font-family: var(--font-titlu); font-size: 1.2rem; font-weight: 700; margin: .1rem 0 .35rem; color: #fff7e0; }
+.tooltip-plutitor .tt-rand { display: block; margin-top: .15rem; }
+.tooltip-plutitor .tt-rand b { color: var(--alama); font-weight: 600; }
+.tooltip-plutitor .tt-sfat { display: block; margin-top: .45rem; padding-top: .35rem; border-top: 1px dotted rgba(176, 130, 52, .6); font-size: .75rem; color: #c9bf9f; }
+
+
+/* ---------- 10. POP-UP (dialog) ȘI GHID AUDIO ---------- */
+dialog {
+  position: fixed;
+  width: min(580px, 92vw); max-height: 88vh; overflow: auto;
+  border: 3px solid var(--cerneala); border-radius: var(--raza); padding: 1.7rem;
+  background-color: var(--hartie-2);
+  background-image: radial-gradient(circle at 1px 1px, rgba(110, 80, 30, 0.08) 0.7px, transparent 1.2px);
+  background-size: 6px 6px;
+  color: var(--cerneala);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  outline: 1px solid var(--alama); outline-offset: -8px;
+}
+dialog::backdrop { background: rgba(20, 28, 26, .65); }
+dialog h3 { font-family: var(--font-titlu); font-size: 1.5rem; margin: .2rem 0 .8rem; }
+.inchide {
+  position: absolute; top: .5rem; right: .75rem;
+  font-size: 1.8rem; line-height: 1; background: none; border: none; cursor: pointer; color: var(--cerneala);
+}
+dialog ul { padding-left: 1.2rem; }
+dialog table { width: 100%; border-collapse: collapse; font-size: .95rem; margin-top: .5rem; }
+dialog th, dialog td { text-align: left; padding: .35rem .4rem; border-bottom: 1px solid rgba(43, 40, 37, .15); vertical-align: top; }
+dialog th { font-weight: 700; }
+.loc-imagine {
+  border: 2px dashed var(--alama); border-radius: var(--raza); padding: 1rem;
+  font-size: .9rem; color: var(--cerneala-soft); margin: .5rem 0 1rem;
+}
+dialog figure { margin: .5rem 0 1rem; }
+dialog img { max-width: 100%; height: auto; }
+dialog figcaption { font-size: .85rem; color: var(--cerneala-soft); }
+
+/* „Ascultă istoria” — buton cu aer de aparat de radio */
+.ghid-audio { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin: 1rem 0 .2rem; }
+.btn-audio {
+  background: var(--petrol); color: #f1e8cf; border-color: var(--alama);
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.btn-audio:hover { background: #2a4540; }
+.btn-audio[aria-pressed="true"] { background: var(--rosu); border-color: var(--rosu); }
+.ghid-nota { font-size: .8rem; color: var(--cerneala-soft); margin: 0; flex: 1 1 14rem; }
+
+
+/* ---------- 11. SIMULATOR „FII MINISTRUL INDUSTRIEI ÎN 1936!” ---------- */
+.sim { display: grid; gap: 1.6rem 2.2rem; grid-template-columns: 1fr; }
+.sim-comanda { margin-bottom: 1.1rem; }
+.sim-comanda label { display: block; font-weight: 700; margin-bottom: .1rem; }
+.sim-comanda .sim-valoare { float: right; font: 700 1.1rem var(--font-titlu); color: var(--rosu); }
+.sim-comanda input[type="range"] { width: 100%; }
+.sim-descriere { margin: .15rem 0 0; font-size: .85rem; color: var(--cerneala-soft); }
+
+.sim-rezultate { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); align-content: start; }
+.sim-card { background: rgba(243, 235, 213, .8); border-left: 4px solid var(--alama); padding: .55rem .8rem; }
+.sim-card .sim-eticheta { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cerneala-soft); }
+.sim-card .sim-numar { display: block; font: 700 1.55rem/1.15 var(--font-titlu); }
+.sim-card .sim-unitate { font: 400 .8rem var(--font-text); color: var(--cerneala-soft); }
+.sim-card .bara { height: 6px; margin-top: .35rem; background: rgba(43, 40, 37, .15); }
+.sim-card .bara i { display: block; height: 100%; background: var(--otel); transition: width .25s ease; }
+.sim-card.bun { border-left-color: #3f6b3a; }
+.sim-card.rau { border-left-color: var(--rosu); }
+.sim-card.rau .sim-numar { color: var(--rosu); }
+
+.sim-mesaj {
+  grid-column: 1 / -1;
+  margin: 0; padding: .85rem 1rem;
+  border: 1px solid var(--cerneala); border-left: 6px solid var(--alama);
+  background: rgba(251, 247, 236, .9); font-size: 1.02rem;
+}
+.sim-mesaj strong { font-family: var(--font-titlu); }
+.sim-realitate { grid-column: 1 / -1; font-size: .92rem; }
+.sim-realitate ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+.sim-actiuni { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+
+
+/* ---------- 12. GRAMOFON, INSIGNE, BIBLIOGRAFIE, EXPORT, SUBSOL ---------- */
+.gramofon {
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+  width: 58px; height: 58px; padding: 0;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--alama);
+  background: var(--petrol);
+  box-shadow: 0 8px 20px var(--umbra-adanca), inset 0 0 0 3px var(--petrol), inset 0 0 0 4px rgba(176, 130, 52, .6);
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+.gramofon:hover { transform: scale(1.07); }
+.gramofon svg { width: 36px; height: 36px; }
+.gramofon .disc-fundal { fill: #14110f; stroke: var(--alama); stroke-width: 1.5; }
+.gramofon .disc-canelura { fill: none; stroke: rgba(176, 130, 52, .55); stroke-width: 1; }
+.gramofon .disc-eticheta { fill: var(--rosu); }
+.gramofon .disc-pin { fill: var(--hartie); }
+.gramofon .brat { fill: none; stroke: var(--alama); stroke-width: 3; stroke-linecap: round; transition: transform .4s ease; transform-origin: 54px 8px; }
+.gramofon[aria-pressed="true"] .brat { transform: rotate(-12deg); }
+.gramofon .disc-grup { transform-origin: 30px 36px; }
+.gramofon[aria-pressed="true"] .disc-grup { animation: invarte 2.4s linear infinite; }
+@keyframes invarte { to { transform: rotate(360deg); } }
+
+.gramofon-mesaj {
+  position: fixed; right: 1rem; bottom: 5rem; z-index: 50;
+  max-width: min(280px, calc(100vw - 2rem));
+  margin: 0; padding: .65rem .85rem;
+  background: linear-gradient(160deg, #2e2a26, #1a1715);
+  color: #f1e8cf; font-size: .85rem; line-height: 1.4;
+  border: 1px solid var(--alama);
+  box-shadow: 0 14px 30px var(--umbra-adanca);
+}
+
+.insigna { display: inline-block; font-size: .72rem; font-weight: 600; padding: .1rem .55rem; border-radius: 999px; vertical-align: middle; margin-left: .35rem; white-space: nowrap; }
+.insigna-verificat { background: #dbe8d6; color: #2c5a2a; }
+.insigna-derivat { background: #d9e4ee; color: #27465f; }
+.insigna-estimat { background: #f6e3b8; color: #7a5412; }
+
+.biblio { padding-left: 1.3rem; }
+.biblio li { margin-bottom: .6rem; scroll-margin-top: 1rem; }
+.biblio li:target { background: rgba(176, 130, 52, .2); }
+.tip-sursa { font-size: .8rem; color: var(--cerneala-soft); font-style: italic; }
+
+.export { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.2rem 0 0; }
+#notaExport { margin-top: .6rem; }
+
+.eroare {
+  background: #f6dcd8; border: 1px solid var(--rosu); color: #4f1816;
+  padding: .9rem 1.1rem; border-radius: var(--raza); margin: 1rem 0;
+}
+
+.subsol { background: var(--petrol); color: #e8dfc4; padding: 1.5rem 0; font-size: .9rem; border-top: 6px double var(--alama); }
+.subsol p { margin: 0; }
+
+/* Antetul care apare doar la tipărire */
+.antet-print, .doar-print { display: none; }
+
+
+/* ---------- 13. RESPONSIV ȘI MIȘCARE REDUSĂ ---------- */
+@media (min-width: 860px) {
+  .sim { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+}
+@media (max-width: 1000px) {
+  .ziar-coloane { column-count: 2; }
+}
+@media (max-width: 600px) {
+  .ziar-coloane { column-count: 1; column-rule: none; }
+  .ziar-articol p { text-align: left; }
+  .gramofon { width: 52px; height: 52px; }
+  select { min-width: 0; width: 100%; }
+}
+@media (max-width: 700px) {
+  /* Pe telefon harta rămâne suficient de mare ca să fie citibilă; se derulează lateral în interiorul panoului */
+  #hartaSvg { min-width: 620px; }
+  .doar-mobil { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+  .oras.accentuat .oras-halo,
+  .gramofon[aria-pressed="true"] .disc-grup { animation: none !important; }
+}
+
+
+/* ---------- 14. TIPĂRIRE / SALVARE CA PDF (@media print) ---------- */
+@media print {
+  @page { margin: 14mm; }
+
+  /* Hârtie albă, fără texturi: economisim cerneală */
+  body, body::before { background: #fff !important; }
+  body { color: #000; font-size: 11pt; }
+  body::before { display: none; }
+
+  /* Ascundem tot ce e interactiv sau decorativ */
+  .hero .nav, .sari, .controale, .grup-butoane, .gramofon, .gramofon-mesaj,
+  .tooltip-plutitor, dialog, .export, .btn, .sim-actiuni, .sfat-harta,
+  noscript { display: none !important; }
+
+  /* Antetul tipărit */
+  .antet-print { display: block; text-align: center; border-bottom: 2px solid #000; padding-bottom: 6pt; margin-bottom: 10pt; }
+  .antet-print h1 { font-family: var(--font-titlu); font-size: 18pt; margin: 0; }
+  .antet-print p { margin: 2pt 0 0; font-size: 9pt; }
+
+  .hero { background: none; color: #000; padding: 0 0 8pt; border-bottom: 1px solid #000; }
+  .hero h1 { font-size: 20pt; }
+  .hero .lead { color: #000; font-size: 10pt; }
+  .hero .kicker { color: #000; }
+
+  section { padding: 10pt 0; break-inside: auto; }
+  .panou, .ziar-foaie {
+    box-shadow: none; background: #fff; outline: none; border: 1px solid #000;
+    break-inside: avoid;
+  }
+  .panou::before, .panou::after { display: none; }
+  .ziar-coloane { column-count: 3; }
+
+  /* Graficele canvas se tipăresc ca imagine (JS pune imaginea înainte de tipărire) */
+  .cadru-grafic canvas, .cadru-canvas canvas { display: none !important; }
+  .doar-print { display: block; width: 100%; height: auto; }
+  .cadru-grafic { height: auto; }
+
+  .doar-mobil { display: none !important; }
+  .harta-defilare { overflow: visible; }
+  #hartaSvg { min-width: 0; }
+
+  /* Harta: toate orașele la opacitate plină, fără animații */
+  .oras.atenuat { opacity: 1; }
+  .oras.accentuat .oras-halo { animation: none; }
+
+  a { color: #000; text-decoration: none; }
+  .biblio a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8pt; word-break: break-all; }
+  .insigna { border: 1px solid #000; background: #fff; color: #000; }
+  .subsol { background: none; color: #000; border-top: 1px solid #000; }
+}
+
+/* Sursele din simulator apar pe același rând cu textul */
+.sim-sursa-inline { display: inline; margin: 0; font-size: .8rem; color: var(--cerneala-soft); }
+.sim-sursa-inline a { color: var(--otel); }

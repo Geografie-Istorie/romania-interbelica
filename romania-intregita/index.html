@@ -1,0 +1,105 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>.ro-btn-back {
+  position: absolute; /* Rămâne fixat relativ la colțul aplicației */
+  top: 15px;
+  left: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background-color: #ffffff; /* Fundal alb curat */
+  color: #2c3e50; /* Text închis la culoare, lizibil */
+  border: 1px solid #e2e8f0; /* Bordură fină gri */
+  border-radius: 8px; /* Colțuri rotunjite modern */
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Umbră discretă */
+  transition: all 0.2s ease;
+  z-index: 2000; /* Se asigură că apare peste hartă sau regiuni */
+}
+
+.ro-btn-back {
+    background-color: #ff8400; /* Culoarea înainte de hover */
+    color: black;
+    text-decoration: none;
+}
+
+.ro-btn-back:hover {
+  background-color: #f8fafc; /* Schimbare subtilă de fundal la hover */
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.ro-btn-back .arrow {
+  transition: transform 0.2s ease;
+}
+
+.ro-btn-back:hover .arrow {
+  transform: translateX(-3px); /* Efect de deplasare a săgeții la stânga */
+}
+
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<div class="page-header">
+    <a href="../" class="ro-btn-back">
+        <span class="arrow">←</span> Înapoi
+    </a>
+
+    <h3><br></h3>
+</div>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="leaflet.css">
+<link rel="stylesheet" href="style.css">
+
+<header class="masthead">
+  <h1>România Întregită</h1>
+  <p>Evoluții teritoriale și administrative <span class="range">1913–1939</span></p>
+</header>
+
+<main class="app">
+  <section class="stage" aria-label="Harta interactivă">
+    <div class="mapwrap">
+      <div id="map" role="application" aria-label="Harta României, cu provinciile unite în 1913–1918"></div>
+      <div class="badge" aria-hidden="true">
+        <div class="when" id="badgeWhen">1 dec. 1918</div>
+        <div class="count" id="badgeCount">11 / 11 regiuni</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-top">
+        <button class="btn" id="prev" type="button" aria-label="Evenimentul anterior">&larr; Înapoi</button>
+        <button class="btn" id="play" type="button" aria-pressed="false">Redă</button>
+        <button class="btn" id="next" type="button" aria-label="Evenimentul următor">Înainte &rarr;</button>
+      </div>
+      <input id="slider" type="range" min="0" max="10" step="1" value="4" aria-label="Cronologie">
+      <div class="ticks" id="ticks"></div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <aside class="panel" aria-label="Informații">
+    <article class="card" id="eventCard" aria-live="polite"></article>
+    <article class="card" id="adminCard"></article>
+    <article class="card" id="regionCard">
+      <p class="eyebrow">Regiuni</p>
+      <div id="regionDetail" class="muted">Alege o regiune din listă sau de pe hartă.</div>
+      <ul class="regions" id="regionList"></ul>
+      <label class="toggle" for="adminToggle">
+        <input type="checkbox" id="adminToggle" checked>
+        Arată sediile administrative
+      </label>
+    </article>
+    <article class="card note">
+      <p>Contururile sunt schematice, desenate manual în GeoJSON, și nu urmăresc exact granițele istorice. Evenimentele și cifrele provin din surse de istorie generală; pentru un proiect final, înlocuiește fișierul de date cu limite istorice verificate.</p>
+    </article>
+  </aside>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+
+</body></html>

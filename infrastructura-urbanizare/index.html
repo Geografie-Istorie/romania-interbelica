@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Infrastructură și dezvoltare urbană în Europa interbelică</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+.btn-back {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: transparent;
+  color: #333333; /* Schimbă în #ffffff dacă pagina ta are fundal închis */
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(0, 0, 0, 0.15); /* Sau rgba(255, 255, 255, 0.2) pentru fundal închis */
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  z-index: 1000;
+}
+
+.btn-back {
+    border-color: #d4af37;
+    color: white;
+}
+
+.btn-back .arrow {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+/* Efect de hover asortat cu elementele dinamice ale paginii */
+.btn-back:hover {
+  background-color: #f5f5f5; /* Schimbă într-un gri închis sau auriu discret dacă e cazul */
+  border-color: #d4af37; /* Accent auriu care se potrivește cu „cursorul auriu” din pagină */
+  color: #d4af37;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-back:hover .arrow {
+  transform: translateX(-4px); /* Mișcare discretă a săgeții la hover */
+}
+
+/* Adaptare pentru ecrane mici (mobile) */
+@media (max-width: 768px) {
+  .btn-back {
+    top: 16px;
+    left: 16px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+:root{
+  --bg:#060A12;--ink:#EDF0F7;--mut:#8892AA;
+  --gold:#FFB84D;--teal:#4ECDC4;--blue:#60A5FA;--coral:#F87171;--purple:#A78BFA;
+  --glass:rgba(255,255,255,0.04);--glass2:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.10);--border-hi:rgba(255,255,255,0.26);
+  --shadow:0 30px 80px -20px rgba(0,0,0,0.85);
+  --ff-s:'Playfair Display',Georgia,serif;
+  --ff-b:'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  background:var(--bg);color:var(--ink);font:18px/1.6 var(--ff-b);
+  -webkit-font-smoothing:antialiased;position:relative;
+  user-select:none;-webkit-user-select:none;
+}
+.card p,.card li,.lead,h1,h2,h3,.p-info p,.w-card p{user-select:text;-webkit-user-select:text}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,184,77,0.12), transparent 48%),
+    radial-gradient(circle at 88% 22%, rgba(78,205,196,0.10), transparent 45%),
+    radial-gradient(circle at 50% 88%, rgba(167,139,250,0.12), transparent 52%),
+    radial-gradient(circle at 78% 72%, rgba(96,165,250,0.08), transparent 40%);
+  animation:ambientShift 26s ease-in-out infinite;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse at center, black 28%, transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse at center, black 28%, transparent 78%);
+}
+@keyframes ambientShift{0%,100%{transform:scale(1) rotate(0)}33%{transform:scale(1.07) rotate(1.5deg)}66%{transform:scale(1.04) rotate(-1.5deg)}}
+
+#deck{position:fixed;inset:0;z-index:1;overflow:hidden;touch-action:pan-y;cursor:grab}
+#deck.dragging{cursor:grabbing}
+#track{display:flex;height:100%;will-change:transform;transition:transform .7s cubic-bezier(.22,.9,.24,1)}
+.s{flex:0 0 100vw;height:100%;overflow-y:auto;overflow-x:hidden;padding:clamp(28px,5vh,70px) clamp(18px,5vw,88px);position:relative}
+.s::-webkit-scrollbar{width:6px}
+.s::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
+.in{max-width:1560px;margin:0 auto;width:100%;position:relative}
+
+h1,h2,h3{font-family:var(--ff-s);margin:0 0 .3em;color:#fff;font-weight:700;letter-spacing:-0.02em}
+h1{font-size:clamp(3rem,8.5vw,7.5rem);line-height:1.02}
+h2{font-size:clamp(2.3rem,5.8vw,4.8rem);line-height:1.05;position:relative;display:inline-block;padding-bottom:16px;margin-bottom:20px}
+h2::after{content:'';position:absolute;left:0;bottom:0;height:4px;width:100px;border-radius:3px;background:linear-gradient(90deg,var(--accent,var(--gold)),transparent)}
+h3{font-size:clamp(1.2rem,1.6vw,1.6rem);font-weight:600}
+p{margin:.4em 0}
+.lead{max-width:1200px;color:var(--mut);font-size:clamp(1.1rem,1.7vw,1.55rem);line-height:1.6;margin:16px 0}
+.k{display:inline-block;color:var(--accent,var(--gold));letter-spacing:.24em;text-transform:uppercase;font-size:.78rem;font-weight:700;margin-bottom:18px;padding:7px 18px;border-radius:99px;background:color-mix(in srgb,var(--accent,var(--gold)) 12%, transparent);border:1px solid color-mix(in srgb,var(--accent,var(--gold)) 30%, transparent)}
+.gradient-text{background:linear-gradient(135deg,#FFB84D 0%,#F87171 30%,#A78BFA 65%,#4ECDC4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:220% 220%;animation:gradientMove 9s ease infinite}
+@keyframes gradientMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.card{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:clamp(22px,2.5vw,38px);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .4s,background .4s,box-shadow .4s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-5px);border-color:var(--border-hi);background:var(--glass2);box-shadow:var(--shadow)}
+.card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,0%), rgba(255,255,255,0.07), transparent 62%);opacity:0;transition:opacity .4s;pointer-events:none}
+.card:hover::before{opacity:1}
+
+.btn,.chip,.tb{font:inherit;cursor:pointer;border-radius:14px;font-weight:600;transition:all .25s cubic-bezier(.2,.8,.2,1);border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn{background:linear-gradient(135deg,var(--gold),#F59E0B);color:#0B0F1A;padding:16px 32px;font-size:1.02rem;box-shadow:0 12px 34px -10px rgba(255,184,77,0.55)}
+.btn:hover{transform:translateY(-3px);box-shadow:0 18px 44px -10px rgba(255,184,77,0.75)}
+.btn.gh{background:var(--glass);color:var(--ink);border-color:var(--border);box-shadow:none}
+.btn.gh:hover{background:var(--glass2);border-color:var(--border-hi)}
+.btn.sm{padding:10px 18px;font-size:.9rem}
+.btn-random{padding:16px 28px;font-size:1.02rem;position:relative;overflow:hidden;min-width:280px;gap:10px}
+.btn-random .rb-icon{font-size:1.15rem;transition:transform .3s}
+.btn-random .rb-text{transition:color .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.btn-random::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,184,77,0.25),transparent);opacity:0;transition:opacity .3s;pointer-events:none}
+.btn-random[data-rolling]::before{opacity:1;animation:shimmer 1s linear infinite}
+.btn-random[data-rolling] .rb-icon{animation:spin .5s linear infinite}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chip{border:1px solid var(--border);color:var(--ink);background:var(--glass);padding:9px 18px;border-radius:99px;font-size:.9rem;font-weight:500}
+.chip.on{background:var(--c,var(--gold));color:#0B0F1A;border-color:transparent}
+.chip:hover{border-color:var(--border-hi)}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}
+
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:26px 0}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+@media(max-width:880px){.g2{grid-template-columns:1fr}}
+
+.stat{text-align:center;padding:clamp(26px,4vw,48px) 18px;background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--border);border-radius:22px;position:relative;overflow:hidden;transition:transform .4s,border-color .4s}
+.stat:hover{transform:translateY(-4px);border-color:var(--border-hi)}
+.stat::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:2px;background:linear-gradient(90deg,transparent,var(--c,var(--gold)),transparent)}
+.stat .num{font-family:var(--ff-s);font-size:clamp(3.4rem,7vw,5.8rem);font-weight:900;line-height:1;color:var(--c,var(--gold));display:block;margin-bottom:10px;text-shadow:0 0 50px color-mix(in srgb,var(--c,var(--gold)) 45%,transparent)}
+.stat .lbl{color:var(--mut);font-size:.95rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+
+/* ===== MAP (LOCAL SVG) ===== */
+.map-wrap{position:relative;border-radius:24px;overflow:hidden;background:#0A1220;border:1px solid var(--border)}
+#map{width:100%;height:auto;display:block;background:#0A1220}
+.country{fill:#1A2638;stroke:#2E3B52;stroke-width:0.7;transition:fill .3s}
+.country:hover{fill:#22344D}
+.country-label{fill:#4A5A78;font-size:9px;font-weight:600;letter-spacing:1.5px;text-anchor:middle;pointer-events:none;font-family:var(--ff-b)}
+.sea-label{fill:#243B52;font-size:10px;font-weight:500;letter-spacing:2px;text-anchor:middle;pointer-events:none;font-style:italic;font-family:var(--ff-s)}
+.map-marker{cursor:pointer}
+.map-marker .d{cursor:pointer;stroke:#fff;stroke-width:1.5;transform-box:fill-box;transform-origin:center;transition:transform .5s cubic-bezier(.3,1.7,.5,1),opacity .4s}
+.map-marker .ring{animation:pl 2.4s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pl{from{transform:scale(1);opacity:.7}to{transform:scale(3.2);opacity:0}}
+.map-marker.h .d{transform:scale(0);opacity:0;pointer-events:none}
+.map-marker.h .ring{opacity:0!important;animation:none}
+.map-marker.sel .d{stroke:#fff;stroke-width:3}
+.map-marker .lb{fill:#E8ECF4;font-size:10px;opacity:0;transition:opacity .4s;pointer-events:none;paint-order:stroke;stroke:#0A1220;stroke-width:3px;font-weight:600;font-family:var(--ff-b)}
+svg.z .map-marker .lb,.map-marker.sel .lb{opacity:1}
+.map-marker.h .lb{opacity:0!important}
+.rt{fill:none;stroke-width:1.3;stroke-dasharray:4 7;opacity:.55;animation:fl 1.6s linear infinite}
+@keyframes fl{to{stroke-dashoffset:-22}}
+
+input[type=range]{accent-color:var(--gold);flex:1;min-width:140px;height:8px;background:var(--glass2);border-radius:99px;appearance:none;-webkit-appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 16px rgba(255,184,77,0.7)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:none;border-radius:50%;background:var(--gold);cursor:pointer}
+
+#pg{position:fixed;top:0;left:0;height:4px;width:0%;background:linear-gradient(90deg,var(--gold),var(--coral),var(--purple),var(--teal));z-index:10;transition:width .7s cubic-bezier(.22,.9,.24,1);box-shadow:0 0 18px rgba(255,184,77,0.6)}
+#dots{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:9px;z-index:9;padding:11px 18px;border-radius:99px;background:rgba(6,10,18,0.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border)}
+#dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.22);cursor:pointer;transition:all .3s;display:block}
+#dots i:hover{background:rgba(255,255,255,0.55);transform:scale(1.25)}
+#dots i.on{background:var(--gold);width:34px;border-radius:8px;box-shadow:0 0 14px rgba(255,184,77,0.65)}
+
+#mute{position:fixed;top:18px;right:18px;z-index:9;width:48px;height:48px;border-radius:50%;background:rgba(6,10,18,0.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border);color:var(--ink);font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s}
+#mute:hover{border-color:var(--border-hi);background:rgba(255,255,255,0.08);transform:scale(1.06)}
+#mute.muted{opacity:.45}
+
+#hint{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:8;color:var(--mut);font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;pointer-events:none;opacity:0;transition:opacity .5s}
+#hint.show{opacity:1;animation:hintPulse 2s ease-in-out infinite}
+@keyframes hintPulse{0%,100%{opacity:.4}50%{opacity:.9}}
+
+.s .anim{opacity:1;transform:none;transition:none}
+.s.on .anim{animation:reveal .9s cubic-bezier(.22,.9,.24,1) both;animation-delay:calc(var(--i,0)*75ms)}
+@keyframes reveal{from{opacity:0;transform:translateY(32px) scale(.98)}to{opacity:1;transform:none}}
+
+/* ===== HERO with radar ===== */
+.hero{min-height:calc(100vh - 110px);display:flex;align-items:center;gap:clamp(30px,5vw,80px);position:relative}
+.hero-content{flex:1;min-width:0}
+.hero-radar{width:clamp(320px,32vw,460px);height:clamp(320px,32vw,460px);flex-shrink:0;position:relative;animation:fadeInRadar 1.2s ease both;animation-delay:.4s}
+@keyframes fadeInRadar{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.hero-radar svg{width:100%;height:100%;display:block;overflow:visible}
+@media(max-width:1100px){.hero-radar{display:none}}
+.radar-tip{position:absolute;bottom:calc(100% + 16px);left:50%;transform:translateX(-50%) translateY(8px);background:rgba(6,10,18,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border-hi);border-radius:14px;padding:14px 20px;min-width:220px;text-align:center;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:20;box-shadow:0 20px 50px -15px rgba(0,0,0,0.9);white-space:nowrap}
+.radar-tip.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.radar-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);width:0;height:0;border:8px solid transparent;border-top-color:rgba(6,10,18,0.96)}
+
+.cat-icon{width:74px;height:74px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent,var(--gold)) 15%, transparent);border:1px solid color-mix(in srgb,var(--accent,var(--gold)) 35%, transparent);color:var(--accent,var(--gold));margin-bottom:20px}
+.cat-icon svg{width:36px;height:36px;stroke-width:2}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px;margin-top:22px}
+.cd{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:clamp(22px,2.5vw,34px);position:relative;overflow:hidden;transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .4s,background .4s}
+.cd::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--c),transparent)}
+.cd:hover{transform:translateY(-6px);border-color:var(--border-hi);background:var(--glass2);box-shadow:var(--shadow)}
+.cd .y{font-family:var(--ff-s);font-weight:900;font-size:2.7rem;color:var(--c);line-height:1;display:block;margin-bottom:10px}
+.cd .nm{font-weight:600;font-size:1.3rem;color:#fff;margin:0 0 6px;font-family:var(--ff-s)}
+.cd small{color:var(--mut);display:block;font-size:.95rem;margin-bottom:12px}
+.cd p{margin:0;font-size:1.02rem;color:#C8CFDD;line-height:1.55}
+.cd .fact{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:.82rem;color:var(--mut)}
+.cd .fact b{color:var(--c)}
+
+.tl-wrap{padding:14px 18px;margin-top:18px}
+.tl-svg{width:100%;height:auto;display:block}
+.tlg{cursor:pointer}
+.tlg .dot{transition:r .2s, fill .2s, stroke .2s}
+.tlg .lbl{pointer-events:none;transition:opacity .3s}
+.tl-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 0 0;margin-top:12px;border-top:1px solid var(--border)}
+.tb{background:var(--glass);border:1px solid var(--border);color:var(--ink);padding:10px 16px;border-radius:12px;font-size:.86rem;font-weight:600;white-space:nowrap;flex-shrink:0}
+.tb:hover{background:var(--glass2);border-color:var(--border-hi);transform:translateY(-2px)}
+.tb:active{transform:translateY(0) scale(.97)}
+.tb.active{background:var(--gold);color:#0B0F1A;border-color:var(--gold)}
+.tb.gold{background:linear-gradient(135deg,var(--gold),#F59E0B);color:#0B0F1A;border:none;box-shadow:0 6px 22px -6px rgba(255,184,77,.5)}
+#tlYear{flex:1;min-width:130px}
+
+.cmp-row{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;margin-top:22px;align-items:stretch}
+@media(max-width:920px){.cmp-row{grid-template-columns:1fr;gap:14px}}
+.cmp-slot{background:var(--glass);border:1px solid var(--border);border-radius:20px;padding:20px;min-height:210px;display:flex;flex-direction:column;position:relative;transition:all .4s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+.cmp-slot.filled{border-color:var(--c,var(--gold));background:var(--glass2);box-shadow:0 0 0 1px var(--c,var(--gold)) inset,0 22px 55px -22px color-mix(in srgb,var(--c,var(--gold)) 32%,transparent)}
+.cmp-slot.filled::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c,var(--gold)),transparent)}
+.cmp-empty{display:flex;align-items:center;justify-content:center;flex:1;color:var(--mut);font-size:.98rem;font-style:italic;border:2px dashed var(--border);border-radius:14px;min-height:160px;transition:all .3s;text-align:center;padding:16px}
+.cmp-slot:not(.filled):hover .cmp-empty{border-color:var(--border-hi);color:#C8CFDD}
+.cmp-card{animation:cardIn .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cardIn{from{opacity:0;transform:scale(.82) rotate(-3deg)}60%{transform:scale(1.03) rotate(1deg)}to{opacity:1;transform:none}}
+.cmp-year{font-family:var(--ff-s);font-size:2.8rem;font-weight:900;color:var(--c);line-height:1;margin-bottom:2px}
+.cmp-cat{font-size:.7rem;color:var(--c);text-transform:uppercase;letter-spacing:.15em;font-weight:700;margin-bottom:8px}
+.cmp-card h3{font-size:1.35rem;margin:0 0 6px;line-height:1.2}
+.cmp-loc{color:var(--mut);font-size:.9rem;margin-bottom:10px}
+.cmp-card p{font-size:.94rem;color:#C8CFDD;margin:0 0 10px;line-height:1.5}
+.cmp-coord{font-size:.7rem;color:var(--mut);font-family:ui-monospace,monospace;letter-spacing:.05em}
+.cmp-mid{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;min-width:170px;padding:10px}
+@media(max-width:920px){.cmp-mid{flex-direction:row;gap:18px;flex-wrap:wrap;padding:8px 0}}
+.cmp-stat{text-align:center;min-width:80px}
+.cmp-num{display:block;font-family:var(--ff-s);font-size:2.2rem;font-weight:900;color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(255,184,77,.4)}
+.cmp-lbl{display:block;font-size:.7rem;color:var(--mut);text-transform:uppercase;letter-spacing:.12em;margin-top:5px;font-weight:600}
+.cmp-divider{width:40px;height:1px;background:var(--border)}
+.cmp-tag{padding:6px 14px;border-radius:99px;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;background:var(--glass2);border:1px solid var(--border);transition:all .3s}
+.cmp-tag.same{background:rgba(78,205,196,.15);border-color:rgba(78,205,196,.4);color:var(--teal)}
+.cmp-tag.diff{background:rgba(255,184,77,.15);border-color:rgba(255,184,77,.4);color:var(--gold)}
+.cmp-mid.active .cmp-num{animation:numPop .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes numPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+
+.web-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:10px;margin-top:14px}
+.w-card{display:flex;flex-direction:column;padding:14px 18px;border-radius:14px;background:var(--glass);border:1px solid var(--border);color:#C8CFDD;text-decoration:none;font-size:.92rem;transition:all .25s;overflow:hidden}
+.w-card:hover{background:var(--glass2);border-color:var(--border-hi);color:#fff;transform:translateY(-2px)}
+.w-card .src{font-weight:600;color:#fff;margin-bottom:2px}
+.w-card .url{font-size:.78rem;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w-card::before{content:'↗';color:var(--teal);font-weight:700;margin-right:6px;font-size:.8rem}
+
+.team{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.team span{padding:9px 18px;border-radius:99px;background:var(--glass);border:1px solid var(--border);font-size:.95rem;color:#E8ECF4}
+
+.p-info{background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:20px;min-height:180px}
+.p-info .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:6px;margin-bottom:8px}
+.p-info h3{margin:0 0 4px;font-size:1.25rem}
+.p-info .loc{color:var(--mut);font-size:.88rem;margin-bottom:10px}
+.p-info p{font-size:.92rem;color:#C8CFDD;margin:0 0 10px;line-height:1.55}
+.p-info .meta{font-size:.78rem;color:var(--mut);font-family:ui-monospace,monospace}
+
+@media(max-width:700px){
+  body{font-size:15px}
+  .hero{min-height:auto;padding:20px 0}
+  h1{font-size:2.5rem}
+  h2{font-size:2rem}
+  #dots{padding:7px 12px;gap:6px}
+  #dots i{width:8px;height:8px}
+  #dots i.on{width:24px}
+  #mute{width:40px;height:40px;font-size:1.05rem}
+  .tb{padding:8px 11px;font-size:.78rem}
+  .cmp-row{gap:12px}
+  .btn-random{min-width:auto;padding:14px 22px;font-size:.92rem}
+  .btn-random .rb-text{max-width:160px}
+}
+</style>
+</head>
+<body>
+<a href="../" class="btn-back">
+  <span class="arrow">←</span> Înapoi
+</a>
+
+<div id="pg"></div>
+<button id="mute" title="Pornește/oprește sunetul">🔊</button>
+<div id="hint">← Glisează sau derulează →</div>
+<div id="dots"></div>
+
+<div id="deck">
+  <div id="track">
+
+<!-- HERO -->
+<section class="s on"><div class="in hero">
+  <div class="hero-content">
+    <div class="k anim">Proiect de istorie · 1918–1939</div>
+    <h1 class="anim">Infrastructură și <span class="gradient-text">dezvoltare urbană</span> în Europa interbelică</h1>
+    <p class="lead anim" style="font-size:clamp(1.15rem,1.8vw,1.6rem);margin-top:22px">Cum au schimbat autostrăzile, metrourile, locuințele sociale și marile lucrări publice orașele Europei între cele două războaie mondiale.</p>
+    <div class="bar anim" style="margin-top:32px">
+      <button class="btn" onclick="go(1)">Începe prezentarea →</button>
+      <button class="btn gh btn-random" id="randomBtn">
+        <span class="rb-icon">🎲</span>
+        <span class="rb-text">Descoperă un proiect</span>
+      </button>
+    </div>
+    <div class="anim" style="margin-top:56px">
+      <p style="color:var(--mut);font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;margin-bottom:12px;font-weight:600">Realizat de</p>
+      <div class="team">
+        <span>Stefan Laza</span><span>Darius Oprea</span><span>Radu Erdei</span>
+        <span>Focsa Robert</span><span>Tudor Man</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-radar" id="heroRadar">
+    <svg viewBox="-190 -190 380 380" aria-label="Radar interactiv cu proiectele"></svg>
+    <div class="radar-tip" id="radarTip"></div>
+  </div>
+</div></section>
+
+<!-- CONTEXT -->
+<section class="s"><div class="in">
+  <div class="k anim">Contextul</div>
+  <h2 class="anim">Europa după Primul Război Mondial</h2>
+  <p class="lead anim">Războiul a lăsat în urmă milioane de morți, orașe distruse și o criză a locuințelor. Imperiile au dispărut, harta s-a refăcut, iar guvernele au înțeles că orașele pot fi și vitrină politică.</p>
+  <div class="g">
+    <div class="stat anim" style="--c:var(--gold)"><span class="num" data-count="16">0</span><span class="lbl">proiecte</span></div>
+    <div class="stat anim" style="--c:var(--teal)"><span class="num" data-count="8">0</span><span class="lbl">țări</span></div>
+    <div class="stat anim" style="--c:var(--coral)"><span class="num" data-count="4">0</span><span class="lbl">categorii</span></div>
+    <div class="stat anim" style="--c:var(--purple)"><span class="num" data-count="15">0</span><span class="lbl">ani de proiecte</span></div>
+  </div>
+  <div class="g2">
+    <div class="card anim">
+      <h3 style="color:var(--gold);margin-bottom:16px">Trei idei dominante</h3>
+      <ul style="padding-left:0;list-style:none;margin:0">
+        <li style="padding:11px 0;border-bottom:1px solid var(--border);font-size:1rem"><b style="color:var(--gold)">Statul social</b> — locuințe ieftine pentru muncitori</li>
+        <li style="padding:11px 0;border-bottom:1px solid var(--border);font-size:1rem"><b style="color:var(--teal)">Motorizarea</b> — automobilul și autostrăzile</li>
+        <li style="padding:11px 0;font-size:1rem"><b style="color:var(--coral)">Planificarea centralizată</b> — planuri cincinale, orașe noi</li>
+      </ul>
+    </div>
+    <div class="card anim">
+      <h3 style="color:var(--teal);margin-bottom:16px">Repere</h3>
+      <p style="margin:7px 0;font-size:.95rem"><b>1918</b> · Sfârșitul războiului, Marea Unire</p>
+      <p style="margin:7px 0;font-size:.95rem"><b>1929</b> · Marea Criză Economică</p>
+      <p style="margin:7px 0;font-size:.95rem"><b>1933</b> · Reichsautobahn în Germania</p>
+      <p style="margin:7px 0;font-size:.95rem"><b>1939</b> · Al Doilea Război Mondial</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- MAP -->
+<section class="s"><div class="in">
+  <div class="k anim">Hartă interactivă</div>
+  <h2 class="anim">16 proiecte reale, 8 țări</h2>
+  <p class="lead anim">Fiecare punct este un proiect plasat pe harta Europei la coordonatele sale reale. Folosește filtrele, cursorul de an sau redă cronologia.</p>
+  <div class="bar anim" id="chips"></div>
+  <div class="bar anim">
+    <button class="btn gh" id="pl">▶ Redă cronologia</button>
+    <label style="display:flex;gap:12px;align-items:center;flex:1;min-width:220px;color:var(--mut);font-size:.95rem">
+      An: <b id="yv" style="color:var(--gold);font-size:1.25rem;min-width:52px">1939</b>
+      <input id="yr" type="range" min="1920" max="1939" value="1939">
+    </label>
+    <button class="chip on" style="--c:var(--purple)" id="cn">Conexiuni</button>
+    <button class="chip" id="zr">⟲ Reset</button>
+  </div>
+  <div class="g2">
+    <div class="map-wrap anim"><svg id="map" viewBox="0 0 740 420" role="img" aria-label="Harta proiectelor europene"></svg></div>
+    <div class="card anim p-info" id="info">
+      <h3 style="color:var(--gold)">Alege un punct</h3>
+      <p style="color:var(--mut);font-size:.92rem">Apasă pe un punct pentru detalii: loc, an, coordonate.</p>
+      <small style="color:var(--mut);display:block;margin-top:14px" id="cnt"></small>
+    </div>
+  </div>
+</div></section>
+
+<!-- CATEGORIES -->
+<section class="s" style="--accent:var(--gold)"><div class="in">
+  <div class="cat-icon anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21L8 3M20 21L16 3M12 4v3M12 11v3M12 18v3"/></svg></div>
+  <div class="k anim">Categoria 1</div>
+  <h2 class="anim">Transport și mobilitate</h2>
+  <p class="lead anim">Automobilele se înmulțesc, iar autostrăzile și metrourile devin simboluri ale modernității și ale puterii de stat.</p>
+  <div class="cards" id="c-t"></div>
+</div></section>
+
+<section class="s" style="--accent:var(--teal)"><div class="in">
+  <div class="cat-icon anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/></svg></div>
+  <div class="k anim">Categoria 2</div>
+  <h2 class="anim">Locuire socială și oraș modern</h2>
+  <p class="lead anim">Criza locuințelor a dus la ideea că statul trebuie să construiască locuințe sănătoase și accesibile pentru muncitori.</p>
+  <div class="cards" id="c-l"></div>
+</div></section>
+
+<section class="s" style="--accent:var(--blue)"><div class="in">
+  <div class="cat-icon anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V10l5 3V10l5 3V10l5 3v7"/><path d="M6 6h.01M10 6h.01M14 6h.01"/></svg></div>
+  <div class="k anim">Categoria 3</div>
+  <h2 class="anim">Industrie și lucrări hidro</h2>
+  <p class="lead anim">URSS a folosit marile lucrări pentru industrializare accelerată; Olanda a luptat cu marea, iar Polonia și-a construit un port nou.</p>
+  <div class="cards" id="c-i"></div>
+</div></section>
+
+<section class="s" style="--accent:var(--coral)"><div class="in">
+  <div class="cat-icon anim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V8h12v12M4 8l8-4 8 4M9 12v4M12 12v4M15 12v4"/></svg></div>
+  <div class="k anim">Categoria 4</div>
+  <h2 class="anim">Urbanism monumental și România</h2>
+  <p class="lead anim">Regimurile autoritare au folosit arhitectura ca propagandă. Dar și democrațiile, inclusiv România, au construit monumente ale victoriei și modernității.</p>
+  <div class="cards" id="c-u"></div>
+</div></section>
+
+<!-- TIMELINE -->
+<section class="s"><div class="in">
+  <div class="k anim">Cronologie comparativă</div>
+  <h2 class="anim">Râurile timpului</h2>
+  <p class="lead anim">Trage de cursorul auriu, joacă cronologia sau apasă pe un proiect ca să-l compari cu altul.</p>
+  <div class="card anim tl-wrap">
+    <svg id="tl" class="tl-svg" viewBox="0 0 900 370" role="img" aria-label="Cronologie"></svg>
+    <div class="tl-controls">
+      <button class="tb gold" id="tlPlay">▶ Redă</button>
+      <button class="tb" id="tlPrev" title="Anul anterior">◀</button>
+      <input id="tlYear" type="range" min="1920" max="1939" value="1939">
+      <button class="tb" id="tlNext" title="Anul următor">▶</button>
+      <button class="tb" id="tlRnd" title="Compară două proiecte aleatoare">🎲 Aleator</button>
+      <button class="tb" id="tlClear" title="Golește comparatorul">✕ Golește</button>
+    </div>
+  </div>
+  <div class="cmp-row anim">
+    <div class="cmp-slot" id="cmpA"><div class="cmp-empty">+ Selectează primul proiect</div></div>
+    <div class="cmp-mid" id="cmpMid"><div class="cmp-stat"><span class="cmp-num">?</span><span class="cmp-lbl">alege al doilea</span></div></div>
+    <div class="cmp-slot" id="cmpB"><div class="cmp-empty">+ Selectează al doilea proiect</div></div>
+  </div>
+</div></section>
+
+<!-- CONCLUZIE -->
+<section class="s"><div class="in">
+  <div class="k anim">Concluzie</div>
+  <h2 class="anim">Ce a rămas din laboratorul urban interbelic</h2>
+  <p class="lead anim">În două decenii, Europa a testat aproape toate soluțiile moderne pentru oraș — în regimuri foarte diferite.</p>
+  <div class="concl" id="concl" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;margin-top:24px"></div>
+</div></section>
+
+<!-- WEBOGRAFIE -->
+<section class="s"><div class="in">
+  <div class="k anim">Surse</div>
+  <h2 class="anim">Webografie</h2>
+  <p class="lead anim">Resurse online consultate pentru proiectele prezentate.</p>
+  <div class="web-grid" id="web"></div>
+  <div class="card anim" style="margin-top:26px">
+    <h3 style="color:var(--gold);margin-bottom:14px">Realizat de</h3>
+    <div class="team">
+      <span>Stefan Laza</span><span>Darius Oprea</span><span>Radu Erdei</span>
+      <span>Focsa Robert</span><span>Tudor Man</span>
+    </div>
+    <p style="margin-top:22px;color:var(--teal);font-weight:600;font-size:1.1rem">Vă mulțumim pentru atenție!</p>
+  </div>
+  <div class="bar anim" style="margin-top:22px"><button class="btn" onclick="go(0)">↺ De la capăt</button></div>
+</div></section>
+
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+var $=s=>document.querySelector(s);
+var LY={t:["Transport","#FFB84D"],l:["Locuire","#4ECDC4"],i:["Industrie","#60A5FA"],u:["Urbanism","#F87171"]};
+var D=[
+{n:"AVUS",o:"Berlin",c:"Germania",y:1921,l:"t",la:52.505,lo:13.26,d:"Prima șosea rapidă din Europa, cu benzi separate și fără intersecții la nivel. Deschisă la 24 septembrie 1921 cu o cursă auto.",fact:"8,3 km, aproape drept, cu două bucle la capete."},
+{n:"Autostrada Köln–Bonn",o:"Köln",c:"Germania",y:1932,l:"t",la:50.85,lo:7.05,d:"Prima autostradă interurbană din Germania, deschisă la 6 august 1932 de primarul Konrad Adenauer. Astăzi este A555.",fact:"A fost inaugurată înainte de venirea naziștilor la putere."},
+{n:"Tunelul Queensway",o:"Liverpool",c:"Marea Britanie",y:1934,l:"t",la:53.405,lo:-2.99,d:"Tunel rutier sub Mersey, cel mai lung din lume la inaugurare. Deschis de regele George al V-lea la 18 iulie 1934.",fact:"3,24 km, construit de 1.700 de muncitori; a costat 8 milioane de lire."},
+{n:"Metroul din Moscova",o:"Moscova",c:"URSS",y:1935,l:"t",la:55.756,lo:37.617,d:"Prima linie, Sokolnicheskaya, deschisă la 15 mai 1935, cu 13 stații între Sokolniki și Park Kultury.",fact:"11,2 km; stațiile au fost gândite ca „palate ale poporului”."},
+{n:"Weissenhofsiedlung",o:"Stuttgart",c:"Germania",y:1927,l:"l",la:48.804,lo:9.174,d:"Expoziția Werkbund „Die Wohnung” a reunit 21 de clădiri proiectate de 17 arhitecți moderni.",fact:"Le Corbusier, Gropius, Oud, Stam, Scharoun, Behrens, Bruno Taut."},
+{n:"Römerstadt",o:"Frankfurt",c:"Germania",y:1928,l:"l",la:50.14,lo:8.66,d:"Cartier social planificat de Ernst May în programul „Das Neue Frankfurt”. 1.220 de unități locative.",fact:"Aici a fost instalată „bucătăria de la Frankfurt” de peste 10.000 de ori."},
+{n:"Karl-Marx-Hof",o:"Viena",c:"Austria",y:1930,l:"l",la:48.2503,lo:16.3667,d:"Simbol al „Vienei Roșii”: 1.325 de apartamente pe o fațadă de aproape 1.200 m.",fact:"Cea mai lungă clădire rezidențială continuă din lume; 4 ganguri o traversează."},
+{n:"Plan Zuid",o:"Amsterdam",c:"Țările de Jos",y:1925,l:"l",la:52.35,lo:4.87,d:"Extindere sudică a Amsterdamului după planul lui H.P. Berlage: bulevarde largi și blocuri perimetrale de cărămidă.",fact:"Construit în faze între 1917–1925; Școala din Amsterdam."},
+{n:"Magnitogorsk",o:"Magnitogorsk",c:"URSS",y:1929,l:"i",la:53.407,lo:58.979,d:"Oraș industrial construit de la zero lângă muntele Magnitnaia, pentru combinatul siderurgic din primul plan cincinal.",fact:"Primul tren a sosit la 30 iunie 1929; orașul a depășit 100.000 de locuitori într-un deceniu."},
+{n:"Dniprohes",o:"Zaporojie",c:"URSS",y:1932,l:"i",la:47.87,lo:35.087,d:"Hidrocentrala de pe Nipru, cea mai mare din Europa la inaugurare. Pusă în funcțiune la 10 octombrie 1932.",fact:"310 MW inițial (5 turbine); barajul a fost distrus în 1941 și refăcut."},
+{n:"Afsluitdijk",o:"Frizia",c:"Țările de Jos",y:1932,l:"i",la:53.0,lo:5.1,d:"Dig de 32 km care a închis Zuiderzee și a creat lacul de apă dulce IJsselmeer.",fact:"Ultimul gol, Vlieter, a fost închis la 28 mai 1932, ora 13:02."},
+{n:"Portul Gdynia",o:"Gdynia",c:"Polonia",y:1926,l:"i",la:54.519,lo:18.53,d:"Sat de pescari transformat în port modernist și oraș cu drepturi depline la 10 februarie 1926.",fact:"Planul urbanistic din 1926, inspirat de Mendelssohn; simbol al modernității poloneze."},
+{n:"Via dell'Impero",o:"Roma",c:"Italia",y:1932,l:"u",la:41.89,lo:12.492,d:"Bulevard monumental între Piazza Venezia și Colosseum, inaugurat la 28 octombrie 1932.",fact:"A implicat demolarea dealului Velia și a cartierelor medievale; azi Via dei Fori Imperiali."},
+{n:"Sabaudia",o:"Latina",c:"Italia",y:1934,l:"u",la:41.298,lo:13.027,d:"Oraș nou fondat în Mlaștinile Pontine, după asanarea zonei. Inaugurat la 15 aprilie 1934.",fact:"Piatra de temelie: 5 august 1933; primul dintre orașele noi fasciste."},
+{n:"Palatul Telefoanelor",o:"București",c:"România",y:1933,l:"u",la:44.4325,lo:26.0975,d:"Clădire Art Deco pe Calea Victoriei, prima cu schelet metalic din România. Finalizată în 1933.",fact:"52,5 m înălțime; arhitecți Louis Weeks, Walter Froy, Edmond van Saanen Algi."},
+{n:"Arcul de Triumf",o:"București",c:"România",y:1936,l:"u",la:44.467,lo:26.0786,d:"Monument al Marii Uniri, reconstruit în beton armat și granit după planurile lui Petre Antonescu.",fact:"Inaugurat la 1 decembrie 1936, în prezența regelui Carol al II-lea."}
+];
+
+var on={t:1,l:1,i:1,u:1},maxY=1939,sel=null,conn=1;
+var tlYear=1939,tlPlaying=false,tlTimer=null,tlCmp=[null,null],tlDotEls={},tlBuilt=false,tlPlayheadLine=null,tlPlayheadHandle=null,tlPlayheadLabel=null;
+var timer=null;
+
+/* ================= GEO PROJECTION ================= */
+function x(lon){return (lon+12)*10}
+function y(lat){return (72-lat)*11.35}
+function makePath(pts){return pts.map(function(p,i){return (i===0?'M':'L')+x(p[0]).toFixed(1)+','+y(p[1]).toFixed(1)}).join(' ')+'Z'}
+
+/* ================= COUNTRY OUTLINES ================= */
+var COUNTRIES=[
+  [[-9.5,43.8],[-1.8,43.4],[3.2,42.5],[0.7,39],[0.2,38.7],[-0.7,37.5],[-5.5,36],[-9,37],[-9.5,38.7]],
+  [[-1.8,43.4],[3.2,42.5],[7.5,43.8],[7.6,47.5],[8.2,49],[8.5,50],[2.5,51.1],[-1.5,48.6],[-4.5,48.4],[-4.7,47.5]],
+  [[-5,58.5],[-2,58],[0,58],[-2,57],[-2,55],[-1,54],[1.5,53],[1.8,52],[0.5,50.5],[-4,50],[-5,51],[-5,52],[-4,53.5],[-6,55],[-5.5,56]],
+  [[-10.5,51.5],[-10,54],[-8,55.4],[-6,55.4],[-6,54],[-6,52],[-8,51.5]],
+  [[3.5,51.4],[4.5,52],[7,53.5],[7.1,52.5],[7,51],[6,50.5],[5,50],[4,50.5]],
+  [[7,53.5],[8.5,54.9],[14,53.8],[14.5,51],[13.5,48.6],[12,47.5],[7.5,47.6],[6.5,49],[7.2,50.5],[7,52]],
+  [[6,47.8],[9.5,47.5],[10.5,46.5],[8,45.8],[7,46]],
+  [[7,44.5],[7,46],[9,46.5],[13,46.5],[13.5,45.5],[12.5,44],[12,43],[13.5,42],[15,40.5],[18,40],[17,38.9],[16,38],[15.5,37.5],[15,38],[12,40.5],[10,42],[9,43.5]],
+  [[12.5,38],[15.5,38],[15,36.7],[12.5,37.5]],
+  [[8.2,41.5],[9.8,41.2],[9.6,39],[8.5,38.8]],
+  [[8.5,43],[9.5,43],[9.4,41.4],[8.5,41.5]],
+  [[9.5,47.5],[13,48.5],[17,48],[17,46.5],[13.5,46.5],[10.5,46.5]],
+  [[12,50.5],[14,51],[18.5,49.5],[17,48.8],[13,48.5]],
+  [[14,54.8],[18,54.8],[23,54.4],[23.5,52.3],[24,50.8],[22.5,49],[18.5,49.5],[14,51],[14,52.5]],
+  [[17,48.8],[22.5,49],[22.5,48],[22,47],[20,46],[17,45.5],[16,47]],
+  [[8,55],[8,57],[10,57.5],[10.5,57],[12.5,56],[12.5,55],[10,54.5]],
+  [[5,58.5],[4,60],[4.5,62],[6,64],[11,65],[14,66],[18,68],[20,70],[24,71],[28,71],[30,69],[30,66],[28,65],[24,65.5],[22,65],[21,64],[19,63],[17,62],[16,60],[14,59],[11,58.5],[8,58]],
+  [[21,60],[24,60],[27,60.5],[29,61],[30,62],[30,64],[30,66],[29,68],[29,70],[28,70],[28,71],[27,70.5],[24,69],[21,66],[20,63]],
+  [[21,59],[24,59],[28,59],[28,57],[26,56],[23,56],[21,56]],
+  [[23.5,52.3],[24,52],[28,52],[30,52],[30,50],[30,48.5],[28,48],[24,48],[22.5,49]],
+  [[22.5,49],[24,48],[28,48],[30,48.5],[38,49],[40,48],[40,47],[38,46],[36,46],[34,45],[30,45],[28,43.5],[25,43.5],[23,44],[22,45]],
+  [[22,48],[26,48],[28,47.5],[29,45.5],[28,43.5],[25,43.5],[23,44],[22,45]],
+  [[22,44],[25,43.5],[28,43.5],[28,42],[27,41.5],[25,41.5],[23,42]],
+  [[13.5,45.5],[16,46.5],[19,46],[20,45.5],[22,44],[23,42],[22,41],[20,40.5],[19,41],[17,42],[16,43.5],[14,44.5]],
+  [[19,41],[20,40],[22,40],[24,40],[26,40.5],[26,38.5],[24,38],[23,37.5],[22,36.5],[21,37.5],[21,38.5],[20,39]],
+  [[30,66],[30,68],[29,70],[28,71],[32,71],[40,70],[45,69],[50,68],[62,68],[62,60],[62,55],[55,52],[50,50],[45,50],[42,48],[40,47],[38,47],[36,46],[34,45],[30,45],[28,47],[28,50],[30,52],[30,55],[30,60]],
+  [[26,40.5],[29,41],[29,40.5]],
+  [[23.5,35.5],[26.3,35.3],[26,35],[23.5,35]]
+];
+
+var COUNTRY_LABELS=[
+  {n:'SPAIN',lon:-3,lat:40},{n:'FRANCE',lon:2,lat:46.5},{n:'ITALY',lon:12.5,lat:42.8},
+  {n:'GERMANY',lon:10,lat:51},{n:'UK',lon:-2.5,lat:53.5},{n:'POLAND',lon:20,lat:52},
+  {n:'ROMANIA',lon:25,lat:46},{n:'UKRAINE',lon:32,lat:49},{n:'RUSSIA',lon:44,lat:58},
+  {n:'SWEDEN',lon:15,lat:62},{n:'NORWAY',lon:9,lat:61.5},{n:'FINLAND',lon:26,lat:63},
+  {n:'GREECE',lon:22,lat:39},{n:'TURKEY',lon:32,lat:39},{n:'PORTUGAL',lon:-8.5,lat:39.5}
+];
+var SEA_LABELS=[
+  {n:'ATLANTIC',lon:-10,lat:48},{n:'MEDITERRANEAN',lon:15,lat:35.8},
+  {n:'BALTIC',lon:19,lat:57.5},{n:'BLACK SEA',lon:34,lat:43.2},{n:'NORTH SEA',lon:3,lat:56}
+];
+
+/* ================= MAP ================= */
+var NS='http://www.w3.org/2000/svg';
+var map=document.getElementById('map');
+var rg=null;
+var vb=[0,0,740,420];
+
+function E(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+
+function initMap(){
+  map.innerHTML='';
+  var defs=E('defs',{},map);
+  var filt=E('filter',{id:'glow'},defs);
+  E('feGaussianBlur',{stdDeviation:'3',result:'b'},filt);
+  var merge=E('feMerge',{},filt);
+  E('feMergeNode',{in:'b'},merge);
+  E('feMergeNode',{in:'SourceGraphic'},merge);
+  E('rect',{x:0,y:0,width:740,height:420,fill:'#0A1220'},map);
+  for(var lon=-10;lon<=60;lon+=10)E('line',{x1:x(lon),x2:x(lon),y1:0,y2:420,stroke:'#4ECDC4','stroke-opacity':0.035,'stroke-dasharray':'2 6'},map);
+  for(var lat=40;lat<=70;lat+=10)E('line',{x1:0,x2:740,y1:y(lat),y2:y(lat),stroke:'#4ECDC4','stroke-opacity':0.035,'stroke-dasharray':'2 6'},map);
+  var countriesG=E('g',{},map);
+  COUNTRIES.forEach(function(pts){E('path',{d:makePath(pts),class:'country'},countriesG)});
+  SEA_LABELS.forEach(function(sl){var t=E('text',{x:x(sl.lon),y:y(sl.lat),class:'sea-label'},map);t.textContent=sl.n});
+  COUNTRY_LABELS.forEach(function(cl){var t=E('text',{x:x(cl.lon),y:y(cl.lat),class:'country-label'},map);t.textContent=cl.n});
+  rg=E('g',{},map);
+  var markersG=E('g',{},map);
+  D.forEach(function(p,i){
+    var c=LY[p.l][1];
+    var g=E('g',{class:'map-marker',transform:'translate('+x(p.lo)+' '+y(p.la)+') scale(1)'},markersG);
+    p.g=g;
+    E('circle',{r:14,fill:c,opacity:0.18,filter:'url(#glow)'},g);
+    E('circle',{r:8,fill:'none',stroke:c,'stroke-width':1.8,class:'ring'},g);
+    var dot=E('circle',{r:5.5,fill:c,class:'d',tabindex:0,'aria-label':p.n},g);
+    dot.onclick=function(){pick(i)};
+    dot.onkeydown=function(e){if(e.key==='Enter')pick(i)};
+    E('text',{x:11,y:3.5,class:'lb'},g).textContent=p.o;
+  });
+  applyVB();
+  refresh();
+}
+
+function applyVB(){
+  map.setAttribute('viewBox',vb.map(function(v){return v.toFixed(1)}).join(' '));
+  var k=vb[2]/740;
+  map.classList.toggle('z',vb[2]<500);
+  D.forEach(function(p){
+    if(!p.g)return;
+    p.g.setAttribute('transform','translate('+x(p.lo).toFixed(1)+' '+y(p.la).toFixed(1)+') scale('+k+')');
+  });
+}
+
+function zoomTo(target){
+  var from=vb.slice();
+  var start=performance.now();
+  (function step(t){
+    var k=Math.min(1,(t-start)/650);
+    var e=1-Math.pow(1-k,3);
+    vb=from.map(function(v,i){return v+(target[i]-v)*e});
+    applyVB();
+    if(k<1)requestAnimationFrame(step);
+  })(start);
+}
+
+function drawRoutes(){
+  if(!rg)return;
+  rg.innerHTML='';
+  if(!conn)return;
+  Object.keys(LY).forEach(function(k){
+    var arr=D.filter(function(p){return p.l===k&&on[k]&&p.y<=maxY}).sort(function(a,b){return a.y-b.y});
+    for(var j=1;j<arr.length;j++){
+      var a=arr[j-1],b=arr[j];
+      var x1=x(a.lo),y1=y(a.la),x2=x(b.lo),y2=y(b.la);
+      var mx=(x1+x2)/2;
+      var my=(y1+y2)/2-Math.abs(x2-x1)*0.15-10;
+      E('path',{d:'M'+x1.toFixed(1)+','+y1.toFixed(1)+' Q'+mx.toFixed(1)+','+my.toFixed(1)+' '+x2.toFixed(1)+','+y2.toFixed(1),class:'rt',stroke:LY[k][1],'vector-effect':'non-scaling-stroke'},rg);
+    }
+  });
+}
+
+function refresh(){
+  D.forEach(function(p,i){
+    if(!p.g)return;
+    var visible=on[p.l]&&p.y<=maxY;
+    p.g.classList.toggle('h',!visible);
+    p.g.classList.toggle('sel',i===sel);
+  });
+  drawRoutes();
+  var count=D.filter(function(p){return on[p.l]&&p.y<=maxY}).length;
+  $('#cnt').textContent=count+' / '+D.length+' proiecte vizibile';
+  $('#yv').textContent=maxY;
+  $('#yr').value=maxY;
+}
+
+function pick(i){
+  SFX.ping(CAT_FREQ[D[i].l]);
+  sel=i;
+  var p=D[i];
+  on[p.l]=1;
+  chipEls[p.l].classList.add('on');
+  maxY=Math.max(maxY,p.y);
+  $('#info').innerHTML='<span class="tag" style="background:'+LY[p.l][1]+'22;color:'+LY[p.l][1]+'">'+LY[p.l][0]+'</span><h3>'+p.n+'</h3><div class="loc">'+p.o+', '+p.c+' · '+p.y+'</div><p>'+p.d+'</p><div class="meta">'+p.la.toFixed(2)+'° N, '+p.lo.toFixed(2)+'° E</div><div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:.82rem;color:var(--mut)"><b style="color:'+LY[p.l][1]+'">Știai că?</b> '+p.fact+'</div>';
+  zoomTo([Math.max(-50,x(p.lo)-150),Math.max(-40,y(p.la)-85),300,170]);
+  refresh();
+}
+
+function zoomToDefault(){zoomTo([0,0,740,420])}
+function km(a,b){var r=Math.PI/180,xd=(b.lo-a.lo)*r*Math.cos((a.la+b.la)/2*r),yd=(b.la-a.la)*r;return Math.round(Math.sqrt(xd*xd+yd*yd)*6371)}
+
+/* ================= AUDIO ================= */
+var actx=null,muted=false;
+function initAudio(){if(actx){if(actx.state==='suspended')actx.resume();return}try{actx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){document.addEventListener(ev,initAudio,{once:true,passive:true})});
+function tone(freq,dur,type,vol,slide,delay){if(!actx||actx.state!=='running'||muted)return;var t=actx.currentTime+(delay||0);var o=actx.createOscillator(),g=actx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.08,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+dur+0.03)}
+function noise(dur,vol,fHi,fLo,delay){if(!actx||actx.state!=='running'||muted)return;var t=actx.currentTime+(delay||0);var size=Math.floor(actx.sampleRate*dur);var buf=actx.createBuffer(1,size,actx.sampleRate);var d=buf.getChannelData(0);for(var i=0;i<size;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/size,2.2);var s=actx.createBufferSource();s.buffer=buf;var f=actx.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(fHi||1000,t);f.frequency.exponentialRampToValueAtTime(fLo||300,t+dur);f.Q.value=1.4;var g=actx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.06,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.connect(f);f.connect(g);g.connect(actx.destination);s.start(t);s.stop(t+dur+0.03)}
+var SFX={
+  click(){tone(920,0.05,'triangle',0.07);tone(1380,0.05,'sine',0.035,0,0.01)},
+  hover(){tone(1800,0.02,'sine',0.013)},
+  toggleOn(){tone(523,0.08,'sine',0.075,784)},
+  toggleOff(){tone(784,0.08,'sine',0.075,523)},
+  pop(){tone(440,0.09,'sine',0.085,880);tone(880,0.08,'sine',0.05,0,0.05)},
+  tick(){tone(1500,0.018,'square',0.025)},
+  roll(){tone(1200,0.03,'triangle',0.02)},
+  whoosh(){noise(0.35,0.065,300,1800)},
+  success(){tone(523,0.1,'sine',0.08);tone(659,0.1,'sine',0.08,0,0.1);tone(784,0.22,'sine',0.09,0,0.2)},
+  ping(freq){tone(freq||660,0.22,'sine',0.11,freq?freq*1.6:990);noise(0.12,0.035,2000,600)},
+  year(yr){var f=262*Math.pow(2,(yr-1920)/12);tone(f,0.14,'sine',0.055);tone(f*2,0.06,'sine',0.025,0,0.02)}
+};
+var CAT_FREQ={t:660,l:550,i:495,u:440};
+
+document.addEventListener('pointerdown',function(e){
+  var t=e.target;
+  if(t.closest('.btn')||t.closest('.tb')||t.closest('#dots i'))SFX.click();
+},{capture:true});
+var lastHover=null;
+document.addEventListener('mouseover',function(e){var el=e.target.closest('.cd,.stat,#dots i');if(!el||el===lastHover)return;lastHover=el;SFX.hover()});
+document.addEventListener('mouseout',function(e){if(lastHover&&!lastHover.contains(e.relatedTarget))lastHover=null});
+$('#mute').onclick=function(){var was=muted;muted=!muted;this.classList.toggle('muted',muted);this.textContent=muted?'🔇':'🔊';if(was&&!muted)SFX.click()};
+
+/* ================= TIMELINE ================= */
+var TL_LANES=[{k:'t',y:75},{k:'l',y:135},{k:'i',y:195},{k:'u',y:255}],TL_AXIS_Y=305;
+function tlX(year){return 110+(year-1920)/19*(860-110)}
+function buildTL(){
+  var s=$("#tl");s.innerHTML='';
+  TL_LANES.forEach(function(lane){var c=LY[lane.k][1];E("line",{x1:tlX(1920),x2:tlX(1939),y1:lane.y,y2:lane.y,stroke:c,"stroke-width":2,"stroke-opacity":.22},s);var lbl=E("text",{x:12,y:lane.y+5,"font-size":12,fill:c,"font-weight":"700"},s);lbl.textContent=LY[lane.k][0]});
+  E("line",{x1:tlX(1920),x2:tlX(1939),y1:TL_AXIS_Y,y2:TL_AXIS_Y,stroke:"#7E8AA3","stroke-opacity":.35},s);
+  for(var yr=1920;yr<=1939;yr+=2){var px=tlX(yr);E("line",{x1:px,x2:px,y1:TL_AXIS_Y,y2:TL_AXIS_Y+8,stroke:"#7E8AA3","stroke-opacity":.4},s);E("text",{x:px,y:TL_AXIS_Y+24,"text-anchor":"middle","font-size":11,fill:"#7E8AA3","font-weight":"500"},s).textContent=yr}
+  D.forEach(function(p,idx){var lane=TL_LANES.find(function(l){return l.k===p.l});var cx=tlX(p.y),cy=lane.y,c=LY[p.l][1];var g=E("g",{class:"tlg"},s);
+    E("circle",{cx:cx,cy:cy,r:18,fill:c,opacity:.13,class:"glow"},g);
+    var ring=E("circle",{cx:cx,cy:cy,r:9,fill:"none",stroke:c,"stroke-width":1.5,class:"ring-el",opacity:.6},g);
+    var dot=E("circle",{cx:cx,cy:cy,r:7,fill:c,stroke:"#04070E","stroke-width":2,class:"dot"},g);
+    var lbl=E("text",{x:cx,y:cy-16,"text-anchor":"middle","font-size":10,fill:"#C8CFDD",class:"lbl"},g);lbl.textContent=p.n.split(" ")[0];
+    g.addEventListener('mouseenter',function(){dot.setAttribute('r',9);SFX.hover()});
+    g.addEventListener('mouseleave',function(){dot.setAttribute('r',tlCmp.indexOf(idx)>-1?9:7)});
+    g.addEventListener('click',function(){if(p.y<=tlYear)tlAddToCompare(idx)});
+    tlDotEls[idx]={g:g,dot:dot,ring:ring,lbl:lbl};
+  });
+  var phx=tlX(tlYear);
+  tlPlayheadLine=E("line",{x1:phx,x2:phx,y1:25,y2:TL_AXIS_Y,stroke:"#FFB84D","stroke-width":2,"stroke-dasharray":"5 5",opacity:.85},s);
+  tlPlayheadHandle=E("g",{style:"cursor:grab;touch-action:none"},s);
+  E("circle",{cx:phx,cy:TL_AXIS_Y,r:18,fill:"#FFB84D",opacity:.18},tlPlayheadHandle);
+  E("circle",{cx:phx,cy:TL_AXIS_Y,r:10,fill:"#FFB84D",stroke:"#04070E","stroke-width":3},tlPlayheadHandle);
+  tlPlayheadLabel=E("text",{x:phx,y:TL_AXIS_Y+48,"text-anchor":"middle","font-size":16,fill:"#FFB84D","font-weight":"800"},s);tlPlayheadLabel.textContent=tlYear;
+  var dragging=false;
+  function onDown(e){dragging=true;e.preventDefault();e.stopPropagation();SFX.click()}
+  function onMove(e){if(!dragging)return;var rect=s.getBoundingClientRect();var scale=900/rect.width;var xx=(e.clientX-rect.left)*scale;var yr=1920+(xx-110)/750*19;yr=Math.max(1920,Math.min(1939,Math.round(yr)));if(yr!==tlYear){tlYear=yr;SFX.year(yr);updateTLVisual()}}
+  function onUp(){if(dragging){dragging=false;SFX.tick()}}
+  tlPlayheadHandle.addEventListener('pointerdown',onDown);
+  if(window._tlOnMove)window.removeEventListener('pointermove',window._tlOnMove);
+  if(window._tlOnUp)window.removeEventListener('pointerup',window._tlOnUp);
+  window._tlOnMove=onMove;window._tlOnUp=onUp;
+  window.addEventListener('pointermove',onMove);window.addEventListener('pointerup',onUp);
+  updateTLVisual();
+}
+function updateTLVisual(){
+  D.forEach(function(p,idx){var el=tlDotEls[idx];if(!el)return;var past=p.y<=tlYear,isSel=tlCmp.indexOf(idx)>-1;el.g.style.opacity=past?1:0.22;el.dot.setAttribute('r',isSel?9:7);el.dot.setAttribute('fill',isSel?'#fff':LY[p.l][1]);el.dot.setAttribute('stroke',isSel?LY[p.l][1]:'#04070E');el.lbl.style.opacity=past?0.85:0.3;el.ring.setAttribute('stroke-width',isSel?3:1.5);el.ring.setAttribute('opacity',isSel?1:0.6)});
+  var px=tlX(tlYear);
+  if(tlPlayheadLine){tlPlayheadLine.setAttribute('x1',px);tlPlayheadLine.setAttribute('x2',px);tlPlayheadHandle.querySelectorAll('circle').forEach(function(c){c.setAttribute('cx',px)});tlPlayheadLabel.setAttribute('x',px);tlPlayheadLabel.textContent=tlYear}
+  var slider=$("#tlYear");if(slider&&+slider.value!==tlYear)slider.value=tlYear;
+}
+function ensureTL(){if(!tlBuilt){buildTL();tlBuilt=true}renderCmp();updateTLVisual()}
+function tlAddToCompare(idx){
+  if(tlCmp.indexOf(idx)>-1){tlCmp[tlCmp.indexOf(idx)]=null;SFX.toggleOff();renderCmp();updateTLVisual();return}
+  var slot=tlCmp.indexOf(null);if(slot===-1){tlCmp[0]=tlCmp[1];slot=1}tlCmp[slot]=idx;SFX.pop();renderCmp();updateTLVisual();
+  setTimeout(function(){var el=document.getElementById(slot===0?'cmpA':'cmpB');if(el){el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')}},30);
+}
+function renderCmp(){
+  ['cmpA','cmpB'].forEach(function(id,i){var el=document.getElementById(id);if(!el)return;var idx=tlCmp[i];
+    if(idx===null){el.innerHTML='<div class="cmp-empty">+ '+(i===0?'Selectează primul proiect':'Selectează al doilea')+'</div>';el.classList.remove('filled');el.style.removeProperty('--c')}
+    else{var p=D[idx],c=LY[p.l][1];el.style.setProperty('--c',c);el.innerHTML='<div class="cmp-card" style="--c:'+c+'"><div class="cmp-year">'+p.y+'</div><div class="cmp-cat">'+LY[p.l][0]+'</div><h3>'+p.n+'</h3><div class="cmp-loc">'+p.o+', '+p.c+'</div><p>'+p.d+'</p><div class="cmp-coord">'+p.la.toFixed(2)+'°N · '+p.lo.toFixed(2)+'°E</div></div>';el.classList.add('filled')}
+  });
+  var mid=document.getElementById('cmpMid');if(!mid)return;
+  if(tlCmp[0]!==null&&tlCmp[1]!==null){var a=D[tlCmp[0]],b=D[tlCmp[1]];var yrDiff=Math.abs(a.y-b.y),dist=km(a,b),sameCat=a.l===b.l;
+    mid.innerHTML='<div class="cmp-stat"><span class="cmp-num">'+yrDiff+'</span><span class="cmp-lbl">ani diferență</span></div><div class="cmp-divider"></div><div class="cmp-stat"><span class="cmp-num">'+dist.toLocaleString('ro-RO')+'</span><span class="cmp-lbl">km distanță</span></div><div class="cmp-tag '+(sameCat?'same':'diff')+'">'+(sameCat?'aceeași categorie':'categorii diferite')+'</div>';mid.classList.add('active')
+  }else{mid.innerHTML='<div class="cmp-stat"><span class="cmp-num">?</span><span class="cmp-lbl">alege al doilea</span></div>';mid.classList.remove('active')}
+}
+$("#tlPlay").onclick=function(){if(tlPlaying){tlStop();SFX.toggleOff();return}tlPlaying=true;this.textContent="❚❚ Pauză";this.classList.add('active');SFX.whoosh();if(tlYear>=1939)tlYear=1920;tlTimer=setInterval(function(){if(tlYear>=1939){tlStop();SFX.success();return}tlYear++;updateTLVisual();SFX.year(tlYear)},420)};
+function tlStop(){tlPlaying=false;clearInterval(tlTimer);tlTimer=null;var b=$("#tlPlay");b.textContent="▶ Redă";b.classList.remove('active')}
+$("#tlPrev").onclick=function(){tlStop();if(tlYear>1920){tlYear--;updateTLVisual();SFX.tick()}};
+$("#tlNext").onclick=function(){tlStop();if(tlYear<1939){tlYear++;updateTLVisual();SFX.tick()}};
+$("#tlRnd").onclick=function(){tlStop();var avail=D.filter(function(p){return p.y<=tlYear});if(avail.length<2){SFX.toggleOff();return}var sh=avail.slice().sort(function(){return Math.random()-0.5});tlCmp=[D.indexOf(sh[0]),D.indexOf(sh[1])];SFX.success();renderCmp();updateTLVisual();setTimeout(function(){['cmpA','cmpB'].forEach(function(id){var el=document.getElementById(id);if(el){el.classList.remove('filled');void el.offsetWidth;el.classList.add('filled')}})},30)};
+$("#tlClear").onclick=function(){tlCmp=[null,null];tlStop();SFX.toggleOff();renderCmp();updateTLVisual()};
+var lastTLSlider=tlYear;
+$("#tlYear").oninput=function(e){tlStop();var v=+e.target.value;if(v!==lastTLSlider){SFX.year(v);lastTLSlider=v}tlYear=v;updateTLVisual()};
+
+/* ================= CARDS ================= */
+function cards(id,k){var h=$("#"+id);D.forEach(function(p){if(p.l!=k)return;var b=document.createElement("div");b.className="cd anim";b.style.setProperty("--c",LY[p.l][1]);b.style.setProperty("--i",h.children.length);
+b.innerHTML='<span class="y">'+p.y+'</span><div class="nm">'+p.n+'</div><small>'+p.o+' · '+p.c+'</small><p>'+p.d+'</p><div class="fact"><b>Știai că?</b> '+p.fact+'</div>';h.appendChild(b)})}
+cards("c-t","t");cards("c-l","l");cards("c-i","i");cards("c-u","u");
+
+/* ================= CONCLUZIE ================= */
+var CONCL=[
+["01","Instrument tehnic și mesaj politic","Aceeași autostradă a servit economia și propaganda regimului.","#FFB84D"],
+["02","Locuirea socială, inovația cea mai influentă","Viena și Frankfurt au arătat că orașul poate oferi locuințe sănătoase.","#4ECDC4"],
+["03","Progres tehnic, cost uman","Demolări la Roma, muncă forțată la Magnitogorsk.","#60A5FA"],
+["04","Nu doar dictaturile au construit","Olanda, Marea Britanie și Weimar au realizat proiecte ambițioase.","#A78BFA"],
+["05","România în tendințele europene","Palatul Telefoanelor și Arcul de Triumf leagă Bucureștiul de Occident.","#F87171"]
+];
+$("#concl").innerHTML=CONCL.map(function(c,i){return '<div class="card anim" style="--i:'+i+';--c:'+c[3]+'"><span class="num" style="font-family:var(--ff-s);font-weight:900;font-size:2.1rem;color:'+c[3]+';line-height:1;flex-shrink:0;opacity:.9">'+c[0]+'</span><div style="flex:1"><h3 style="color:'+c[3]+';font-size:1.1rem;margin:0 0 6px">'+c[1]+'</h3><p style="font-size:.95rem;color:#C8CFDD;margin:0;line-height:1.5">'+c[2]+'</p></div></div>'}).join("");
+
+/* ================= WEBOGRAFIE ================= */
+var WEB=[
+["Wikipedia · AVUS","https://en.wikipedia.org/wiki/AVUS"],
+["Wikipedia · Bundesautobahn 555","https://en.wikipedia.org/wiki/Bundesautobahn_555"],
+["Wikipedia · Queensway Tunnel","https://en.wikipedia.org/wiki/Queensway_Tunnel"],
+["Wikipedia · Moscow Metro","https://en.wikipedia.org/wiki/Moscow_Metro"],
+["Wikipedia · Weissenhof Estate","https://en.wikipedia.org/wiki/Weissenhof_Estate"],
+["Wikipedia · Römerstadt","https://en.wikipedia.org/wiki/Römerstadt"],
+["Wikipedia · Karl-Marx-Hof","https://en.wikipedia.org/wiki/Karl-Marx-Hof"],
+["Wikipedia · Plan Zuid","https://en.wikipedia.org/wiki/Plan_Zuid"],
+["Wikipedia · Magnitogorsk","https://en.wikipedia.org/wiki/Magnitogorsk"],
+["Wikipedia · Dnieper Hydroelectric Station","https://en.wikipedia.org/wiki/Dnieper_Hydroelectric_Station"],
+["Wikipedia · Afsluitdijk","https://en.wikipedia.org/wiki/Afsluitdijk"],
+["Wikipedia · Gdynia","https://en.wikipedia.org/wiki/Gdynia"],
+["Wikipedia · Via dei Fori Imperiali","https://en.wikipedia.org/wiki/Via_dei_Fori_Imperiali"],
+["Wikipedia · Sabaudia","https://en.wikipedia.org/wiki/Sabaudia"],
+["Wikipedia · Palatul Telefoanelor","https://ro.wikipedia.org/wiki/Palatul_Telefoanelor"],
+["Wikipedia · Arcul de Triumf din București","https://ro.wikipedia.org/wiki/Arcul_de_Triumf_din_București"],
+["Britannica · Modern Architecture","https://www.britannica.com/art/Modern-architecture"],
+["ArchDaily","https://www.archdaily.com"]
+];
+$("#web").innerHTML=WEB.map(function(w){return '<a class="w-card" href="'+w[1]+'" target="_blank" rel="noopener"><span class="src">'+w[0]+'</span><span class="url">'+w[1].replace(/^https?:\/\//,'').replace(/^www\./,'')+'</span></a>'}).join("");
+
+/* ================= MAP CONTROLS ================= */
+var ch=$("#chips");
+var chipEls={};
+Object.keys(LY).forEach(function(k){
+  var b=document.createElement("button");
+  b.className="chip on";
+  b.style.setProperty("--c",LY[k][1]);
+  b.textContent=LY[k][0];
+  chipEls[k]=b;
+  b.onclick=function(){
+    on[k]=!on[k];
+    b.classList.toggle("on");
+    on[k]?SFX.toggleOn():SFX.toggleOff();
+    refresh();
+  };
+  ch.appendChild(b);
+});
+var lastMapYear=maxY;
+$("#yr").oninput=function(e){stopPlay();var v=+e.target.value;if(v!==lastMapYear){SFX.tick();lastMapYear=v}maxY=v;refresh()};
+$("#cn").onclick=function(){conn=!conn;this.classList.toggle("on");conn?SFX.toggleOn():SFX.toggleOff();drawRoutes()};
+$("#zr").onclick=function(){sel=null;zoomToDefault();refresh();SFX.toggleOff()};
+function stopPlay(){clearInterval(timer);timer=null;$("#pl").textContent="▶ Redă cronologia";$("#pl").classList.remove('active')}
+$("#pl").onclick=function(){if(timer){stopPlay();SFX.toggleOff();return}Object.keys(on).forEach(function(k){on[k]=1;chipEls[k].classList.add("on")});sel=null;zoomToDefault();maxY=1919;refresh();this.textContent="❚❚ Pauză";this.classList.add('active');SFX.whoosh();timer=setInterval(function(){if(maxY>=1939){stopPlay();SFX.success();return}maxY++;refresh();SFX.tick()},600)};
+
+/* ================= HERO RADAR ================= */
+function buildRadar(){
+  var radar=document.getElementById('heroRadar');
+  if(!radar)return;
+  var svg=radar.querySelector('svg');
+  var cats=['t','l','i','u'];
+  var radii=[58,92,126,160];
+
+  // Decorative rings
+  cats.forEach(function(cat,idx){
+    var c=LY[cat][1];
+    var r=radii[idx];
+    E('circle',{cx:0,cy:0,r:r,fill:'none',stroke:c,'stroke-width':0.8,opacity:0.22,'stroke-dasharray':'3 8'},svg);
+  });
+
+  // Rotating tick marks
+  var tickGroup=E('g',{opacity:'0.3'},svg);
+  for(var i=0;i<72;i++){
+    var angle=(i/72)*Math.PI*2;
+    var r1=175, r2=182;
+    var x1=Math.cos(angle)*r1, y1=Math.sin(angle)*r1;
+    var x2=Math.cos(angle)*r2, y2=Math.sin(angle)*r2;
+    E('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'#8892AA','stroke-width':i%6===0?1.5:0.6},tickGroup);
+  }
+  var rotateAnim=document.createElementNS(NS,'animateTransform');
+  rotateAnim.setAttribute('attributeName','transform');
+  rotateAnim.setAttribute('type','rotate');
+  rotateAnim.setAttribute('from','0');
+  rotateAnim.setAttribute('to','360');
+  rotateAnim.setAttribute('dur','60s');
+  rotateAnim.setAttribute('repeatCount','indefinite');
+  tickGroup.appendChild(rotateAnim);
+
+  // Center label
+  var t1=document.createElementNS(NS,'text');
+  t1.setAttribute('x',0);t1.setAttribute('y',-2);t1.setAttribute('text-anchor','middle');
+  t1.setAttribute('fill','#8892AA');t1.setAttribute('font-size','9');t1.setAttribute('font-weight','700');
+  t1.setAttribute('letter-spacing','1.5');t1.setAttribute('font-family','Inter, sans-serif');
+  t1.textContent='1918';
+  svg.appendChild(t1);
+  var t2=document.createElementNS(NS,'text');
+  t2.setAttribute('x',0);t2.setAttribute('y',9);t2.setAttribute('text-anchor','middle');
+  t2.setAttribute('fill','#8892AA');t2.setAttribute('font-size','9');t2.setAttribute('font-weight','700');
+  t2.setAttribute('letter-spacing','1.5');t2.setAttribute('font-family','Inter, sans-serif');
+  t2.textContent='1939';
+  svg.appendChild(t2);
+
+  // Project dots
+  cats.forEach(function(cat,catIdx){
+    var projs=D.filter(function(p){return p.l===cat});
+    var r=radii[catIdx];
+    var color=LY[cat][1];
+    projs.forEach(function(p,i){
+      var angle=(i/projs.length)*Math.PI*2-Math.PI/2;
+      var px=Math.cos(angle)*r;
+      var py=Math.sin(angle)*r;
+
+      var g=document.createElementNS(NS,'g');
+      g.style.cursor='pointer';
+
+      // Glow
+      var glow=document.createElementNS(NS,'circle');
+      glow.setAttribute('cx',px);glow.setAttribute('cy',py);glow.setAttribute('r',8);
+      glow.setAttribute('fill',color);glow.setAttribute('opacity','0.15');
+      g.appendChild(glow);
+      var glowAnim=document.createElementNS(NS,'animate');
+      glowAnim.setAttribute('attributeName','r');
+      glowAnim.setAttribute('values','6;11;6');
+      glowAnim.setAttribute('dur','3s');
+      glowAnim.setAttribute('begin',(Math.random()*3)+'s');
+      glowAnim.setAttribute('repeatCount','indefinite');
+      glow.appendChild(glowAnim);
+
+      // Pulse ring
+      var pulse=document.createElementNS(NS,'circle');
+      pulse.setAttribute('cx',px);pulse.setAttribute('cy',py);pulse.setAttribute('r',5);
+      pulse.setAttribute('fill','none');pulse.setAttribute('stroke',color);pulse.setAttribute('stroke-width','1');
+      g.appendChild(pulse);
+      var pulseR=document.createElementNS(NS,'animate');
+      pulseR.setAttribute('attributeName','r');
+      pulseR.setAttribute('values','5;20');
+      pulseR.setAttribute('dur','2.6s');
+      pulseR.setAttribute('begin',(Math.random()*2.6)+'s');
+      pulseR.setAttribute('repeatCount','indefinite');
+      pulse.appendChild(pulseR);
+      var pulseO=document.createElementNS(NS,'animate');
+      pulseO.setAttribute('attributeName','opacity');
+      pulseO.setAttribute('values','0.7;0');
+      pulseO.setAttribute('dur','2.6s');
+      pulseO.setAttribute('begin',(Math.random()*2.6)+'s');
+      pulseO.setAttribute('repeatCount','indefinite');
+      pulse.appendChild(pulseO);
+
+      // Main dot
+      var dot=document.createElementNS(NS,'circle');
+      dot.setAttribute('cx',px);dot.setAttribute('cy',py);dot.setAttribute('r',5);
+      dot.setAttribute('fill',color);dot.setAttribute('stroke','#060A12');dot.setAttribute('stroke-width','1.5');
+      dot.style.transition='r 0.3s, fill 0.3s, stroke 0.3s';
+      g.appendChild(dot);
+
+      g.addEventListener('mouseenter',function(){
+        dot.setAttribute('r',8);
+        dot.setAttribute('fill','#fff');
+        dot.setAttribute('stroke',color);
+        showRadarTip(p,color);
+        SFX.hover();
+      });
+      g.addEventListener('mouseleave',function(){
+        dot.setAttribute('r',5);
+        dot.setAttribute('fill',color);
+        dot.setAttribute('stroke','#060A12');
+        hideRadarTip();
+      });
+      g.addEventListener('click',function(){
+        hideRadarTip();
+        SFX.ping(CAT_FREQ[cat]);
+        go(2);
+        setTimeout(function(){pick(D.indexOf(p))},600);
+      });
+
+      svg.appendChild(g);
+    });
+  });
+}
+
+function showRadarTip(p,color){
+  var tip=document.getElementById('radarTip');
+  if(!tip)return;
+  tip.innerHTML='<div style="color:'+color+';font-size:0.62rem;text-transform:uppercase;letter-spacing:0.18em;font-weight:700;margin-bottom:4px">'+LY[p.l][0]+' · '+p.y+'</div><div style="font-family:var(--ff-s);font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:3px;line-height:1.15">'+p.n+'</div><div style="font-size:0.78rem;color:var(--mut)">'+p.o+', '+p.c+'</div>';
+  tip.classList.add('show');
+}
+function hideRadarTip(){
+  var tip=document.getElementById('radarTip');
+  if(tip)tip.classList.remove('show');
+}
+
+/* ================= RANDOM PROJECT BUTTON ================= */
+(function(){
+  var btn=document.getElementById('randomBtn');
+  if(!btn)return;
+  btn.onclick=function(){
+    if(btn.dataset.rolling)return;
+    btn.dataset.rolling='1';
+    var iconEl=btn.querySelector('.rb-icon');
+    var textEl=btn.querySelector('.rb-text');
+    var count=0;
+    var maxCount=16+Math.floor(Math.random()*6);
+    var delay=55;
+    var tickCount=0;
+    function roll(){
+      var p=D[Math.floor(Math.random()*D.length)];
+      textEl.textContent=p.n;
+      textEl.style.color=LY[p.l][1];
+      if(tickCount%3===0)SFX.roll();
+      tickCount++;
+      count++;
+      // Progressive slowdown
+      if(count>=maxCount){
+        var finalP=D[Math.floor(Math.random()*D.length)];
+        textEl.textContent=finalP.n;
+        textEl.style.color=LY[finalP.l][1];
+        iconEl.textContent='🎯';
+        SFX.success();
+        setTimeout(function(){
+          go(2);
+          setTimeout(function(){pick(D.indexOf(finalP))},600);
+        },300);
+        setTimeout(function(){
+          textEl.textContent='Descoperă un proiect';
+          textEl.style.color='';
+          iconEl.textContent='🎲';
+          delete btn.dataset.rolling;
+        },2200);
+        return;
+      }
+      // Ease out: increase delay as we approach the end
+      var progress=count/maxCount;
+      var nextDelay=55+Math.pow(progress,2.5)*180;
+      setTimeout(roll,nextDelay);
+    }
+    roll();
+  };
+})();
+
+/* ================= NAVIGATION ================= */
+var S=Array.from(document.querySelectorAll(".s")),n=0;
+var track=$("#track"),deck=$("#deck"),dotsBox=$("#dots"),pg=$("#pg"),hint=$("#hint");
+var TITLES=S.map(function(s){var h=s.querySelector("h1, h2");return h?h.textContent.trim():""});
+S.forEach(function(_,i){var d=document.createElement("i");d.title=TITLES[i];d.onclick=function(){go(i)};dotsBox.appendChild(d)});
+var dots=Array.from(dotsBox.children);
+S.forEach(function(s){s.querySelectorAll(':scope > .in > .anim').forEach(function(el,i){el.style.setProperty('--i',i)})});
+function setTransform(px,animate){if(!animate)track.style.transition='none';else track.style.transition='';track.style.transform='translate3d('+px+'px,0,0)'}
+function go(i){
+  i=Math.max(0,Math.min(S.length-1,i));var changed=i!==n;n=i;
+  setTransform(-n*window.innerWidth,true);
+  S.forEach(function(s){s.classList.remove('on')});void S[n].offsetWidth;S[n].classList.add('on');
+  dots.forEach(function(d,j){d.classList.toggle('on',j===n)});
+  pg.style.width=((n+1)/S.length*100)+'%';
+  if(changed&&TITLES[n])playTitleSound(TITLES[n]);
+  if(n===1)setTimeout(countUps,400);
+  if(n===7)ensureTL();
+  if(n!==2&&timer)stopPlay();
+  hint.classList.toggle('show',n===0);
+}
+function countUps(){document.querySelectorAll('.stat .num').forEach(function(el){if(el.dataset.done)return;el.dataset.done='1';var target=+el.dataset.count,dur=1400,start=performance.now();el.textContent='0';(function st(t){var k=Math.min(1,(t-start)/dur);el.textContent=Math.floor(target*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(st)})(start)})}
+function hashStr(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h)}
+var PENTA=[261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00];
+function playTitleSound(title){if(!actx||actx.state!=='running'||muted||!title)return;var h=hashStr(title);noise(0.35,0.05,600,1800);for(var i=0;i<3;i++){var idx=(h+i*7)%PENTA.length;tone(PENTA[idx],0.5,'sine',0.09,0,0.06+i*0.1)}tone(PENTA[h%5]/2,0.8,'sine',0.04,0,0)}
+
+/* DRAG */
+var drag=null;
+deck.addEventListener('pointerdown',function(e){
+  if(e.target.closest('button, a, input, svg, .chip, .dot, #mute, .cmp-slot, .cmp-card, #cmpMid, .tlg, .w-card, #heroRadar'))return;
+  if(e.button!==undefined&&e.button!==0)return;
+  drag={sx:e.clientX,sy:e.clientY,base:-n*window.innerWidth,locked:null,moved:false};
+  document.body.style.userSelect='none';deck.classList.add('dragging');
+});
+window.addEventListener('pointermove',function(e){
+  if(!drag)return;var dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;
+  if(!drag.locked){if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy))drag.locked='h';else if(Math.abs(dy)>14)drag.locked='v'}
+  if(drag.locked==='h'){e.preventDefault();drag.moved=true;var nx=drag.base+dx;if((n===0&&dx>0)||(n===S.length-1&&dx<0))nx=drag.base+dx*0.28;setTransform(nx,false)}
+});
+window.addEventListener('pointerup',function(e){
+  if(!drag)return;var dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;var moved=Math.abs(dx)>8||Math.abs(dy)>8;
+  deck.classList.remove('dragging');document.body.style.userSelect='';
+  if(drag.locked==='h'&&moved){var sup=function(ev){ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',sup,{capture:true,once:true});setTimeout(function(){document.removeEventListener('click',sup,true)},100);if(dx<-80&&n<S.length-1)go(n+1);else if(dx>80&&n>0)go(n-1);else setTransform(-n*window.innerWidth,true)}
+  drag=null;
+});
+
+/* WHEEL */
+var wheelLock=false;
+document.addEventListener('wheel',function(e){
+  if(e.target.closest('input, svg, #tl, .cmp-slot, .w-card'))return;if(wheelLock)return;
+  var slide=S[n];var canDown=slide.scrollTop+slide.clientHeight<slide.scrollHeight-5;var canUp=slide.scrollTop>5;
+  var d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+  if(d>0&&canDown)return;if(d<0&&canUp)return;if(Math.abs(d)<18)return;
+  wheelLock=true;setTimeout(function(){wheelLock=false},700);
+  if(d>0&&n<S.length-1)go(n+1);else if(d<0&&n>0)go(n-1);
+},{passive:true});
+
+/* KEYBOARD */
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='PageDown'){go(n+1);e.preventDefault()}
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){go(n-1);e.preventDefault()}
+  if(e.key==='Home'){go(0)}
+  if(e.key==='End'){go(S.length-1)}
+});
+
+/* RESIZE */
+window.addEventListener('resize',function(){track.style.transition='none';track.style.transform='translate3d('+(-n*window.innerWidth)+'px,0,0)'});
+
+/* CARD HOVER LIGHT */
+document.querySelectorAll('.card').forEach(function(c){c.addEventListener('mousemove',function(e){var r=c.getBoundingClientRect();c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');c.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')})});
+
+/* INIT */
+initMap();
+buildRadar();
+S.forEach(function(s){s.classList.remove('on')});S[0].classList.add('on');dots[0].classList.add('on');
+pg.style.width=(1/S.length*100)+'%';hint.classList.add('show');
+setTimeout(function(){hint.classList.remove('show')},6000);
+window.addEventListener('load',function(){track.style.transition='none';track.style.transform='translate3d(0,0,0)';requestAnimationFrame(function(){track.style.transition=''})});
+</script>
+</body> 
+</html>
+
