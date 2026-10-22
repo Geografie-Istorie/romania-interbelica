@@ -145,6 +145,46 @@
         .ghid-tabel th {
             background-color: #f2f2f2;
         }
+
+        .realizatori {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 1000px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 40px;
+        }
+
+        .realizatori h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .realizatori ol {
+            columns: 3;
+            column-gap: 40px;
+            padding-left: 25px;
+        }
+
+        .realizatori li {
+            margin-bottom: 10px;
+            break-inside: avoid;
+        }
+
+        @media (max-width: 700px) {
+            .realizatori ol {
+                columns: 2;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .realizatori ol {
+                columns: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -165,6 +205,45 @@
         <a href="agrar-modernizare/" class="btn-proiect">4. Agrar și Modernizare</a>
         <a href="industrie-transporturi/" class="btn-proiect">5. Industria și Transporturile</a>
         <a href="societatea-interbelica/" class="btn-proiect">6. Societatea interbelică</a>
+    </div>
+
+
+
+    <!-- Lista realizatorilor proiectului -->
+    <div class="realizatori">
+        <h2>👥 Realizatorii proiectului</h2>
+        <ol>
+            <li>Ardelean Bogdan</li>
+            <li>Ardelean Vlad</li>
+            <li>Brata Dragoș</li>
+            <li>Bulc Andrei</li>
+            <li>Câmpan Ianis</li>
+            <li>Chirilă Șerban</li>
+            <li>Dumitrescu Daria</li>
+            <li>Erdei Radu</li>
+            <li>Focșa Robert</li>
+            <li>Forgaciu Raul</li>
+            <li>Ghemiș Ariana</li>
+            <li>Gîga-Bîrsan Maya</li>
+            <li>Gordan Alexandru</li>
+            <li>Hanga Amelia</li>
+            <li>Laza Ștefan</li>
+            <li>Lepădatu Nicholas</li>
+            <li>Lieber Klaus</li>
+            <li>Man Tudor</li>
+            <li>Marian Anastasia</li>
+            <li>Masgras-Denuț Briana</li>
+            <li>Oprea Darius</li>
+            <li>Petric Patricia</li>
+            <li>Petruș Antoniu</li>
+            <li>Praja Darian</li>
+            <li>Sălăjan Sofia</li>
+            <li>Tocuț Andrei</li>
+            <li>Tomuța Sofia</li>
+            <li>Toth Ruxandra</li>
+            <li>Tudose Dragoș</li>
+            <li>Vasile Ilinca</li>
+        </ol>
     </div>
 
     <!-- Secțiunea Webografie acumulată din toate proiectele -->
